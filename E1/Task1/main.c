@@ -17,13 +17,14 @@ int main ()
 	int i;
 	double data[n];
 	double f = 2;
+	double phi = PI/2;
 	
 	/* declare file variables */
 	FILE *file1;	
 
 	/* calculate data points */
 	for (i = 0; i < n; i++) {
-		data[i] = cos(2*PI*f*dt*i);
+		data[i] = cos(2*PI*f*dt*i + phi);
 	}
 
 	/*Save function values in file*/
