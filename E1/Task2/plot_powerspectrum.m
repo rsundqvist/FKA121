@@ -7,6 +7,3 @@ plot10;
 plot20;
 plot2PI2;
 plot1PI2;
-
-
-
