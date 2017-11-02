@@ -9,7 +9,7 @@ data2 = importdata('function_phipihalf.dat');
 figure;
 hold on;
 plot(data1(:,1),data1(:,2),'-');
-plot(data2(:,1),data2(:,2),'-');
+plot(data2(:,1),data2(:,2),'-.');
 legend(["\phi = 0", "\phi = \pi/2"]);
 
 % labels
