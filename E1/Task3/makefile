@@ -5,7 +5,7 @@ CC = gcc # c-compiler
 CFLAGS = -O3 -W # -O3 gives optimization, -W gives warnings
 LIBS = -lm -lgsl -lgslcblas # libraries
 
-OBJECTS = fft_func.o main.o # object files to produce
+OBJECTS = fft_func.o main.o ../../utils/utils.o # object files to produce
 PROGRAM = powerspectrum # name of executable to be built
 
 #
