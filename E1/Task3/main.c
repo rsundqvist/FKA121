@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include "fft_func.h"
 #define PI 3.141592653589
-#define n 260 /*number of timesteps*/
+#define n 258 /*number of timesteps*/
 
 int main ()
 {
@@ -30,7 +30,7 @@ int main ()
 	}
 
 	/*Save function values in file*/
-	file1 = fopen("function260.dat","w");
+	file1 = fopen("function258.dat","w");
 	for (i = 0; i < n; i++)	{
 		fprintf (file1,"%e \t %e \n", i*dt, data[i]);
 	}
@@ -42,7 +42,7 @@ int main ()
 	fft_freq_shift(freq, dt, n);
 
 	/*Save powerspectrum data in file */
-  file2 = fopen("powerspectrum.dat","w");
+  file2 = fopen("powerspectrum258.dat","w");
 	for (i = 0; i < n; i++)	{
 		fprintf (file2,"%e \t %e\n", freq[i], powspec_data[i]);
 	}
