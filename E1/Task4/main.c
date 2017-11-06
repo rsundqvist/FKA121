@@ -18,7 +18,7 @@ int main ()
 	double data[n];
 	double freq[n];
 	double powspec_data[n];
-	double f1 = 3, f2 = 6;
+	double f1 = 2, f2 = 6;
 	double phi1 = 0, phi2 = 0;
 	double a1 = 1, a2 = 1;
 
