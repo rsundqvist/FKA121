@@ -105,6 +105,7 @@ int main()
 		fprintf(file, "%.4f \t %e \t %e \t %e", current_time, Et, Ept, Ekt);	
 		fprintf(file, "\n");
 	}
+	printf("Energy printed.");
 	fclose(file);
 
 	/* Print displacement data to output file */
@@ -115,6 +116,7 @@ int main()
 		fprintf(file, "%.4f \t %e \t %e \t %e", current_time, q_1[i], q_2[i], q_3[i] );	
 		fprintf(file, "\n");
 	}
+	printf("Displacement printed.");
 	fclose(file);
 
 	/* Free allocated memory */ 
