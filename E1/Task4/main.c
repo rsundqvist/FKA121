@@ -43,10 +43,9 @@ int main ()
 	fft_freq_shift(freq, dt, n);
 
 	/*Save powerspectrum data in file */
-  file2 = fopen("powerspectrum.dat","w");
-	for (i = 0; i < n; i++)	{
+    file2 = fopen("powerspectrum.dat","w");
+	for (i = 0; i < n; i++)
 		fprintf (file2,"%e \t %e\n", freq[i], powspec_data[i]);
-	}
 	
 	fclose(file2);
 	return 0;
