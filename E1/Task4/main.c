@@ -39,8 +39,9 @@ int main ()
 
 	/* make FFT (powerspectrum) */
 	powerspectrum(data, powspec_data, n);
-	powerspectrum_shift(powspec_data,n);
+	//powerspectrum_shift(powspec_data,n);
 	//fft_freq_shift(freq, dt, n);
+	fft_freq(freq, dt, n);
 
 	/*Save powerspectrum data in file */
     file2 = fopen("powerspectrum.dat","w");
