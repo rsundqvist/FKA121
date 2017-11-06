@@ -11,7 +11,7 @@
 int main ()
 {
 	/* timestep dt */
-	double dt = 0.1;
+	double dt = 0.072;
 
 	/* Declare and set Iteration parameter, data arrays and frequency */
 	int i;
