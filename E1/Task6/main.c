@@ -123,7 +123,7 @@ int main()
 	fclose(file);
 
 	/* make FFT (powerspectrum) */
-	powerspectrum(Ek, powspec_data, nbr_of_timesteps);
+	powerspectrum(q_1, powspec_data, nbr_of_timesteps);
 	powerspectrum_shift(powspec_data, nbr_of_timesteps);
 	fft_freq_shift(freq, timestep, nbr_of_timesteps);
 	//fft_freq(freq, dt, n);
