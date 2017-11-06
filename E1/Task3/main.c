@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include "fft_func.h"
 #define PI 3.141592653589
-#define n 258 /*number of timesteps*/
+#define n 260 /*number of timesteps*/
 
 int main ()
 {
@@ -18,7 +18,8 @@ int main ()
 	double data[n];
 	double freq[n];
 	double powspec_data[n];
-	double f = 2;
+	double f = 1;
+	double phi = PI/2;
 
 	/* declare file variables */
 	FILE *file1;
@@ -26,11 +27,11 @@ int main ()
 
 	/* calculate data points */
 	for (i = 0; i < n; i++)	{
-		data[i] = cos(2*PI*f*dt*i);
+		data[i] = cos(2*PI*f*dt*i + phi);
 	}
 
 	/*Save function values in file*/
-	file1 = fopen("function258.dat","w");
+	file1 = fopen("function_f1_pPiHalf_n260.dat","w");
 	for (i = 0; i < n; i++)	{
 		fprintf (file1,"%e \t %e \n", i*dt, data[i]);
 	}
@@ -42,7 +43,7 @@ int main ()
 	fft_freq_shift(freq, dt, n);
 
 	/*Save powerspectrum data in file */
-  file2 = fopen("powerspectrum258.dat","w");
+  file2 = fopen("powerspectrum_f1_pPiHalf_n260.dat","w");
 	for (i = 0; i < n; i++)	{
 		fprintf (file2,"%e \t %e\n", freq[i], powspec_data[i]);
 	}
