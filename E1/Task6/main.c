@@ -37,6 +37,8 @@ int main()
 	double *q_1 = malloc((nbr_of_timesteps+1) * sizeof (double));
 	double *q_2 = malloc((nbr_of_timesteps+1) * sizeof (double));
 	double *q_3 = malloc((nbr_of_timesteps+1) * sizeof (double));
+	double *Ek = malloc((nbr_of_timesteps+1) * sizeof (double)); // kinetic
+	double *Ep = malloc((nbr_of_timesteps+1) * sizeof (double)); // Potential
 
 	/* Set variables */
 	timestep = 0.01;
@@ -86,7 +88,24 @@ int main()
 		q_1[i] = q[0];
 		q_2[i] = q[1];
 		q_3[i] = q[2];
+
+		Ep[i] = calc_pe(q, kappa, nbr_of_particles); // Store potential
+		Ek[i] = calc_ke(v, nbr_of_particles, m); // Store kinetic
 	}
+	/* Print displacement data to output file */
+	file = fopen("energy.dat","w");
+
+	for (i = 0; i < nbr_of_timesteps + 1; i++) {
+		current_time = i * timestep;
+
+		double Ept = Ep[i];
+		double Ekt = Ek[i];
+		double Et = Ept + Ekt;
+
+		fprintf(file, "%.4f \t %e \t %e \t %e", current_time, Et, Ept, Ekt);	
+		fprintf(file, "\n");
+	}
+	fclose(file);
 
 	/* Print displacement data to output file */
 	file = fopen("disp.dat","w");
