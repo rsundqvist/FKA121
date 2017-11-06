@@ -10,11 +10,11 @@ data2 = importdata('powerspectrum.dat');
 figure;
 subplot(2, 1, 1);
 plot(data1(:,1),data1(:,2),'-.');
-
-% labels
 xlabel('$t$','Interpreter','LaTeX');
 ylabel('$h(t)$','Interpreter','LaTeX');
+
+% labels
 subplot(2,1,2)
-plot(data2(:,1),data2(:,2),'-.');
+plot(data2(:,1),data2(:,2),'-');
 xlabel('$f$','Interpreter','LaTeX');
 ylabel('$Pn$','Interpreter','LaTeX');
