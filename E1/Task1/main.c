@@ -16,7 +16,7 @@ int main ()
 	/* Declare and set iteration parameter, data arrays, and frequency */
 	int i;
 	double data[n];
-	double f = 2;
+	double f = 1;
 	double phi = PI/2;
 	
 	/* declare file variables */
