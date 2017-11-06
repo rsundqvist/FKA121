@@ -21,7 +21,8 @@ int main()
 	double timestep;
 	int i,j;
 	double timestep_sq,current_time;
-	double m;
+	double m_c,m_o;
+	double m[nbr_of_particles];
 	double kappa;
 
 	/* declare file variable */
@@ -45,10 +46,12 @@ int main()
 
 	/* Set variables */
 	timestep = 0.01;
-	m = 1.0;
-	kappa = 1.0;
+	m_o = 1.0364e10-4*15.9994; //mass of oxygen
+	m_c = 1.0364e10-4*12.0107; //mass of carbon
+	kappa = 160/1.6021765;
 	timestep_sq = timestep * timestep;
-
+	m[0] = m[2] = m_o;
+	m[1] = m_c;
 
 	
 	/* Initial conditions */
@@ -63,10 +66,10 @@ int main()
 	q_1[0] = q[0];
 	q_2[0] = q[1];
 	q_3[0] = q[2];
-
+	printf("Variables initiliazed.\n");
 	/* Calculate initial accelerations based on initial displacements */
 	calc_acc(a, q, m, kappa, nbr_of_particles);
-
+	printf("Accelerations initiliazed.\n");
 	/* timesteps according to velocity Verlet algorithm */
 	for (i = 1; i < nbr_of_timesteps + 1; i++) {
 		/* v(t+dt/2) */
@@ -108,7 +111,7 @@ int main()
 		fprintf(file, "%.4f \t %e \t %e \t %e", current_time, Et, Ept, Ekt);	
 		fprintf(file, "\n");
 	}
-	printf("Energy printed.");
+	printf("Energy printed.\n");
 	fclose(file);
 
 	/* Print displacement data to output file */
@@ -119,10 +122,10 @@ int main()
 		fprintf(file, "%.4f \t %e \t %e \t %e", current_time, q_1[i], q_2[i], q_3[i] );	
 		fprintf(file, "\n");
 	}
-	printf("Displacement printed.");
+	printf("Displacement printed.\n");
 	fclose(file);
 
-	/* make FFT (powerspectrum) */
+ 	/* make FFT (powerspectrum) */
 	powerspectrum(q_1, powspec_data, nbr_of_timesteps);
 	powerspectrum_shift(powspec_data, nbr_of_timesteps);
 	fft_freq_shift(freq, timestep, nbr_of_timesteps);
