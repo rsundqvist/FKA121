@@ -9,6 +9,7 @@ Further developed by Martin Gren on 2014-10-20.
 #include <math.h>
 #include <stdlib.h>
 #include "func.h"
+#include "fft_func.h"
 #define PI 3.141592653589
 #define nbr_of_timesteps 32767 /* nbr_of_timesteps+1 = power of 2, for best speed */
 #define nbr_of_particles 3 /* The number of particles is 3 */
@@ -39,6 +40,8 @@ int main()
 	double *q_3 = malloc((nbr_of_timesteps+1) * sizeof (double));
 	double *Ek = malloc((nbr_of_timesteps+1) * sizeof (double)); // kinetic
 	double *Ep = malloc((nbr_of_timesteps+1) * sizeof (double)); // Potential
+	double *powspec_data = malloc((nbr_of_timesteps+1) * sizeof (double)); // Power spec
+	double *freq = malloc((nbr_of_timesteps+1) * sizeof (double)); // Freq
 
 	/* Set variables */
 	timestep = 0.01;
@@ -118,6 +121,18 @@ int main()
 	}
 	printf("Displacement printed.");
 	fclose(file);
+
+	/* make FFT (powerspectrum) */
+	powerspectrum(Ek, powspec_data, nbr_of_timesteps);
+	powerspectrum_shift(powspec_data, nbr_of_timesteps);
+	fft_freq_shift(freq, timestep, nbr_of_timesteps);
+	//fft_freq(freq, dt, n);
+
+	/*Save powerspectrum data in file */
+    file = fopen("powerspectrum.dat","w");
+	for (i = 0; i < nbr_of_timesteps; i++) {
+		fprintf (file,"%e \t %e\n", freq[i], powspec_data[i]);
+	}
 
 	/* Free allocated memory */ 
 	free(q_1); q_1 = NULL;
