@@ -11,8 +11,8 @@ Further developed by Martin Gren on 2014-10-20.
 #include "func.h"
 #include "fft_func.h"
 #define PI 3.141592653589
-#define nbr_of_timesteps 32767 /* nbr_of_timesteps+1 = power of 2, for best speed */
-//#define nbr_of_timesteps 131071
+//#define nbr_of_timesteps 32767 /* nbr_of_timesteps-1 = power of 2, for best speed */
+#define nbr_of_timesteps 262143
 //#define nbr_of_timesteps 7 /* nbr_of_timesteps+1 = power of 2, for best speed */
 #define nbr_of_particles 3 /* The number of particles is 3 */
 
@@ -37,6 +37,7 @@ int main()
 
 	/* Allocating memory for large vectors */
 	/* displacements for writing to file */
+	long size = (nbr_of_timesteps+1) * sizeof (double);
 	double *q_1 = malloc((nbr_of_timesteps+1) * sizeof (double));
 	double *q_2 = malloc((nbr_of_timesteps+1) * sizeof (double));
 	double *q_3 = malloc((nbr_of_timesteps+1) * sizeof (double));
@@ -124,7 +125,7 @@ int main()
 	fclose(file);
 
  	/* make FFT (powerspectrum) */
-	powerspectrum(Ek, powspec_data, nbr_of_timesteps);
+	powerspectrum(q_1, powspec_data, nbr_of_timesteps);
 	powerspectrum_shift(powspec_data, nbr_of_timesteps);
 	fft_freq_shift(freq, timestep, nbr_of_timesteps);
 	//fft_freq(freq, dt, n);

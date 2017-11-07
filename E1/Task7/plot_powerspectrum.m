@@ -13,5 +13,5 @@ xlabel('Frequency / [dim. unit]','Interpreter','LaTeX');
 ylabel('Powerspectrum / [dim. unit]','Interpreter','LaTeX');
 
 % axis limits
-xlim([-0.5,0.5]);
+%xlim([-0.5,0.5]);
 

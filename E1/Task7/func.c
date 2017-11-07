@@ -17,7 +17,7 @@ void calc_acc(double *a, double *u, double* m, double kappa, int size_of_u)
     a[0] = kappa*(u[1] - u[0])/m[0]; // First particle - O
     a[1] = kappa*(u[2] - 2*u[1] + u[0])/m[1]; // Second (middle) particle - C
     a[2] = kappa*(u[1] - u[2])/m[2]; // Third particle - O
-    printf("a = (%e, %e, %e)\n", a[0], a[1], a[2]);
+    //printf("a = (%e, %e, %e)\n", a[0], a[1], a[2]);
 }
 
 /* Function that calculates the potential energy based on the displacements */
