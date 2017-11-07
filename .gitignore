@@ -1,6 +1,6 @@
 # Linux temp files
 *.*~
-
+*.asv
 # Prerequisites
 *.d
 
