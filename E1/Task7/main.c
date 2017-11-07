@@ -11,8 +11,8 @@ Further developed by Martin Gren on 2014-10-20.
 #include "func.h"
 #include "fft_func.h"
 #define PI 3.141592653589
-//#define nbr_of_timesteps 32767 /* nbr_of_timesteps+1 = power of 2, for best speed */
-#define nbr_of_timesteps 131071
+#define nbr_of_timesteps 32767 /* nbr_of_timesteps+1 = power of 2, for best speed */
+//#define nbr_of_timesteps 131071
 //#define nbr_of_timesteps 7 /* nbr_of_timesteps+1 = power of 2, for best speed */
 #define nbr_of_particles 3 /* The number of particles is 3 */
 
@@ -124,7 +124,7 @@ int main()
 	fclose(file);
 
  	/* make FFT (powerspectrum) */
-	powerspectrum(q_2, powspec_data, nbr_of_timesteps);
+	powerspectrum(Ek, powspec_data, nbr_of_timesteps);
 	powerspectrum_shift(powspec_data, nbr_of_timesteps);
 	fft_freq_shift(freq, timestep, nbr_of_timesteps);
 	//fft_freq(freq, dt, n);
