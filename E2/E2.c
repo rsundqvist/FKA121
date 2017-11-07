@@ -25,9 +25,30 @@ int main() {
     double v[nbr_of_particles];
     double a[nbr_of_particles]; 
 
-    for (int i = 0; i < nbr_of_timesteps; i++) {
-        double t = i*dt;
+    /* timesteps according to velocity Verlet algorithm */
+    for (int i = 1; i < nbr_of_timesteps + 1; i++) {
+        /* v(t+dt/2) */
+        for (int j = 0; j < nbr_of_particles; j++) {
+            v[j] += timestep * 0.5 * a[j];
+        } 
 
+        /* q(t+dt) */
+        for (int j = 0; j < nbr_of_particles; j++) {
+            q[j] += timestep * v[j];
+        }
+
+        /* a(t+dt) */
+        calc_acc(a, q, nbr_of_particles, alpha);
+
+        /* v(t+dt) */
+        for (j = 0; j < nbr_of_particles; j++) {
+            v[j] += timestep * 0.5 * a[j];
+        } 
+
+        /* Save the displacement of the three atoms */
+        q_1[i] = q[0];
+        q_2[i] = q[1];
+        q_3[i] = q[2];
     }
 
 
