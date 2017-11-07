@@ -15,7 +15,6 @@ ylabel('Powerspectrum / [dim. unit]','Interpreter','LaTeX');
 % axis limits
 xlim([-200,200]);
 
-%%
 c = 2.99792458*10^8; % speed of light
 
 f1 = 38.91*10^12;
@@ -23,3 +22,4 @@ f2 = 74.77*10^12;
 
 k1 = f1/c * 10^(-2)
 k2 = f2/c * 10^(-2)
+
