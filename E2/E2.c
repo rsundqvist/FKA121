@@ -8,7 +8,9 @@
 #include <math.h>
 #include <stdlib.h>
 #define PI 3.141592653589
-#define nbr_of_particles 3
+#define nbr_of_particles 32
+
+void Q_mat(double*, double*);
 
 /* Main program */
 int main() {
@@ -22,33 +24,39 @@ int main() {
     double q[nbr_of_particles];
     double v[nbr_of_particles];
     double a[nbr_of_particles]; 
+
+    for (int i = 0; i < nbr_of_timesteps; i++) {
+        double t = i*dt;
+
+    }
+
+
+    //TODO
+    double Q[nbr_of_particles];
+    Q_mat(q, Q);
 }
 
-int main2()
+void Q_mat(double *q, double *Q)
 {
-    double *Q, *q;
+    //TODO
     /* It is useful to construct the transformation matrix outside the main loop */
-    int i,j;
-    //int nbr_of_particles;
-    double factor;
     double trans_matrix[nbr_of_particles][nbr_of_particles];
-    
-    factor = 1 / ((double) nbr_of_particles + 1);
-    for (i=0; i < nbr_of_particles; i++) {
-        for (j=0; j < nbr_of_particles; j++) {
+    double factor = 1 / ((double) nbr_of_particles + 1);
+    for (int i=0; i < nbr_of_particles; i++) {
+        for (int j=0; j < nbr_of_particles; j++) {
             trans_matrix[i][j] = sqrt(2 * factor) * sin((j + 1) * (i + 1) * PI * factor);
         }
     }
     
     /* Transformation to normal modes Q from displacements q.  */
     double sum;
-    for (i = 0; i < nbr_of_particles; i++){
+    for (int i = 0; i < nbr_of_particles; i++){
         sum = 0;
-        for (j = 0; j < nbr_of_particles; j++){
+        for (int j = 0; j < nbr_of_particles; j++){
             sum += q[j] * trans_matrix[i][j];
         }
         Q[i] = sum;
-    }   
+    }  
 }
 
 void calc_acc(double *a, double *q, int size_q, double alpha){
