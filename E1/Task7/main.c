@@ -11,7 +11,9 @@ Further developed by Martin Gren on 2014-10-20.
 #include "func.h"
 #include "fft_func.h"
 #define PI 3.141592653589
-#define nbr_of_timesteps 32767 /* nbr_of_timesteps+1 = power of 2, for best speed */
+//#define nbr_of_timesteps 32767 /* nbr_of_timesteps+1 = power of 2, for best speed */
+#define nbr_of_timesteps 131071
+//#define nbr_of_timesteps 7 /* nbr_of_timesteps+1 = power of 2, for best speed */
 #define nbr_of_particles 3 /* The number of particles is 3 */
 
 /* Main program */
@@ -21,7 +23,6 @@ int main()
 	double timestep;
 	int i,j;
 	double timestep_sq,current_time;
-	double m_c,m_o;
 	double m[nbr_of_particles];
 	double kappa;
 
@@ -39,20 +40,18 @@ int main()
 	double *q_1 = malloc((nbr_of_timesteps+1) * sizeof (double));
 	double *q_2 = malloc((nbr_of_timesteps+1) * sizeof (double));
 	double *q_3 = malloc((nbr_of_timesteps+1) * sizeof (double));
-	double *Ek = malloc((nbr_of_timesteps+1) * sizeof (double)); // kinetic
+	double *Ek = malloc((nbr_of_timesteps+1) * sizeof (double)); // Kinetic
 	double *Ep = malloc((nbr_of_timesteps+1) * sizeof (double)); // Potential
 	double *powspec_data = malloc((nbr_of_timesteps+1) * sizeof (double)); // Power spec
 	double *freq = malloc((nbr_of_timesteps+1) * sizeof (double)); // Freq
 
 	/* Set variables */
-	timestep = 0.01;
-	m_o = 1.0364e10-4*15.9994; //mass of oxygen
-	m_c = 1.0364e10-4*12.0107; //mass of carbon
+	timestep = 0.00001;
 	kappa = 160/1.6021765;
 	timestep_sq = timestep * timestep;
-	m[0] = m[2] = m_o;
-	m[1] = m_c;
-
+	m[0] = m[2] = 1.0364 * 0.0001 * 15.9994; //mass of oxygen
+	m[1] = 1.0364 * 0.0001 * 12.0107; //mass of carbon
+	printf("m[0] = %e, m[1] = %e, m[2] = %e\n", m[0], m[1], m[2]);
 	
 	/* Initial conditions */
 	/* Set initial displacements and velocites */
@@ -66,10 +65,8 @@ int main()
 	q_1[0] = q[0];
 	q_2[0] = q[1];
 	q_3[0] = q[2];
-	printf("Variables initiliazed.\n");
 	/* Calculate initial accelerations based on initial displacements */
 	calc_acc(a, q, m, kappa, nbr_of_particles);
-	printf("Accelerations initiliazed.\n");
 	/* timesteps according to velocity Verlet algorithm */
 	for (i = 1; i < nbr_of_timesteps + 1; i++) {
 		/* v(t+dt/2) */
@@ -78,7 +75,7 @@ int main()
 		} 
 
 		/* q(t+dt) */
-		for (j = 0; j < nbr_of_particles; j++) {
+		for (j = 0; j < nbr_of_particles; j++) { //for (j = 0; j < nbr_of_particles; j++) {
 		    q[j] += timestep * v[j];
 		}
 
@@ -98,6 +95,7 @@ int main()
 		Ep[i] = calc_pe(q, kappa, nbr_of_particles); // Store potential
 		Ek[i] = calc_ke(v, nbr_of_particles, m); // Store kinetic
 	}
+
 	/* Print displacement data to output file */
 	file = fopen("energy.dat","w");
 
@@ -126,7 +124,7 @@ int main()
 	fclose(file);
 
  	/* make FFT (powerspectrum) */
-	powerspectrum(q_1, powspec_data, nbr_of_timesteps);
+	powerspectrum(q_2, powspec_data, nbr_of_timesteps);
 	powerspectrum_shift(powspec_data, nbr_of_timesteps);
 	fft_freq_shift(freq, timestep, nbr_of_timesteps);
 	//fft_freq(freq, dt, n);
@@ -136,10 +134,15 @@ int main()
 	for (i = 0; i < nbr_of_timesteps; i++) {
 		fprintf (file,"%e \t %e\n", freq[i], powspec_data[i]);
 	}
+	printf("Power spectrum printed.\n");
 
 	/* Free allocated memory */ 
 	free(q_1); q_1 = NULL;
 	free(q_2); q_2 = NULL;
 	free(q_3); q_3 = NULL;
+	free(Ek); Ek = NULL;
+	free(Ep); Ep = NULL;
+	free(powspec_data); powspec_data = NULL;
+	free(freq); freq = NULL;
 	return 0;    
 }

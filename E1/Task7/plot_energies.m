@@ -16,4 +16,4 @@ ylabel('Energy / [dim. unit]');
 legend('Total energy','Potential energy','Kinetic energy');
 
 % axis limits
-xlim([0,50]);
+xlim([0,.50]);

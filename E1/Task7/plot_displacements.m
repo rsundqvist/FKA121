@@ -16,4 +16,4 @@ ylabel('Displacement / [dim. unit]');
 legend('Atom 1','Atom 2','Atom 3');
 
 % axis limits
-xlim([0,50]);
+xlim([0,.5]);
