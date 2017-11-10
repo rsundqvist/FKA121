@@ -10,7 +10,8 @@
 #define PI 3.141592653589
 #define nbr_of_particles 32
 
-void Q_mat(double*, double*);
+void foo(double*, double*);
+void calc_E_k(double*, double*, double*, double*);
 
 /* Main program */
 int main() {
@@ -24,11 +25,26 @@ int main() {
     double q[nbr_of_particles];
     double v[nbr_of_particles];
     double a[nbr_of_particles]; 
+    double p[nbr_of_particles];
 
-    double q_hist[5][nbr_of_timesteps];
+    double Q[nbr_of_particles]; // discrete
+    double P[nbr_of_particles]; // discrete
+
+    P[0] = sqrt(2*nbr_of_particles);
+    double E_k[5][nbr_of_timesteps];
+
+    double omega[nbr_of_particles];
+    for (int j = 0; j < nbr_of_particles; j++) {
+        omega[j] = 2*sin(k*PI/(nbr_of_particles+1));
+    }
+
+    foo(Q, q);
+    foo(P, p);
 
     /* timesteps according to velocity Verlet algorithm */
     for (int i = 1; i < nbr_of_timesteps + 1; i++) {
+        calc_acc(a, q, nbr_of_particles, alpha);
+
         /* v(t+dt/2) */
         for (int j = 0; j < nbr_of_particles; j++) {
             v[j] += timestep * 0.5 * a[j];
@@ -45,40 +61,41 @@ int main() {
         /* v(t+dt) */
         for (int j = 0; j < nbr_of_particles; j++) {
             v[j] += timestep * 0.5 * a[j];
-        } 
+        }
 
-        /* Save the displacement of the five atoms */
-        for (int j = 0; j < 5; j++) {
-            q_hist[j][i] = q[j];
-        } 
+
+        foo(p, P);
+        foo(q, Q);
+        calc_E_k(omega, P, Q, E_k, nbr_of_particles);
     }
-
-    //TODO
-    double Q[nbr_of_particles];
-    Q_mat(q, Q);
 }
 
-void Q_mat(double *q, double *Q)
+// The formalae for Q_k and P_k are identical with m = 1
+void foo(double *a, double *A)
 {
-    //TODO
     /* It is useful to construct the transformation matrix outside the main loop */
     double trans_matrix[nbr_of_particles][nbr_of_particles];
     double factor = 1 / ((double) nbr_of_particles + 1);
     for (int i=0; i < nbr_of_particles; i++) {
         for (int j=0; j < nbr_of_particles; j++) {
-            trans_matrix[i][j] = sqrt(2 * factor) * sin((j + 1) * (i + 1) * PI * factor);
+            trans_matrix[i][j] = sart(2 * factor) * sin((j + 1) * (i + 1) * PI * factor);
         }
     }
     
-    /* Transformation to normal modes Q from displacements q.  */
+    /* Transformation to normal modes A from displacements a.  */
     double sum;
     for (int i = 0; i < nbr_of_particles; i++){
         sum = 0;
         for (int j = 0; j < nbr_of_particles; j++){
-            sum += q[j] * trans_matrix[i][j];
+            sum += a[j] * trans_matrix[i][j];
         }
-        Q[i] = sum;
+        A[i] = sum;
     }  
+}
+
+void calc_E_k(double* omega, double* P, double* Q, double* E_k, int size) {
+    for (int i = 0; i < size; ++i)
+        E_k[i] = 0.5 * (P[i]*P[i] + omega[i]*omega[i]*Q[i]*Q[i]);
 }
 
 void calc_acc(double *a, double *q, int size_q, double alpha){
