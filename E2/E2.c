@@ -53,6 +53,9 @@ int main() {
     foo(P, p);
     // timesteps according to velocity Verlet algorithm
     for (int i = 1; i < nbr_of_timesteps + 1; i++) {
+        printf("\t\tTIME = %.2f\n", i*dt);
+        printf("\t\tTIME = %.2f\n", i*dt);
+        printf("\t\tTIME = %.2f\n", i*dt);
         
         calc_acc(a, q, nbr_of_particles, alpha);
 
@@ -78,22 +81,22 @@ int main() {
         foo(q, Q);
         
         calc_E_k(omega, P, Q, E_k0, nbr_of_particles);
-        calc_E_k(omega, P, Q, E_k1, nbr_of_particles);
-        calc_E_k(omega, P, Q, E_k2, nbr_of_particles);
-        calc_E_k(omega, P, Q, E_k3, nbr_of_particles);
-        calc_E_k(omega, P, Q, E_k4, nbr_of_particles);
+        //calc_E_k(omega, P, Q, E_k1, nbr_of_particles);
+        //calc_E_k(omega, P, Q, E_k2, nbr_of_particles);
+        //calc_E_k(omega, P, Q, E_k3, nbr_of_particles);
+        //calc_E_k(omega, P, Q, E_k4, nbr_of_particles);
     }
 
     
-    //printf("%s", "Print to file: ");
-    //FILE *file = fopen("energy","w");
-    //for (int i = nbr_of_timesteps; i < nbr_of_timesteps; i++) {
-    //    fprintf (file,"%e \t %e \t %e \t %e \t %e \t %e \n", i*dt,
-    //        E_k0[i], E_k1[i], E_k2[i], E_k3[i], E_k4[i]);
-    //}
-    //fclose(file);
-    //printf("Ek.dat created");
-    //printf("m[0] = %e, m[1] = %e, m[2] = %e\n", m[0], m[1], m[2]);
+    printf("%s", "Print to file: ");
+    FILE *file = fopen("energy.dat","w");
+    for (int i = nbr_of_timesteps; i < nbr_of_timesteps; i++) {
+        fprintf (file,"%e \t %e \t %e \t %e \t %e \t %e \n", i*dt,
+            E_k0[i], E_k1[i], E_k2[i], E_k3[i], E_k4[i]);
+    }
+    fclose(file);
+    printf("energy.dat created");
+    printf("m[0] = %e, m[1] = %e, m[2] = %e\n", m[0], m[1], m[2]);
 }
 
 // The formalae for Q_k and P_k are identical with m = 1
