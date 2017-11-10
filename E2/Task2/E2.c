@@ -12,7 +12,7 @@
 
 
 void foo(double*, double*);
-void calc_E_k(double*, double*, double*, double*, int);
+void calc_E_k(double omega, double P, double Q, double* E_k, int i);
 void calc_acc(double*, double*, int, double);
 
 /* Main program */
@@ -33,7 +33,6 @@ int main() {
     double Q[nbr_of_particles]; // discrete
     double P[nbr_of_particles]; // discrete
 
-    P[0] = sqrt(2*nbr_of_particles);
     double E_k0[nbr_of_timesteps];
     double E_k1[nbr_of_timesteps];
     double E_k2[nbr_of_timesteps];
@@ -41,6 +40,10 @@ int main() {
     double E_k4[nbr_of_timesteps];
     int i,j;
     double omega[nbr_of_particles];
+
+    // Initialize values
+    P[0] = sqrt(2*nbr_of_particles);
+    E_k0[0] = nbr_of_particles;
 
     for (j = 0; j < nbr_of_particles; j++) {
         omega[j] = 2*sin(j*PI/(nbr_of_particles+1));
@@ -75,11 +78,11 @@ int main() {
         foo(v, P);
         foo(q, Q);
         
-        //calc_E_k(omega, P, Q, E_k0, nbr_of_particles);
-        //calc_E_k(omega, P, Q, E_k1, nbr_of_particles);
-        //calc_E_k(omega, P, Q, E_k2, nbr_of_particles);
-        //calc_E_k(omega, P, Q, E_k3, nbr_of_particles);
-        //calc_E_k(omega, P, Q, E_k4, nbr_of_particles);
+        calc_E_k(omega[0], P[0], Q[0], E_k0, i);
+        calc_E_k(omega[1], P[1], Q[1], E_k1, i);
+        calc_E_k(omega[2], P[2], Q[2], E_k2, i);
+        calc_E_k(omega[3], P[3], Q[3], E_k3, i);
+        calc_E_k(omega[4], P[4], Q[4], E_k4, i);
     }
 
     
@@ -122,10 +125,8 @@ void foo(double *a, double *A)
     }  
 }
 
-void calc_E_k(double* omega, double* P, double* Q, double* E_k, int size) {
-    int i;
-    for (i = 0; i < size; ++i)
-        E_k[i] = 0.5 * (P[i]*P[i] + omega[i]*omega[i]*Q[i]*Q[i]);
+void calc_E_k(double omega, double P, double Q, double* E_k, int i) {
+        E_k[i] = 0.5 * (P*P + omega*omega*Q*Q);
 }
 
 void calc_acc(double *a, double *q, int size_q, double alpha){
