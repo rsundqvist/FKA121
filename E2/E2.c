@@ -25,7 +25,7 @@ int main() {
     double q[nbr_of_particles];
     double v[nbr_of_particles];
     double a[nbr_of_particles]; 
-    double p[nbr_of_particles];
+    double *p = v; // Since m = 1
 
     double Q[nbr_of_particles]; // discrete
     double P[nbr_of_particles]; // discrete
@@ -63,8 +63,7 @@ int main() {
             v[j] += timestep * 0.5 * a[j];
         }
 
-
-        foo(p, P);
+        foo(v, P);
         foo(q, Q);
         calc_E_k(omega, P, Q, E_k, nbr_of_particles);
     }
