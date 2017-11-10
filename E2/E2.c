@@ -17,14 +17,11 @@ void calc_acc(double*, double*, int, double);
 
 /* Main program */
 int main() {
-    double m[3];
-    m[0] = 1;
-    m[1] = 2;
-    m[2] = 3;
+    FILE *file;
     // Parameters
     double alpha = 0;
     double dt = 0.1;
-    double t_max = 25000;
+    double t_max = 2500;
     int nbr_of_timesteps = t_max/dt;
 
     // displacement, velocity and acceleration
@@ -54,8 +51,6 @@ int main() {
     // timesteps according to velocity Verlet algorithm
     for (int i = 1; i < nbr_of_timesteps + 1; i++) {
         printf("\t\tTIME = %.2f\n", i*dt);
-        printf("\t\tTIME = %.2f\n", i*dt);
-        printf("\t\tTIME = %.2f\n", i*dt);
         
         calc_acc(a, q, nbr_of_particles, alpha);
 
@@ -80,7 +75,7 @@ int main() {
         foo(v, P);
         foo(q, Q);
         
-        calc_E_k(omega, P, Q, E_k0, nbr_of_particles);
+        //calc_E_k(omega, P, Q, E_k0, nbr_of_particles);
         //calc_E_k(omega, P, Q, E_k1, nbr_of_particles);
         //calc_E_k(omega, P, Q, E_k2, nbr_of_particles);
         //calc_E_k(omega, P, Q, E_k3, nbr_of_particles);
@@ -88,15 +83,19 @@ int main() {
     }
 
     
-    printf("%s", "Print to file: ");
-    FILE *file = fopen("energy.dat","w");
-    for (int i = nbr_of_timesteps; i < nbr_of_timesteps; i++) {
-        fprintf (file,"%e \t %e \t %e \t %e \t %e \t %e \n", i*dt,
-            E_k0[i], E_k1[i], E_k2[i], E_k3[i], E_k4[i]);
+    file = fopen("energy.dat","w");
+        if (file != NULL){
+        printf("%s", "Print to file: ");
+        for (int i = 0; i < nbr_of_timesteps; i++) {
+            //fprintf (file,"%e \t %e \t %e \n", i*dt, E_k0[i], E_k1[i]);
+            fprintf (file,"%e \t %e \t %e \t %e \t %e \t %e \n",
+                i*dt, E_k0[i], E_k1[i], E_k2[i], E_k3[i], E_k4[i]);
+        }
+        fclose(file);
+        printf("energy.dat created!\n");
+    } else {
+        printf("file is NULL");
     }
-    fclose(file);
-    printf("energy.dat created");
-    printf("m[0] = %e, m[1] = %e, m[2] = %e\n", m[0], m[1], m[2]);
 }
 
 // The formalae for Q_k and P_k are identical with m = 1
@@ -134,7 +133,6 @@ void calc_acc(double *a, double *q, int size_q, double alpha){
     a[i] = q[i+1]-2*q[i]+alpha*(-q[i+1]+2*q[i]*(q[i+1])); ;
     i = size_q-1;
     a[i] = 2*q[i]+q[i-1]+alpha*(q[i-1]*q[i-1]+2*q[i]*(-q[i-1]));
-
 
     for(i = 1; i < size_q-1; i++)
         a[i] = q[i+1]-2*q[i]+q[i-1]+alpha*(q[i-1]*q[i-1]-q[i+1]+2*q[i]*(q[i+1]-q[i-1])); 
