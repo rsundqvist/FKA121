@@ -21,7 +21,7 @@ int main() {
     // Parameters
     double alpha = 0;
     double dt = 0.1;
-    double t_max = 2500;
+    double t_max = 25000;
     int nbr_of_timesteps = t_max/dt;
 
     // displacement, velocity and acceleration
@@ -39,28 +39,28 @@ int main() {
     double E_k2[nbr_of_timesteps];
     double E_k3[nbr_of_timesteps];
     double E_k4[nbr_of_timesteps];
-
+    int i,j;
     double omega[nbr_of_particles];
 
-    for (int j = 0; j < nbr_of_particles; j++) {
+    for (j = 0; j < nbr_of_particles; j++) {
         omega[j] = 2*sin(j*PI/(nbr_of_particles+1));
     }
 
     foo(Q, q);
     foo(P, p);
     // timesteps according to velocity Verlet algorithm
-    for (int i = 1; i < nbr_of_timesteps + 1; i++) {
+    for (i = 1; i < nbr_of_timesteps + 1; i++) {
         printf("\t\tTIME = %.2f\n", i*dt);
         
         calc_acc(a, q, nbr_of_particles, alpha);
 
         // v(t+dt/2)
-        for (int j = 0; j < nbr_of_particles; j++) {
+        for (j = 0; j < nbr_of_particles; j++) {
             v[j] += dt * 0.5 * a[j];
         } 
 
         // q(t+dt) 
-        for (int j = 0; j < nbr_of_particles; j++) {
+        for (j = 0; j < nbr_of_particles; j++) {
             q[j] += dt * v[j];
         }
 
@@ -68,7 +68,7 @@ int main() {
         calc_acc(a, q, nbr_of_particles, alpha);
 
         // v(t+dt)
-        for (int j = 0; j < nbr_of_particles; j++) {
+        for (j = 0; j < nbr_of_particles; j++) {
             v[j] += dt * 0.5 * a[j];
         }
 
@@ -86,7 +86,7 @@ int main() {
     file = fopen("energy.dat","w");
         if (file != NULL){
         printf("%s", "Print to file: ");
-        for (int i = 0; i < nbr_of_timesteps; i++) {
+        for (i = 0; i < nbr_of_timesteps; i++) {
             //fprintf (file,"%e \t %e \t %e \n", i*dt, E_k0[i], E_k1[i]);
             fprintf (file,"%e \t %e \t %e \t %e \t %e \t %e \n",
                 i*dt, E_k0[i], E_k1[i], E_k2[i], E_k3[i], E_k4[i]);
@@ -101,20 +101,21 @@ int main() {
 // The formalae for Q_k and P_k are identical with m = 1
 void foo(double *a, double *A)
 {
+    int i,j;
     /* It is useful to construct the transformation matrix outside the main loop */
     double trans_matrix[nbr_of_particles][nbr_of_particles];
     double factor = 1 / ((double) nbr_of_particles + 1);
-    for (int i=0; i < nbr_of_particles; i++) {
-        for (int j=0; j < nbr_of_particles; j++) {
+    for (i=0; i < nbr_of_particles; i++) {
+        for (j=0; j < nbr_of_particles; j++) {
             trans_matrix[i][j] = sqrt(2 * factor) * sin((j + 1) * (i + 1) * PI * factor);
         }
     }
     
     /* Transformation to normal modes A from displacements a.  */
     double sum;
-    for (int i = 0; i < nbr_of_particles; i++){
+    for (i = 0; i < nbr_of_particles; i++){
         sum = 0;
-        for (int j = 0; j < nbr_of_particles; j++){
+        for (j = 0; j < nbr_of_particles; j++){
             sum += a[j] * trans_matrix[i][j];
         }
         A[i] = sum;
@@ -122,7 +123,8 @@ void foo(double *a, double *A)
 }
 
 void calc_E_k(double* omega, double* P, double* Q, double* E_k, int size) {
-    for (int i = 0; i < size; ++i)
+    int i;
+    for (i = 0; i < size; ++i)
         E_k[i] = 0.5 * (P[i]*P[i] + omega[i]*omega[i]*Q[i]*Q[i]);
 }
 
