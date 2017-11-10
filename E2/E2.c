@@ -49,10 +49,9 @@ int main() {
 
         /* Save the displacement of the five atoms */
         for (int j = 0; j < 5; j++) {
-            q_hist[j][i] = 
+            q_hist[j][i] = q[j];
         } 
     }
-
 
     //TODO
     double Q[nbr_of_particles];
@@ -83,9 +82,14 @@ void Q_mat(double *q, double *Q)
 }
 
 void calc_acc(double *a, double *q, int size_q, double alpha){
-    a[0] = 0;
-    a[size_q-1] = 0; // Boundary conditions
+    
+     // Boundary conditions
+    int i = 0;
+    a[i] = q[i+1]-2*q[i]+q[i-1]+alpha*(-q[i+1]+2*q[i]*(q[i+1])); ;
+    i = size_q-1;
+    a[i] = 2*q[i]+q[i-1]+alpha*(q[i-1]*q[i-1]+2*q[i]*(-q[i-1]));
 
-    for(int i = 1; i < size_q-1; i++)
+
+    for(i = 1; i < size_q-1; i++)
         a[i] = q[i+1]-2*q[i]+q[i-1]+alpha*(q[i-1]*q[i-1]-q[i+1]+2*q[i]*(q[i+1]-q[i-1])); 
 }
