@@ -10,8 +10,10 @@
 #define PI 3.141592653589
 #define nbr_of_particles 32
 
+
 void foo(double*, double*);
-void calc_E_k(double*, double*, double*, double*);
+void calc_E_k(double*, double*, double*, double*, int);
+void calc_acc(double*, double*, int, double);
 
 /* Main program */
 int main() {
@@ -35,7 +37,7 @@ int main() {
 
     double omega[nbr_of_particles];
     for (int j = 0; j < nbr_of_particles; j++) {
-        omega[j] = 2*sin(k*PI/(nbr_of_particles+1));
+        omega[j] = 2*sin(j*PI/(nbr_of_particles+1));
     }
 
     foo(Q, q);
@@ -47,12 +49,12 @@ int main() {
 
         /* v(t+dt/2) */
         for (int j = 0; j < nbr_of_particles; j++) {
-            v[j] += timestep * 0.5 * a[j];
+            v[j] += dt * 0.5 * a[j];
         } 
 
         /* q(t+dt) */
         for (int j = 0; j < nbr_of_particles; j++) {
-            q[j] += timestep * v[j];
+            q[j] += dt * v[j];
         }
 
         /* a(t+dt) */
@@ -60,12 +62,12 @@ int main() {
 
         /* v(t+dt) */
         for (int j = 0; j < nbr_of_particles; j++) {
-            v[j] += timestep * 0.5 * a[j];
+            v[j] += dt * 0.5 * a[j];
         }
 
         foo(v, P);
         foo(q, Q);
-        calc_E_k(omega, P, Q, E_k, nbr_of_particles);
+        //calc_E_k(omega, P, Q, E_k, nbr_of_particles);
     }
 }
 
@@ -77,7 +79,7 @@ void foo(double *a, double *A)
     double factor = 1 / ((double) nbr_of_particles + 1);
     for (int i=0; i < nbr_of_particles; i++) {
         for (int j=0; j < nbr_of_particles; j++) {
-            trans_matrix[i][j] = sart(2 * factor) * sin((j + 1) * (i + 1) * PI * factor);
+            trans_matrix[i][j] = sqrt(2 * factor) * sin((j + 1) * (i + 1) * PI * factor);
         }
     }
     
@@ -91,7 +93,6 @@ void foo(double *a, double *A)
         A[i] = sum;
     }  
 }
-
 void calc_E_k(double* omega, double* P, double* Q, double* E_k, int size) {
     for (int i = 0; i < size; ++i)
         E_k[i] = 0.5 * (P[i]*P[i] + omega[i]*omega[i]*Q[i]*Q[i]);
