@@ -19,7 +19,7 @@ void calc_acc(double*, double*, int, double);
 int main() {
     FILE *file;
     // Parameters
-    double alpha = 0.1;
+    double alpha = 2;
     double dt = 0.1;
     double t_max = 25000;
     int nbr_of_timesteps = t_max/dt;
@@ -53,7 +53,7 @@ int main() {
     }
 
     // timesteps according to velocity Verlet algorithm
-    printf("alpha = %.5f, t_max = %.2f", alpha, t_max);
+    printf("alpha = %.5f, t_max = %.2f \n", alpha, t_max);
     for (i = 1; i < nbr_of_timesteps + 1; i++) {
         if (i%5000 == 0) {
             printf("\tt = %.2f\t\t\%: %.2f\n", i*dt, ((double)i/nbr_of_timesteps));
