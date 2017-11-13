@@ -19,7 +19,7 @@ void calc_acc(double*, double*, int, double);
 int main() {
     FILE *file;
     // Parameters
-    double alpha = 0.1;
+    double alpha = 0.01;
     double dt = 0.1;
     double t_max = 25000;
     int nbr_of_timesteps = t_max/dt;
@@ -38,6 +38,7 @@ int main() {
     double E_k2[nbr_of_timesteps];
     double E_k3[nbr_of_timesteps];
     double E_k4[nbr_of_timesteps];
+    double E_tot[nbr_of_timesteps];
     int i,j;
     double omega[nbr_of_particles];
 
@@ -51,7 +52,7 @@ int main() {
     for (j = 0; j < nbr_of_particles; j++) {
         omega[j] = 2*sin(j*PI/(2*nbr_of_particles+2));
     }
-
+	double sum = 0;
     // timesteps according to velocity Verlet algorithm
     printf("alpha = %.5f, t_max = %.2f \n", alpha, t_max);
     for (i = 1; i < nbr_of_timesteps + 1; i++) {
@@ -60,7 +61,7 @@ int main() {
         }
         
         calc_acc(a, q, nbr_of_particles, alpha);
-
+	sum += v[2];
         // v(t+dt/2)
         for (j = 0; j < nbr_of_particles; j++) {
             v[j] += dt * 0.5 * a[j];
@@ -80,6 +81,7 @@ int main() {
         }
     
        // Update normal coordinates
+       //printf("%.3f \n",q[2]);
        foo(p, P);
        foo(q, Q);
 
@@ -89,6 +91,10 @@ int main() {
         calc_E_k(omega, P, Q, E_k2, alpha, nbr_of_particles, i, 2);
         calc_E_k(omega, P, Q, E_k3, alpha, nbr_of_particles, i, 3);
         calc_E_k(omega, P, Q, E_k4, alpha, nbr_of_particles, i, 4);
+
+       for (j = 0; j < nbr_of_particles; j++) {
+       	calc_E_k(omega, P, Q, E_tot, alpha, nbr_of_particles, i, j);
+       }
     }
 
     
@@ -97,17 +103,20 @@ int main() {
         printf("%s", "Print to file: ");
         for (i = 0; i < nbr_of_timesteps; i++) {
             //fprintf (file,"%e \t %e \t %e \n", i*dt, E_k0[i], E_k1[i]);
-            fprintf (file,"%e \t %e \t %e \t %e \t %e \t %e \n",
-                i*dt, E_k0[i], E_k1[i], E_k2[i], E_k3[i], E_k4[i]);
+            fprintf (file,"%e \t %e \t %e \t %e \t %e \t %e \t %e\n",
+                i*dt, E_k0[i], E_k1[i], E_k2[i], E_k3[i], E_k4[i], E_tot[i]);
         }
         fclose(file);
         printf("energy.dat created!\n");
     } else {
         printf("file is NULL");
     }
+
+	printf("sum = %.4f",sum);
 }
 
 // The formalae for Q_k and P_k are identical with m = 1
+
 void foo(double *a, double *A)
 {
     int i,j;
@@ -134,25 +143,32 @@ void foo(double *a, double *A)
 void calc_E_k(double* omega, double* P, double* Q, double* E_k, double alpha, int sz, int i, int k) {
         int l, m;
         double bind = 0;
+	sz = 0;
         for (l = 0; l != sz; ++l){
             for (m = 0; m != sz; ++m) {
-                //bind +=Q[k]*Q[l]*Q[m] * omega[k]*omega[l]*omega[m];
+              //  bind +=Q[k]*Q[l]*Q[m] * omega[k]*omega[l]*omega[m];
 		//printf("%.3f \n",Q[l]);
             }
         }
         double c_klm = 1;
-        E_k[i] = 0.5 * (P[k]*P[k] + c_klm*omega[k]*omega[k]*Q[k]*Q[k])+ alpha*bind/3;
+        E_k[i] += 0.5 * (P[k]*P[k] + c_klm*omega[k]*omega[k]*Q[k]*Q[k]);// + alpha*bind/3;
 }
 
 void calc_acc(double *a, double *q, int size_q, double alpha){
     
      // Boundary conditions
     int i;
-    a[0] = 0;
-    a[size_q-1] = 0;
+    //a[0] = 0;
+    //a[size_q-1] = 0;	
 
-    for(i = 1; i < size_q-1; i++)
-       a[i] = q[i+1] - 2*q[i] + q[i-1] + alpha * (q[i+1]*q[i+1] - 2*q[i+1]*q[i] + 2*q[i]*q[i-1] - q[i-1]*q[i-1]); // a[i] = q[i+1] - 2*q[i]+q[i-1] + alpha*(q[i-1]*q[i-1] - q[i+1] + 2*q[i]*(q[i+1] - q[i-1])); 
+    for(i = 0; i < size_q; i++) {
+        double qi = q[i], qp = 0, qm = 0;;
+	if (i > 0) 	  qm = q[i-1];
+	if (i < size_q-1) qp = q[i+1];
+	
+	a[i] = qp - 2*qi + qm + alpha*(qp-qi)*(qp-qi) - alpha*(qi-qm)*(qi-qm);
+    }
+    //a[i] = q[i+1] - 2*q[i] + q[i-1] + alpha * (q[i+1]-q[i]) * (q[i+1]-q[i]) -  alpha * (q[i]-q[i-1])*(q[i]-q[i-1]);
 }
 
 
