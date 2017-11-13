@@ -53,6 +53,7 @@ int main() {
     foo(Q, q);
     foo(P, p);
     // timesteps according to velocity Verlet algorithm
+    printf("alpha = %.5f, t_max = %.2f", alpha, t_max);
     for (i = 1; i < nbr_of_timesteps + 1; i++) {
         if (i%5000 == 0) {
             printf("\tt = %.2f\t\t\%: %.2f\n", i*dt, ((double)i/nbr_of_timesteps));
