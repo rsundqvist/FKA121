@@ -12,7 +12,7 @@
 
 
 void foo(double*, double*);
-void calc_E_k(double omega, double P, double Q, double* E_k, int i);
+void calc_E_k(double* omega, double* P, double* Q, double* E_k, double alpha, int sz, int i, int k);
 void calc_acc(double*, double*, int, double);
 
 /* Main program */
@@ -83,11 +83,12 @@ int main() {
        foo(P, p);
        foo(Q, q);
 
-        calc_E_k(omega[0], P[0], Q[0], E_k0, i);
-        calc_E_k(omega[1], P[1], Q[1], E_k1, i);
-        calc_E_k(omega[2], P[2], Q[2], E_k2, i);
-        calc_E_k(omega[3], P[3], Q[3], E_k3, i);
-        calc_E_k(omega[4], P[4], Q[4], E_k4, i);
+      //calc_E_k(double* omega, double P, double* Q, double* E_k, double alpha, int sz, int i, int k)
+        calc_E_k(omega, P, Q, E_k0, alpha, nbr_of_particles, i, 0);
+        calc_E_k(omega, P, Q, E_k1, alpha, nbr_of_particles, i, 1);
+        calc_E_k(omega, P, Q, E_k2, alpha, nbr_of_particles, i, 2);
+        calc_E_k(omega, P, Q, E_k3, alpha, nbr_of_particles, i, 3);
+        calc_E_k(omega, P, Q, E_k4, alpha, nbr_of_particles, i, 4);
     }
 
     
@@ -130,8 +131,17 @@ void foo(double *a, double *A)
     }  
 }
 
-void calc_E_k(double omega, double P, double Q, double* E_k, int i) {
-        E_k[i] = 0.5 * (P*P + omega*omega*Q*Q);
+void calc_E_k(double* omega, double* P, double* Q, double* E_k, double alpha, int sz, int i, int k) {
+        int l, m;
+        double bind = 0;
+        for (l = 0; l != sz; ++l){
+            for (m = 0; m != sz; ++m) {
+                bind +=Q[k]*Q[l]*Q[m] * omega[k]*omega[l]*omega[m];
+            }
+        }
+        
+        double c_klm = 1;
+        E_k[i] = 0.5 * (P[k]*P[k] + c_klm*omega[k]*omega[k]*Q[k]*Q[k])+ alpha*bind/3;
 }
 
 void calc_acc(double *a, double *q, int size_q, double alpha){
