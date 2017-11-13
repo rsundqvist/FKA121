@@ -44,14 +44,14 @@ int main() {
     // Initialize values
     E_k0[0] = nbr_of_particles;
     P[0] = sqrt(2*E_k0[0]);
+    foo(P, p);
+    foo(Q, q);
     
 
     for (j = 0; j < nbr_of_particles; j++) {
         omega[j] = 2*sin(j*PI/(2*nbr_of_particles+2));
     }
 
-    foo(Q, q);
-    foo(P, p);
     // timesteps according to velocity Verlet algorithm
     printf("alpha = %.5f, t_max = %.2f", alpha, t_max);
     for (i = 1; i < nbr_of_timesteps + 1; i++) {
@@ -78,10 +78,11 @@ int main() {
         for (j = 0; j < nbr_of_particles; j++) {
             v[j] += dt * 0.5 * a[j];
         }
+    
+       // Update normal coordinates
+       foo(P, p);
+       foo(Q, q);
 
-        foo(p, P);
-        foo(q, Q);
-        
         calc_E_k(omega[0], P[0], Q[0], E_k0, i);
         calc_E_k(omega[1], P[1], Q[1], E_k1, i);
         calc_E_k(omega[2], P[2], Q[2], E_k2, i);
@@ -137,10 +138,11 @@ void calc_acc(double *a, double *q, int size_q, double alpha){
     
      // Boundary conditions
     int i = 0;
-    a[i] = q[i+1]-2*q[i]+alpha*(-q[i+1]+2*q[i]*(q[i+1])); ;
-    i = size_q-1;
-    a[i] = 2*q[i]+q[i-1]+alpha*(q[i-1]*q[i-1]+2*q[i]*(-q[i-1]));
-
+    //a[i] = q[i+1]-2*q[i]+alpha*(-q[i+1]+2*q[i]*(q[i+1])); ;
+    //i = size_q-1;
+    //a[i] = 2*q[i]+q[i-1]+alpha*(q[i-1]*q[i-1]+2*q[i]*(-q[i-1]));
+    a[0] = 0;
+    a[size_q-1] = 0;
     for(i = 1; i < size_q-1; i++)
         a[i] = q[i+1]-2*q[i]+q[i-1]+alpha*(q[i-1]*q[i-1]-q[i+1]+2*q[i]*(q[i+1]-q[i-1])); 
 }
