@@ -54,13 +54,13 @@ int main() {
     }
 	double sum = 0;
     // timesteps according to velocity Verlet algorithm
+    calc_acc(a, q, nbr_of_particles, alpha);
     printf("alpha = %.5f, t_max = %.2f \n", alpha, t_max);
     for (i = 1; i < nbr_of_timesteps + 1; i++) {
         if (i%5000 == 0) {
             printf("\tt = %.2f\t\t\%: %.2f\n", i*dt, ((double)i/nbr_of_timesteps));
         }
         
-        calc_acc(a, q, nbr_of_particles, alpha);
 	sum += v[2];
         // v(t+dt/2)
         for (j = 0; j < nbr_of_particles; j++) {
@@ -143,23 +143,15 @@ void foo(double *a, double *A)
 void calc_E_k(double* omega, double* P, double* Q, double* E_k, double alpha, int sz, int i, int k) {
         int l, m;
         double bind = 0;
-	sz = 0;
-        for (l = 0; l != sz; ++l){
-            for (m = 0; m != sz; ++m) {
-              //  bind +=Q[k]*Q[l]*Q[m] * omega[k]*omega[l]*omega[m];
-		//printf("%.3f \n",Q[l]);
-            }
-        }
-        double c_klm = 1;
-        E_k[i] += 0.5 * (P[k]*P[k] + c_klm*omega[k]*omega[k]*Q[k]*Q[k]);// + alpha*bind/3;
+        E_k[i] += 0.5 * (P[k]*P[k] + omega[k]*omega[k]*Q[k]*Q[k]);// + alpha*bind/3;
 }
 
 void calc_acc(double *a, double *q, int size_q, double alpha){
     
      // Boundary conditions
     int i;
-    //a[0] = 0;
-    //a[size_q-1] = 0;	
+    q[0] = 0;
+    q[size_q-1] = 0;	
 
     for(i = 0; i < size_q; i++) {
         double qi = q[i], qp = 0, qm = 0;;

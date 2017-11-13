@@ -17,4 +17,4 @@ hold off
 legend('E_1(t)','E_2(t)','E_3(t)','E_4(t)','E_5(t)', 'E_{tot}(t)')
 xlabel('Time')
 ylabel('Energy')
-axis([0,250,0,35])
+axis([0,250,0,40])
