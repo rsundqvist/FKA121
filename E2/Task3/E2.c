@@ -19,7 +19,7 @@ void calc_acc(double*, double*, int, double);
 int main() {
     FILE *file;
     // Parameters
-    double alpha = 2;
+    double alpha = 0.1;
     double dt = 0.1;
     double t_max = 25000;
     int nbr_of_timesteps = t_max/dt;
@@ -80,8 +80,8 @@ int main() {
         }
     
        // Update normal coordinates
-       foo(P, p);
-       foo(Q, q);
+       foo(p, P);
+       foo(q, Q);
 
       //calc_E_k(double* omega, double P, double* Q, double* E_k, double alpha, int sz, int i, int k)
         calc_E_k(omega, P, Q, E_k0, alpha, nbr_of_particles, i, 0);
@@ -136,10 +136,10 @@ void calc_E_k(double* omega, double* P, double* Q, double* E_k, double alpha, in
         double bind = 0;
         for (l = 0; l != sz; ++l){
             for (m = 0; m != sz; ++m) {
-                bind +=Q[k]*Q[l]*Q[m] * omega[k]*omega[l]*omega[m];
+                //bind +=Q[k]*Q[l]*Q[m] * omega[k]*omega[l]*omega[m];
+		//printf("%.3f \n",Q[l]);
             }
         }
-        
         double c_klm = 1;
         E_k[i] = 0.5 * (P[k]*P[k] + c_klm*omega[k]*omega[k]*Q[k]*Q[k])+ alpha*bind/3;
 }
@@ -147,12 +147,12 @@ void calc_E_k(double* omega, double* P, double* Q, double* E_k, double alpha, in
 void calc_acc(double *a, double *q, int size_q, double alpha){
     
      // Boundary conditions
-    int i = 0;
-    //a[i] = q[i+1]-2*q[i]+alpha*(-q[i+1]+2*q[i]*(q[i+1])); ;
-    //i = size_q-1;
-    //a[i] = 2*q[i]+q[i-1]+alpha*(q[i-1]*q[i-1]+2*q[i]*(-q[i-1]));
+    int i;
     a[0] = 0;
     a[size_q-1] = 0;
+
     for(i = 1; i < size_q-1; i++)
-        a[i] = q[i+1]-2*q[i]+q[i-1]+alpha*(q[i-1]*q[i-1]-q[i+1]+2*q[i]*(q[i+1]-q[i-1])); 
+       a[i] = q[i+1] - 2*q[i] + q[i-1] + alpha * (q[i+1]*q[i+1] - 2*q[i+1]*q[i] + 2*q[i]*q[i-1] - q[i-1]*q[i-1]); // a[i] = q[i+1] - 2*q[i]+q[i-1] + alpha*(q[i-1]*q[i-1] - q[i+1] + 2*q[i]*(q[i+1] - q[i-1])); 
 }
+
+
