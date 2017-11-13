@@ -54,7 +54,9 @@ int main() {
 
     // timesteps according to velocity Verlet algorithm
     for (i = 1; i < nbr_of_timesteps + 1; i++) {
-        printf("\t\tTIME = %.2f\n", i*dt);
+        if (i%5000 == 0) {
+            printf("\tt = %.2f\t\t\%: %.2f\n", i*dt, ((double)i/nbr_of_timesteps));
+        }
         
         calc_acc(a, q, nbr_of_particles, alpha);
 
@@ -76,8 +78,12 @@ int main() {
             v[j] += dt * 0.5 * a[j];
         }
 
+<<<<<<< HEAD
         // Update normal coordinates
         foo(v, P);
+=======
+        foo(p, P);
+>>>>>>> c103624b7d7134881a4d584912e076ad0e9596d7
         foo(q, Q);
         
         calc_E_k(omega[0], P[0], Q[0], E_k0, i);
