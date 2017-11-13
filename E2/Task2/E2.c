@@ -44,14 +44,14 @@ int main() {
     // Initialize values
     E_k0[0] = nbr_of_particles;
     P[0] = sqrt(2*E_k0[0]);
+    foo(P, p);
+    foo(Q, q);
     
 
     for (j = 0; j < nbr_of_particles; j++) {
         omega[j] = 2*sin(j*PI/(2*nbr_of_particles+2));
     }
 
-    foo(Q, q);
-    foo(P, p);
     // timesteps according to velocity Verlet algorithm
     for (i = 1; i < nbr_of_timesteps + 1; i++) {
         printf("\t\tTIME = %.2f\n", i*dt);
@@ -76,6 +76,7 @@ int main() {
             v[j] += dt * 0.5 * a[j];
         }
 
+        // Update normal coordinates
         foo(v, P);
         foo(q, Q);
         
@@ -134,10 +135,11 @@ void calc_acc(double *a, double *q, int size_q, double alpha){
     
      // Boundary conditions
     int i = 0;
-    a[i] = q[i+1]-2*q[i]+alpha*(-q[i+1]+2*q[i]*(q[i+1])); ;
-    i = size_q-1;
-    a[i] = 2*q[i]+q[i-1]+alpha*(q[i-1]*q[i-1]+2*q[i]*(-q[i-1]));
-
+    //a[i] = q[i+1]-2*q[i]+alpha*(-q[i+1]+2*q[i]*(q[i+1])); ;
+    //i = size_q-1;
+    //a[i] = 2*q[i]+q[i-1]+alpha*(q[i-1]*q[i-1]+2*q[i]*(-q[i-1]));
+    a[0] = 0;
+    a[size_q-1] = 0;
     for(i = 1; i < size_q-1; i++)
         a[i] = q[i+1]-2*q[i]+q[i-1]+alpha*(q[i-1]*q[i-1]-q[i+1]+2*q[i]*(q[i+1]-q[i-1])); 
 }
