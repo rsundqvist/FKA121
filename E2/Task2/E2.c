@@ -138,11 +138,8 @@ void calc_acc(double *a, double *q, int size_q, double alpha){
     
      // Boundary conditions
     int i = 0;
-    //a[i] = q[i+1]-2*q[i]+alpha*(-q[i+1]+2*q[i]*(q[i+1])); ;
-    //i = size_q-1;
-    //a[i] = 2*q[i]+q[i-1]+alpha*(q[i-1]*q[i-1]+2*q[i]*(-q[i-1]));
     a[0] = 0;
     a[size_q-1] = 0;
     for(i = 1; i < size_q-1; i++)
-        a[i] = q[i+1]-2*q[i]+q[i-1]+alpha*(q[i-1]*q[i-1]-q[i+1]+2*q[i]*(q[i+1]-q[i-1])); 
+        a[i] = q[i+1] - 2*q[i] + q[i-1] + alpha * (q[i+1]*q[i+1] - 2*q[i+1]*q[i] + 2*q[i]*q[i-1] - q[i-1]*q[i-1]);//q[i+1]-2*q[i]+q[i-1]+alpha*(q[i-1]*q[i-1]-q[i+1]+2*q[i]*(q[i+1]-q[i-1])); 
 }
