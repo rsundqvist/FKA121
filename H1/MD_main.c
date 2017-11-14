@@ -27,10 +27,10 @@ int main()
      Code for generating a uniform random number between 0 and 1. srand should only
      be called once.
     */
-    srand(time(NULL));
-    double random_value;
-    random_value = (double) rand() / (double) RAND_MAX;
-    printf("random_value = %.5f", random_value);
+    //srand(time(NULL));
+    double random_value = 0;
+    //random_value = (double) rand() / (double) RAND_MAX;
+    printf("random_value = %.5f", 0);
 
     /*
      Descriptions of the different functions in the files initfcc.c and
