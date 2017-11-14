@@ -17,17 +17,17 @@ void calc_acc(double*, double*, int, double);
 
 /* Main program */
 int main() {
-    FILE *file;
+	FILE *file;
     // Parameters
-    double alpha = 0.01;
-    double dt = 0.1;
-    double t_max = 25000;
-    int nbr_of_timesteps = t_max/dt;
+	double alpha = 0.01;
+	double dt = 0.1;
+	double t_max = 25000;
+	int nbr_of_timesteps = t_max/dt;
 
     // displacement, velocity and acceleration
-    double q[nbr_of_particles];
-    double v[nbr_of_particles];
-    double a[nbr_of_particles]; 
+	double q[nbr_of_particles];
+	double v[nbr_of_particles];
+	double a[nbr_of_particles]; 
     double *p = v; // Since m = 1
 
     double Q[nbr_of_particles]; // discrete
@@ -50,72 +50,72 @@ int main() {
     
 
     for (j = 0; j < nbr_of_particles; j++) {
-        omega[j] = 2*sin(j*PI/(2*nbr_of_particles+2));
+    	omega[j] = 2*sin(j*PI/(2*nbr_of_particles+2));
     }
 
-	double sum = 0;
+    double sum = 0;
     // timesteps according to velocity Verlet algorithm
     calc_acc(a, q, nbr_of_particles, alpha);
     printf("alpha = %.5f, t_max = %.2f \n", alpha, t_max);
     for (i = 1; i < nbr_of_timesteps + 1; i++) {
-        if (i%5000 == 0) {
-            printf("\tt = %.2f\t\t\%: %.2f\n", i*dt, ((double)i/nbr_of_timesteps));
-        }
-        
-	sum += v[2];
+    	if (i%5000 == 0) {
+    		printf("\tt = %.2f\t\t\%: %.2f\n", i*dt, ((double)i/nbr_of_timesteps));
+    	}
+    	
+    	sum += v[2];
         // v(t+dt/2)
-        for (j = 0; j < nbr_of_particles; j++) {
-            v[j] += dt * 0.5 * a[j];
-        } 
+    	for (j = 0; j < nbr_of_particles; j++) {
+    		v[j] += dt * 0.5 * a[j];
+    	} 
 
         // q(t+dt) 
-        for (j = 0; j < nbr_of_particles; j++) {
-            q[j] += dt * v[j];
-        }
+    	for (j = 0; j < nbr_of_particles; j++) {
+    		q[j] += dt * v[j];
+    	}
 
         // a(t+dt)
-        calc_acc(a, q, nbr_of_particles, alpha);
+    	calc_acc(a, q, nbr_of_particles, alpha);
 
         // v(t+dt)
-        for (j = 0; j < nbr_of_particles; j++) {
-            v[j] += dt * 0.5 * a[j];
-        }
-    
+    	for (j = 0; j < nbr_of_particles; j++) {
+    		v[j] += dt * 0.5 * a[j];
+    	}
+    	
        // Update normal coordinates
-      foo(q, Q); 
-      foo(p, P);
+    	foo(q, Q); 
+    	foo(p, P);
       //printf("q_0 =  %.4f \n",q[0]);
       //printf("q_1 =  %.4f \n",q[1]);
       //printf("q_15 =  %.4f \n",q[15]);
       //printf("q_31 =  %.4f \n",q[31]);
       //calc_E_k(double* omega, double P, double* Q, double* E_k, double alpha, int sz, int i, int k)
-        calc_E_k(omega, P, Q, E_k0, alpha, i, 0);
-        calc_E_k(omega, P, Q, E_k1, alpha, i, 1);
-        calc_E_k(omega, P, Q, E_k2, alpha, i, 2);
-        calc_E_k(omega, P, Q, E_k3, alpha, i, 3);
-        calc_E_k(omega, P, Q, E_k4, alpha, i, 4);
+    	calc_E_k(omega, P, Q, E_k0, alpha, i, 0);
+    	calc_E_k(omega, P, Q, E_k1, alpha, i, 1);
+    	calc_E_k(omega, P, Q, E_k2, alpha, i, 2);
+    	calc_E_k(omega, P, Q, E_k3, alpha, i, 3);
+    	calc_E_k(omega, P, Q, E_k4, alpha, i, 4);
 
-       for (j = 0; j > nbr_of_particles; j++) {
-       	calc_E_k(omega, p, q, E_tot, alpha, i, j);
-       }
+    	for (j = 0; j > nbr_of_particles; j++) {
+    		calc_E_k(omega, p, q, E_tot, alpha, i, j);
+    	}
     }
 
     
     file = fopen("energy.dat","w");
-        if (file != NULL){
-        printf("%s", "Print to file: ");
-        for (i = 0; i < nbr_of_timesteps; i++) {
+    if (file != NULL){
+    	printf("%s", "Print to file: ");
+    	for (i = 0; i < nbr_of_timesteps; i++) {
             //fprintf (file,"%e \t %e \t %e \n", i*dt, E_k0[i], E_k1[i]);
-            fprintf (file,"%e \t %e \t %e \t %e \t %e \t %e \t %e\n",
-                i*dt, E_k0[i], E_k1[i], E_k2[i], E_k3[i], E_k4[i], E_tot[i]);
-        }
-        fclose(file);
-        printf("energy.dat created!\n");
+    		fprintf (file,"%e \t %e \t %e \t %e \t %e \t %e \t %e\n",
+    			i*dt, E_k0[i], E_k1[i], E_k2[i], E_k3[i], E_k4[i], E_tot[i]);
+    	}
+    	fclose(file);
+    	printf("energy.dat created!\n");
     } else {
-        printf("file is NULL\n");
+    	printf("file is NULL\n");
     }
 
-	printf("sum = %.4f\n",sum);
+    printf("sum = %.4f\n",sum);
 
 
 }
@@ -124,46 +124,46 @@ int main() {
 
 void foo(double *q, double *Q)
 {
-    int i,j;
-    double factor;
-    double trans_matrix[nbr_of_particles][nbr_of_particles];
-    
-    factor = 1 / ((double) nbr_of_particles + 1);
-    for (i=0; i < nbr_of_particles; i++) {
-        for (j=0; j < nbr_of_particles; j++) {
-            trans_matrix[i][j] = sqrt(2 * factor) * sin((j + 1) * (i + 1) * PI * factor);
-        }
-    }
-    
+	int i,j;
+	double factor;
+	double trans_matrix[nbr_of_particles][nbr_of_particles];
+	
+	factor = 1 / ((double) nbr_of_particles + 1);
+	for (i=0; i < nbr_of_particles; i++) {
+		for (j=0; j < nbr_of_particles; j++) {
+			trans_matrix[i][j] = sqrt(2 * factor) * sin((j + 1) * (i + 1) * PI * factor);
+		}
+	}
+	
     /* Transformation to normal modes Q from displacements q.  */
-    double sum;
-    for (i = 0; i < nbr_of_particles; i++){
-        sum = 0;
-        for (j = 0; j < nbr_of_particles; j++){
-            sum += q[j] * trans_matrix[i][j];
-        }
-        Q[i] = sum;
-    }
+	double sum;
+	for (i = 0; i < nbr_of_particles; i++){
+		sum = 0;
+		for (j = 0; j < nbr_of_particles; j++){
+			sum += q[j] * trans_matrix[i][j];
+		}
+		Q[i] = sum;
+	}
 }
 
 void calc_E_k(double* omega, double* P, double* Q, double* E_k, double alpha, int t, int k) {
-        E_k[t] += 0.5 * (P[k]*P[k] + omega[k]*omega[k]*Q[k]*Q[k]);
+	E_k[t] += 0.5 * (P[k]*P[k] + omega[k]*omega[k]*Q[k]*Q[k]);
 }
 
 void calc_acc(double *a, double *q, int size_q, double alpha){
-    
-     // Boundary conditions
-    int i;
-    q[0] = 0;
-    q[size_q-1] = 0;	
-
-    for(i = 0; i < size_q; i++) {
-        double qi = q[i], qp = 0, qm = 0;
-	if (i > 0) 	  qm = q[i-1];
-	if (i < size_q-1) qp = q[i+1];
 	
-	a[i] = qp - 2*qi + qm + alpha*(qp-qi)*(qp-qi) - alpha*(qi-qm)*(qi-qm);
-    }
+     // Boundary conditions
+	int i;
+	q[0] = 0;
+	q[size_q-1] = 0;	
+
+	for(i = 0; i < size_q; i++) {
+		double qi = q[i], qp = 0, qm = 0;
+		if (i > 0) 	  qm = q[i-1];
+		if (i < size_q-1) qp = q[i+1];
+		
+		a[i] = qp - 2*qi + qm + alpha*(qp-qi)*(qp-qi) - alpha*(qi-qm)*(qi-qm);
+	}
     //a[i] = q[i+1] - 2*q[i] + q[i-1] + alpha * (q[i+1]-q[i]) * (q[i+1]-q[i]) -  alpha * (q[i]-q[i-1])*(q[i]-q[i-1]);
 }
 
