@@ -18,7 +18,7 @@ int main()
 {
     double  pos[N][3]; // Positions
     double  f[N][3]; // Forces
-    int Nc = 100; // #primitive calls in each direction
+    int Nc = 10; // #primitive calls in each direction
     double a0 = 1; // Lattice parameter
 
     double L = 1; // Length of supercell
