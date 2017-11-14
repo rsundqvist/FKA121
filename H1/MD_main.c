@@ -30,7 +30,7 @@ int main()
     //srand(time(NULL));
     double random_value = 0;
     //random_value = (double) rand() / (double) RAND_MAX;
-    printf("random_value = %.5f", 0);
+    printf("random_value = %.5f", 0.0);
 
     /*
      Descriptions of the different functions in the files initfcc.c and
