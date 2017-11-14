@@ -73,4 +73,6 @@ int main()
      all the atoms, L is the length of the supercell and N is the number of atoms.
     */
     get_forces_AL(f,pos, L, N);  
+
+    return 0; // Prevent err printout
 }
