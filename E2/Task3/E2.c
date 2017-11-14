@@ -12,7 +12,7 @@
 
 
 void foo(double*, double*);
-void calc_E_k(double* omega, double* P, double* Q, double* E_k, double alpha, int sz, int i, int k);
+void calc_E_k(double* omega, double* P, double* Q, double* E_k, double alpha, int t, int k);
 void calc_acc(double*, double*, int, double);
 
 /* Main program */
@@ -52,6 +52,7 @@ int main() {
     for (j = 0; j < nbr_of_particles; j++) {
         omega[j] = 2*sin(j*PI/(2*nbr_of_particles+2));
     }
+
 	double sum = 0;
     // timesteps according to velocity Verlet algorithm
     calc_acc(a, q, nbr_of_particles, alpha);
@@ -81,19 +82,21 @@ int main() {
         }
     
        // Update normal coordinates
-       //printf("%.3f \n",q[2]);
-       foo(p, P);
-       foo(q, Q);
-
+      foo(q, Q); 
+      foo(p, P);
+      //printf("q_0 =  %.4f \n",q[0]);
+      //printf("q_1 =  %.4f \n",q[1]);
+      //printf("q_15 =  %.4f \n",q[15]);
+      //printf("q_31 =  %.4f \n",q[31]);
       //calc_E_k(double* omega, double P, double* Q, double* E_k, double alpha, int sz, int i, int k)
-        calc_E_k(omega, P, Q, E_k0, alpha, nbr_of_particles, i, 0);
-        calc_E_k(omega, P, Q, E_k1, alpha, nbr_of_particles, i, 1);
-        calc_E_k(omega, P, Q, E_k2, alpha, nbr_of_particles, i, 2);
-        calc_E_k(omega, P, Q, E_k3, alpha, nbr_of_particles, i, 3);
-        calc_E_k(omega, P, Q, E_k4, alpha, nbr_of_particles, i, 4);
+        calc_E_k(omega, P, Q, E_k0, alpha, i, 0);
+        calc_E_k(omega, P, Q, E_k1, alpha, i, 1);
+        calc_E_k(omega, P, Q, E_k2, alpha, i, 2);
+        calc_E_k(omega, P, Q, E_k3, alpha, i, 3);
+        calc_E_k(omega, P, Q, E_k4, alpha, i, 4);
 
-       for (j = 0; j < nbr_of_particles; j++) {
-       	calc_E_k(omega, P, Q, E_tot, alpha, nbr_of_particles, i, j);
+       for (j = 0; j > nbr_of_particles; j++) {
+       	calc_E_k(omega, p, q, E_tot, alpha, i, j);
        }
     }
 
@@ -109,41 +112,42 @@ int main() {
         fclose(file);
         printf("energy.dat created!\n");
     } else {
-        printf("file is NULL");
+        printf("file is NULL\n");
     }
 
-	printf("sum = %.4f",sum);
+	printf("sum = %.4f\n",sum);
+
+
 }
 
 // The formalae for Q_k and P_k are identical with m = 1
 
-void foo(double *a, double *A)
+void foo(double *q, double *Q)
 {
     int i,j;
-    /* It is useful to construct the transformation matrix outside the main loop */
+    double factor;
     double trans_matrix[nbr_of_particles][nbr_of_particles];
-    double factor = 1 / ((double) nbr_of_particles + 1);
+    
+    factor = 1 / ((double) nbr_of_particles + 1);
     for (i=0; i < nbr_of_particles; i++) {
         for (j=0; j < nbr_of_particles; j++) {
             trans_matrix[i][j] = sqrt(2 * factor) * sin((j + 1) * (i + 1) * PI * factor);
         }
     }
     
-    /* Transformation to normal modes A from displacements a.  */
+    /* Transformation to normal modes Q from displacements q.  */
     double sum;
     for (i = 0; i < nbr_of_particles; i++){
         sum = 0;
         for (j = 0; j < nbr_of_particles; j++){
-            sum += a[j] * trans_matrix[i][j];
+            sum += q[j] * trans_matrix[i][j];
         }
-        A[i] = sum;
-    }  
+        Q[i] = sum;
+    }
 }
 
-void calc_E_k(double* omega, double* P, double* Q, double* E_k, double alpha, int sz, int i, int k) {
-        int l, m;
-        double bind = 0;
-        E_k[i] += 0.5 * (P[k]*P[k] + omega[k]*omega[k]*Q[k]*Q[k]);// + alpha*bind/3;
+void calc_E_k(double* omega, double* P, double* Q, double* E_k, double alpha, int t, int k) {
+        E_k[t] += 0.5 * (P[k]*P[k] + omega[k]*omega[k]*Q[k]*Q[k]);
 }
 
 void calc_acc(double *a, double *q, int size_q, double alpha){
@@ -154,7 +158,7 @@ void calc_acc(double *a, double *q, int size_q, double alpha){
     q[size_q-1] = 0;	
 
     for(i = 0; i < size_q; i++) {
-        double qi = q[i], qp = 0, qm = 0;;
+        double qi = q[i], qp = 0, qm = 0;
 	if (i > 0) 	  qm = q[i-1];
 	if (i < size_q-1) qp = q[i+1];
 	
