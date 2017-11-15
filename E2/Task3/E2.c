@@ -20,8 +20,8 @@ void init_transformation_matrix(double (*trans_matrix)[]);
 int main() {
 	FILE *file;
     // Parameters
-	double alpha = 0.01;
-	double dt = 0.1;
+	double alpha = 0.1;
+	double dt = 0.01;
 	double t_max = 25000;
 	int nbr_of_timesteps = t_max/dt;
 	int ir = 100; // Resolution for i. Record every ir:th timestep
@@ -40,7 +40,8 @@ int main() {
     double E_k2 [nbr_of_timesteps/ir];
     double E_k3 [nbr_of_timesteps/ir];
     double E_k4 [nbr_of_timesteps/ir];
-    double E_tot[nbr_of_timesteps/ir];
+    double x_max[nbr_of_timesteps/ir];
+    int i_max[nbr_of_timesteps/ir];
     int i,j;
     double omega[nbr_of_particles];
     double trans_matrix[nbr_of_particles][nbr_of_particles];
@@ -52,8 +53,9 @@ int main() {
     transform(P, p, trans_matrix);
     transform(Q, q, trans_matrix);    
 
+    // Eigenfrequencies
     for (j = 0; j < nbr_of_particles; j++) {
-    	omega[j] = 2*sin(j*PI/(2*nbr_of_particles+2));
+    	omega[j] = 2*sin((j+1)*PI/(2*nbr_of_particles+2));
     }
 
     double sum = 0;
@@ -99,11 +101,16 @@ int main() {
         		calc_E_k(omega, p, q, E_tot, alpha, i_log, j);
         	}
         	double max = 0;
+        	int im = -1;
         	for (j = 0; j < nbr_of_particles; j++) {
-        	    double v = abs(q[j]);
-        	    if (v > max) max = v;
+        	    double x = abs(v[j]);
+        	    if (x > max) {
+        	        im = j;
+        	        max = x;
+        	    }
         	}
-        	E_tot[i_log] = max;
+        	x_max[i_log] = max;
+        	i_max[i_log] = im;
     	}
     }
 
@@ -112,12 +119,21 @@ int main() {
     if (file != NULL){
     	printf("%s", "Print to file: ");
     	for (i = 0; i < nbr_of_timesteps/ir; i++) {
-            //fprintf (file,"%e \t %e \t %e \n", i*dt, E_k0[i], E_k1[i]);
-    		fprintf (file,"%e \t %e \t %e \t %e \t %e \t %e \t %e\n",
-    			ir*i*dt, E_k0[i], E_k1[i], E_k2[i], E_k3[i], E_k4[i], E_tot[i]);
+    		fprintf (file,"%e \t %e \t %e \t %e \t %e \t %e \t %e \t %d \n",
+    			ir*i*dt, // Time
+    			E_k0[i], E_k1[i], E_k2[i], E_k3[i], E_k4[i], x_max[i], // Energies
+    			i_max[i]); // max value index (whatever is measured)
     	}
     	fclose(file);
     	printf("energy.dat created!\n");
+    	
+    	// Print to console
+    	for (i = 0; i < nbr_of_timesteps/(ir*1000); i++) {
+    		printf ("%e \t %e \t %e \t %e \t %e \t %e \t %e \t %d \n",
+    			1000*ir*i*dt, // Time
+    			E_k0[i], E_k1[i], E_k2[i], E_k3[i], E_k4[i], x_max[i], // Energies
+    			i_max[i], 0, 0); // max value index (whatever is measured)
+    	}
     } else {
     	printf("file is NULL\n");
     }
@@ -158,7 +174,6 @@ void calc_E_k(double* omega, double* P, double* Q, double* E_k, double alpha, in
 }
 
 void calc_acc(double *a, double *q, int size_q, double alpha){
-	
      // Boundary conditions
 	int i;
 	q[0] = 0;
@@ -166,12 +181,12 @@ void calc_acc(double *a, double *q, int size_q, double alpha){
 
 	for(i = 0; i < size_q; i++) {
 		double qi = q[i], qp = 0, qm = 0;
-		if (i > 0) 	  qm = q[i-1];
+		
+		if (i > 0) 	      qm = q[i-1];
 		if (i < size_q-1) qp = q[i+1];
 		
 		a[i] = qp - 2*qi + qm + alpha*(qp-qi)*(qp-qi) - alpha*(qi-qm)*(qi-qm);
 	}
-    //a[i] = q[i+1] - 2*q[i] + q[i-1] + alpha * (q[i+1]-q[i]) * (q[i+1]-q[i]) -  alpha * (q[i]-q[i-1])*(q[i]-q[i-1]);
 }
 
 
