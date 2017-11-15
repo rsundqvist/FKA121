@@ -21,3 +21,4 @@ axis([0,250,0,40])
 
 figure(2)
 plot(data(:,1),data(:,7), '-.');
+legend('E_{tot}(t)')

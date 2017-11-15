@@ -11,7 +11,7 @@
 #define nbr_of_particles 32
 
 
-void foo(double*, double*, double (*trans_matrix)[]);
+void transform(double*, double*, double (*trans_matrix)[]);
 void calc_E_k(double* omega, double* P, double* Q, double* E_k, double alpha, int t, int k);
 void calc_acc(double*, double*, int, double);
 void init_transformation_matrix(double (*trans_matrix)[]);
@@ -24,6 +24,7 @@ int main() {
 	double dt = 0.1;
 	double t_max = 25000;
 	int nbr_of_timesteps = t_max/dt;
+	int ir = 100; // Resolution for i. Record every ir:th timestep
 
     // displacement, velocity and acceleration
 	double q[nbr_of_particles];
@@ -34,12 +35,12 @@ int main() {
     double Q[nbr_of_particles]; // discrete
     double P[nbr_of_particles]; // discrete
 
-    double E_k0[nbr_of_timesteps];
-    double E_k1[nbr_of_timesteps];
-    double E_k2[nbr_of_timesteps];
-    double E_k3[nbr_of_timesteps];
-    double E_k4[nbr_of_timesteps];
-    double E_tot[nbr_of_timesteps];
+    double E_k0 [nbr_of_timesteps/ir];
+    double E_k1 [nbr_of_timesteps/ir];
+    double E_k2 [nbr_of_timesteps/ir];
+    double E_k3 [nbr_of_timesteps/ir];
+    double E_k4 [nbr_of_timesteps/ir];
+    double E_tot[nbr_of_timesteps/ir];
     int i,j;
     double omega[nbr_of_particles];
     double trans_matrix[nbr_of_particles][nbr_of_particles];
@@ -48,8 +49,8 @@ int main() {
     // Initialize values
     E_k0[0] = nbr_of_particles;
     P[0] = sqrt(2*E_k0[0]);
-    foo(P, p, trans_matrix);
-    foo(Q, q, trans_matrix);    
+    transform(P, p, trans_matrix);
+    transform(Q, q, trans_matrix);    
 
     for (j = 0; j < nbr_of_particles; j++) {
     	omega[j] = 2*sin(j*PI/(2*nbr_of_particles+2));
@@ -58,9 +59,9 @@ int main() {
     double sum = 0;
     // timesteps according to velocity Verlet algorithm
     calc_acc(a, q, nbr_of_particles, alpha);
-    printf("alpha = %.5f, t_max = %.2f \n", alpha, t_max);
+    printf("\n\talpha = %.5f, t_max = %.2f \n", alpha, t_max);
     for (i = 1; i < nbr_of_timesteps + 1; i++) {
-    	if (i%5000 == 0) {
+    	if (i%(nbr_of_timesteps/10) == 0) {
     		printf("\tt = %.2f\t\t\%: %.2f\n", i*dt, ((double)i/nbr_of_timesteps));
     	}
     	
@@ -83,22 +84,26 @@ int main() {
     		v[j] += dt * 0.5 * a[j];
     	}
     	
-       // Update normal coordinates
-       foo(q, Q, trans_matrix); 
-    	foo(p, P, trans_matrix);
-      //printf("q_0 =  %.4f \n",q[0]);
-      //printf("q_1 =  %.4f \n",q[1]);
-      //printf("q_15 =  %.4f \n",q[15]);
-      //printf("q_31 =  %.4f \n",q[31]);
-      //calc_E_k(double* omega, double P, double* Q, double* E_k, double alpha, int sz, int i, int k)
-    	calc_E_k(omega, P, Q, E_k0, alpha, i, 0);
-    	calc_E_k(omega, P, Q, E_k1, alpha, i, 1);
-    	calc_E_k(omega, P, Q, E_k2, alpha, i, 2);
-    	calc_E_k(omega, P, Q, E_k3, alpha, i, 3);
-    	calc_E_k(omega, P, Q, E_k4, alpha, i, 4);
+    	int i_log = i/ir;
+    	if (i%ir == 0) {
+            transform(q, Q, trans_matrix); 
+            transform(p, P, trans_matrix);
+            // Update normal coordinates
+        	calc_E_k(omega, P, Q, E_k0, alpha, i_log, 0);
+        	calc_E_k(omega, P, Q, E_k1, alpha, i_log, 1);
+        	calc_E_k(omega, P, Q, E_k2, alpha, i_log, 2);
+        	calc_E_k(omega, P, Q, E_k3, alpha, i_log, 3);
+        	calc_E_k(omega, P, Q, E_k4, alpha, i_log, 4);
 
-    	for (j = 0; j > nbr_of_particles; j++) {
-    		calc_E_k(omega, p, q, E_tot, alpha, i, j);
+        	for (j = 0; j < nbr_of_particles; j++) {
+        		calc_E_k(omega, p, q, E_tot, alpha, i_log, j);
+        	}
+        	double max = 0;
+        	for (j = 0; j < nbr_of_particles; j++) {
+        	    double v = abs(q[j]);
+        	    if (v > max) max = v;
+        	}
+        	E_tot[i_log] = max;
     	}
     }
 
@@ -106,10 +111,10 @@ int main() {
     file = fopen("energy.dat","w");
     if (file != NULL){
     	printf("%s", "Print to file: ");
-    	for (i = 0; i < nbr_of_timesteps; i++) {
+    	for (i = 0; i < nbr_of_timesteps/ir; i++) {
             //fprintf (file,"%e \t %e \t %e \n", i*dt, E_k0[i], E_k1[i]);
     		fprintf (file,"%e \t %e \t %e \t %e \t %e \t %e \t %e\n",
-    			i*dt, E_k0[i], E_k1[i], E_k2[i], E_k3[i], E_k4[i], E_tot[i]);
+    			ir*i*dt, E_k0[i], E_k1[i], E_k2[i], E_k3[i], E_k4[i], E_tot[i]);
     	}
     	fclose(file);
     	printf("energy.dat created!\n");
@@ -123,7 +128,7 @@ int main() {
 }
 
 // The formalae for Q_k and P_k are identical with m = 1
-void foo(double *q, double *Q, double (*trans_matrix)[nbr_of_particles])
+void transform(double *q, double *Q, double (*trans_matrix)[nbr_of_particles])
 {	
     /* Transformation to normal modes Q from displacements q.  */
 	double sum;
