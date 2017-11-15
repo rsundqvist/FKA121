@@ -98,12 +98,12 @@ int main() {
         	calc_E_k(omega, P, Q, E_k4, alpha, i_log, 4);
 
         	for (j = 0; j < nbr_of_particles; j++) {
-        		calc_E_k(omega, p, q, E_tot, alpha, i_log, j);
+        		calc_E_k(omega, p, q, x_max, alpha, i_log, j);
         	}
         	double max = 0;
-        	int im = -1;
+        	double im = -1;
         	for (j = 0; j < nbr_of_particles; j++) {
-        	    double x = abs(v[j]);
+        	    double x = abs(q[j]);
         	    if (x > max) {
         	        im = j;
         	        max = x;
