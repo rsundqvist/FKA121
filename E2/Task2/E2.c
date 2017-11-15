@@ -19,7 +19,7 @@ void calc_acc(double*, double*, int, double);
 int main() {
     FILE *file;
     // Parameters
-    double alpha = 0;
+    double alpha = 0.1;
     double dt = 0.1;
     double t_max = 25000;
     int nbr_of_timesteps = t_max/dt;
@@ -141,5 +141,5 @@ void calc_acc(double *a, double *q, int size_q, double alpha){
     a[0] = 0;
     a[size_q-1] = 0;
     for(i = 1; i < size_q-1; i++)
-        a[i] = q[i+1] - 2*q[i] + q[i-1] + alpha * (q[i+1]*q[i+1] - 2*q[i+1]*q[i] + 2*q[i]*q[i-1] - q[i-1]*q[i-1]);//q[i+1]-2*q[i]+q[i-1]+alpha*(q[i-1]*q[i-1]-q[i+1]+2*q[i]*(q[i+1]-q[i-1])); 
+        a[i] = q[i+1] - 2*q[i] + q[i-1] + alpha * (q[i+1]*q[i+1] - 2*q[i+1]*q[i] + 2*q[i]*q[i-1] - q[i-1]*q[i-1]) + alpha*(q[i+1]-q[i])*(q[i+1]-q[i]) - alpha*(q[i] - q[i-1])*(q[i] - q[i-1]);//q[i+1]-2*q[i]+q[i-1]+alpha*(q[i-1]*q[i-1]-q[i+1]+2*q[i]*(q[i+1]-q[i-1])); 
 }

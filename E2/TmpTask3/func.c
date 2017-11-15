@@ -16,9 +16,15 @@ void calc_acc(double *a, double *q, double alpha,int size_q)
 {
    int i;
    q[0] = 0;
-   q[size_q - 1] = 0;
+   q[size_q-1] = 0;
+   /*for(i = 1; i < size_q-1; i++)
+        a[i] = q[i+1] - 2*q[i] + q[i-1] + alpha * (q[i+1]-q[i])*(q[i+1]-q[i]) - alpha * (q[i]-q[i-1])*(q[i]-q[i-1]);
 
-   for (i = 0; i < size_q; i++) {
+	
+   a[0] = q[1] - 2 * q[0] + alpha*(q[1] - q[0])*(q[1] - q[0]) - alpha*q[0];
+   a[size_q-1] = - 2 * q[size_q-1] + q[size_q-2] + alpha * q[size_q-1]*q[size_q-1] - alpha*(q[size_q-1] - q[size_q-2])*(q[size_q-1] - q[size_q-2]);
+*/
+   for (i = 1; i < size_q-1; i++) {
      double qi = q[i], qp = 0, qm = 0;
      if (i > 0)
 	 qm = q[i - 1];
