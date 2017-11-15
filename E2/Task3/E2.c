@@ -11,9 +11,10 @@
 #define nbr_of_particles 32
 
 
-void foo(double*, double*);
+void foo(double*, double*, double (*trans_matrix)[]);
 void calc_E_k(double* omega, double* P, double* Q, double* E_k, double alpha, int t, int k);
 void calc_acc(double*, double*, int, double);
+void init_transformation_matrix(double (*trans_matrix)[]);
 
 /* Main program */
 int main() {
@@ -41,12 +42,14 @@ int main() {
     double E_tot[nbr_of_timesteps];
     int i,j;
     double omega[nbr_of_particles];
+    double trans_matrix[nbr_of_particles][nbr_of_particles];
+    init_transformation_matrix(trans_matrix);
 
     // Initialize values
     E_k0[0] = nbr_of_particles;
     P[0] = sqrt(2*E_k0[0]);
-    foo(P, p);
-    foo(Q, q);    
+    foo(P, p, trans_matrix);
+    foo(Q, q, trans_matrix);    
 
     for (j = 0; j < nbr_of_particles; j++) {
     	omega[j] = 2*sin(j*PI/(2*nbr_of_particles+2));
@@ -81,8 +84,8 @@ int main() {
     	}
     	
        // Update normal coordinates
-    	foo(q, Q); 
-    	foo(p, P);
+       foo(q, Q, trans_matrix); 
+    	foo(p, P, trans_matrix);
       //printf("q_0 =  %.4f \n",q[0]);
       //printf("q_1 =  %.4f \n",q[1]);
       //printf("q_15 =  %.4f \n",q[15]);
@@ -120,28 +123,28 @@ int main() {
 }
 
 // The formalae for Q_k and P_k are identical with m = 1
-
-void foo(double *q, double *Q)
-{
-	int i,j;
-	double factor;
-	double trans_matrix[nbr_of_particles][nbr_of_particles];
-	
-	factor = 1 / ((double) nbr_of_particles + 1);
-	for (i=0; i < nbr_of_particles; i++) {
-		for (j=0; j < nbr_of_particles; j++) {
-			trans_matrix[i][j] = sqrt(2 * factor) * sin((j + 1) * (i + 1) * PI * factor);
-		}
-	}
-	
+void foo(double *q, double *Q, double (*trans_matrix)[nbr_of_particles])
+{	
     /* Transformation to normal modes Q from displacements q.  */
 	double sum;
+	int i, j;
 	for (i = 0; i < nbr_of_particles; i++){
 		sum = 0;
 		for (j = 0; j < nbr_of_particles; j++){
 			sum += q[j] * trans_matrix[i][j];
 		}
 		Q[i] = sum;
+	}
+}
+
+void init_transformation_matrix(double (*trans_matrix)[nbr_of_particles]) {
+	int i,j;
+	double factor;	
+	factor = 1 / ((double) nbr_of_particles + 1);
+	for (i=0; i < nbr_of_particles; i++) {
+		for (j=0; j < nbr_of_particles; j++) {
+			trans_matrix[i][j] = sqrt(2 * factor) * sin((j + 1) * (i + 1) * PI * factor);
+		}
 	}
 }
 
