@@ -46,8 +46,7 @@ int main() {
     E_k0[0] = nbr_of_particles;
     P[0] = sqrt(2*E_k0[0]);
     foo(P, p);
-    foo(Q, q);
-    
+    foo(Q, q);    
 
     for (j = 0; j < nbr_of_particles; j++) {
     	omega[j] = 2*sin(j*PI/(2*nbr_of_particles+2));
