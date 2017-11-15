@@ -100,16 +100,17 @@ int main() {
         	for (j = 0; j < nbr_of_particles; j++) {
         		calc_E_k(omega, p, q, x_max, alpha, i_log, j);
         	}
-        	double max = 0;
+        	double max_abs = 0, max_real = 0;
         	double im = -1;
         	for (j = 0; j < nbr_of_particles; j++) {
-        	    double x = abs(q[j]);
-        	    if (x > max) {
+        	    double x = a[j];
+        	    if (abs(x) > max_abs) {
         	        im = j;
-        	        max = x;
+        	        max_abs = abs(x);
+        	        max_real = x;
         	    }
         	}
-        	x_max[i_log] = max;
+        	x_max[i_log] = max_real;
         	i_max[i_log] = im;
     	}
     }
@@ -174,19 +175,15 @@ void calc_E_k(double* omega, double* P, double* Q, double* E_k, double alpha, in
 }
 
 void calc_acc(double *a, double *q, int size_q, double alpha){
-     // Boundary conditions
-	int i;
-	q[0] = 0;
-	q[size_q-1] = 0;	
+   int i;
+   q[0] = 0;
+   q[size_q-1] = 0;
+   for(i = 1; i < size_q-1; i++)
+        a[i] = q[i+1] - 2*q[i] + q[i-1] + alpha * (q[i+1]-q[i])*(q[i+1]-q[i]) - alpha * (q[i]-q[i-1])*(q[i]-q[i-1]);
+	
+   a[0] = q[1] - 2 * q[0] + alpha*(q[1] - q[0])*(q[1] - q[0]) - alpha*q[0];
+   a[size_q-1] = - 2 * q[size_q-1] + q[size_q-2] + alpha * q[size_q-1]*q[size_q-1] - alpha*(q[size_q-1] - q[size_q-2])*(q[size_q-1] - q[size_q-2]);
 
-	for(i = 0; i < size_q; i++) {
-		double qi = q[i], qp = 0, qm = 0;
-		
-		if (i > 0) 	      qm = q[i-1];
-		if (i < size_q-1) qp = q[i+1];
-		
-		a[i] = qp - 2*qi + qm + alpha*(qp-qi)*(qp-qi) - alpha*(qi-qm)*(qi-qm);
-	}
 }
 
 
