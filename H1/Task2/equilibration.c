@@ -48,7 +48,7 @@ void equib_pressure(double (*pos)[3], double dt,
 /*
  * m: mass per particle, E_k: kinetic energy, N: #particles
  */
-double instantaneus_temp (double m, double E_k, int N) {
+double instantaneus_temp (double E_k, int N) {
 	// Eq. 36, page 19
 	return 2/(3*N*k_B) * E_k;
 }

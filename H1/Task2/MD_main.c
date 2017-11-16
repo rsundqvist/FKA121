@@ -9,7 +9,7 @@
 
 #define N 256
 
-#define Tau_T 1
+#define Tau_T 1000
 #define Tau_eq 773.15
 #define P_eq 0.000000632
 
@@ -55,8 +55,8 @@ int main()
     // Setup
     //========================================================================//
     int i, j, i_log;                                                               // i - actual timestep, i_log - logging of timestep data
-    double dt = 0.01;
-    double t_max = 10;
+    double dt = 0.001;
+    double t_max = 100;
     int nbr_of_timesteps = t_max/dt;
     int ir = 100; // Resolution for i. Record every ir:th timestep.             // Segfault sensitive.
         
@@ -113,7 +113,7 @@ int main()
         
         double Ek = get_kinetic_energy(mass, vel);
         double W = get_virial_AL(pos, a0, N);
-        Tau = instantaneus_temp (mass, Ek, N);
+        Tau = instantaneus_temp (Ek, N);
         P = pressure (Tau, V, W, N);
         
         equib_temp(vel, dt, Tau_eq, Tau_T, Tau, N);
@@ -131,6 +131,7 @@ int main()
             log_data3[i_log] = Ek+Ep;
             
             log_data4[i_log] = Tau;
+            printf("\tTemp = %.5f\n", Tau);
             log_data5[i_log] = P;
             
             log_data6[i_log] = pos[0][0];
