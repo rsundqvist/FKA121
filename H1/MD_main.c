@@ -4,8 +4,12 @@
 #include <time.h>
 #include "initfcc.h"
 #include "alpotential.h"
+#include "utils.h"
 
 #define N 256
+
+void calc_acc(double mass, double (*f)[3], double (*acc)[3]);
+double get_kinetic_energy(double mass, double (*vel)[3]);
 
 /* Main program */
 int main()
@@ -18,10 +22,11 @@ int main()
     double acc[N][3];
     double f[N][3]; // Forces
     
-    double a0 = 0.1; // Lattice parameter
-    double L = 1; // Length of supercell
+    double a0 = 4.0415; // Lattice parameter
+    double mass = 0.02796304; // Mass of Al atom
     
     int Nc = 50; // #primitive calls in each direction 
+    double L = Nc * a0; // Length of supercell
     double lattice[4*Nc*Nc*Nc][3];
     init_fcc(lattice, Nc, a0);
 
@@ -56,16 +61,16 @@ int main()
             vel[j][2] += dt * 0.5 * acc[j][2];
         }
         for (j = 0; j < N; j++) { // q(t+dt)
-            pos[j][0] += dt * vel[j][0];
-            pos[j][1] += dt * vel[j][1];
-            pos[j][2] += dt * vel[j][2];
+            pos[j][0] = periodic_boundT( pos[j][0] + dt * vel[j][0], L );
+            pos[j][1] = periodic_boundT( pos[j][1] + dt * vel[j][1], L );
+            pos[j][2] = periodic_boundT( pos[j][2] + dt * vel[j][2], L );
         }
 
         //=====================//
         // Accelerations
         //=====================//
         get_forces_AL(f,pos, L, N);  
-        //calc_acc(a, q, m, kappa, nbr_of_particles)
+        calc_acc(mass, f, acc);
         
         for (j = 0; j < N; j++) { // v(t+dt)
             vel[j][0] += dt * 0.5 * acc[j][0];
@@ -78,11 +83,11 @@ int main()
         //====================================================================//
         if (i%ir == 0) { // Time to log data?
             i_log = i/ir;
-            double energy = get_energy_AL(pos, L, N); // Potential energy
-            
-            log_data1[i_log] = energy;
-            log_data2[i_log] = 2;
-            log_data3[i_log] = 3;
+            double Ep = get_energy_AL(pos, L, N); // Potential energy
+            double Ek = get_kinetic_energy(mass, vel);
+            log_data1[i_log] = Ep;
+            log_data2[i_log] = Ek;
+            log_data3[i_log] = Ep + Ek;
         }
     }
     printf("\tt = %.2f \t\t %.3f  \n", i*dt, ((double)i/nbr_of_timesteps));
@@ -114,64 +119,25 @@ int main()
     } else {
         printf("A file is NULL!\n");
     }
-    
-   
-    /*
-    int bound = 4;
-    for (i = -8; i <= 7; i++) {
-        int bounded = periodic_bound(i, bound);
-        printf("%d\n", bounded);
+
+    return 0;
+}
+
+void calc_acc(double mass, double (*f)[3], double (*acc)[3]) {
+    int i;
+    for(i = 0; i < N; i++) {
+        acc[i][0] = f[i][0]/mass;  
+        acc[i][1] = f[i][1]/mass;
+        acc[i][2] = f[i][2]/mass;  
     }
-    printf("Looks aight.\n");
-    */
-    
-    /*
-     Code for generating a uniform random number between 0 and 1. srand should only
-     be called once.
-    */
-    //srand(time(NULL));
-    double random_value = 0;
-    //random_value = (double) rand() / (double) RAND_MAX;
-    printf("random_value = %.5f \n", random_value);
+}
 
-    /*
-     Descriptions of the different functions in the files initfcc.c and
-     alpotential.c are listed below.
-    */
-
-    /* 
-     Function that generates a fcc lattice in units of [Å]. Nc is the number of 
-     primitive cells in each direction and a0 is the lattice parameter. The
-     positions of all the atoms are stored in pos which should be a matrix of the
-     size N x 3, where N is the number of atoms. The first, second and third column
-     correspond to the x,y and z coordinate respectively.
-    */
-    return 1;
-    /* 
-     Function that calculates the potential energy in units of [eV]. pos should be
-     a matrix containing the positions of all the atoms, L is the length of the 
-     supercell and N is the number of atoms.
-    */
-    double energy = get_energy_AL(pos, L, N);
-    printf("energy = %.5f", energy);
-    
-    /* 
-     Function that calculates the virial in units of [eV]. pos should be a matrix
-     containing the positions of all the atoms, L is the length of the supercell 
-     and N is the number of atoms.
-    */
-    //double virial;
-    //virial = get_virial_AL(pos, L, N);
-    //printf("virial = %.5f", virial);
-    
-    
-    /*
-     Function that calculates the forces on all atoms in units of [eV/Å]. the 
-     forces are stored in f which should be a matrix of size N x 3, where N is the
-     number of atoms and column 1,2 and 3 correspond to the x,y and z component of
-     the force resepctively . pos should be a matrix containing the positions of 
-     all the atoms, L is the length of the supercell and N is the number of atoms.
-    */
-    get_forces_AL(f,pos, L, N);  
-    return 0; // Prevent err printout
+// Returns total kinetic energy for all particles
+double get_kinetic_energy(double mass, double (*vel)[3]) {
+    double energy = 0;
+    int i;    
+    for(i = 0; i < N; i++) {
+        energy += vel[i][0]*vel[i][0] + vel[i][1]*vel[i][1] + vel[i][2]*vel[i][2];
+    }
+    return 0.5 * energy/mass;
 }

@@ -10,7 +10,14 @@ char* concat(const char *s1, const char *s2) {
     return ans;
 }
 
-int periodic_bound (int i, int N) {
-        if (i < 0) i += (-i/N+1) * N;
-        return i % N;
+int periodic_bound(int i, int N) {
+    if (i < 0) i += (-i/N+1) * N;
+    return i % N;
+}
+
+double periodic_boundT(double i, double lim) {
+    int tmpi = (int)(0.5+i*100000);
+    int tmplim = (int)(0.5+lim*100000);
+    if (tmpi < 0) tmpi += (-tmpi/tmplim+1) * tmplim;
+    return (double)(tmpi % tmplim)/(100000);
 }
