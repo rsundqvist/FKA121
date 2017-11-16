@@ -118,7 +118,7 @@ int main()
         P = pressure (T, V, W, N);
         
         equib_temp(vel, dt, Tau_eq, Tau_T, T, N);
-        equib_pressure(pos, dt, T, V, P, P_eq, N);
+        equib_pressure(pos, dt, Tau_P, V, P, P_eq, N);
 
         
         //====================================================================//
