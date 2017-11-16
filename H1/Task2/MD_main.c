@@ -10,6 +10,7 @@
 #define N 256
 
 #define Tau_T 0.1
+#define Tau_P 1
 #define Tau_eq 773.15
 #define P_eq 0.000000632
 
@@ -49,7 +50,7 @@ int main()
     //========================================================================//
     // Task specific - H1
     //========================================================================//               
-    double Tau, P; // Temperature, Pressure
+    double T, P; // Temperature, Pressure
     
     //========================================================================//
     // Setup
@@ -113,11 +114,11 @@ int main()
         
         double Ek = get_kinetic_energy(mass, vel);
         double W = get_virial_AL(pos, a0, N);
-        Tau = instantaneus_temp (Ek, N);
-        P = pressure (Tau, V, W, N);
+        T = instantaneus_temp (Ek, N);
+        P = pressure (T, V, W, N);
         
-        equib_temp(vel, dt, Tau_eq, Tau_T, Tau, N);
-        //equib_pressure(pos, dt, Tau, V, P, P_eq, N);
+        equib_temp(vel, dt, Tau_eq, Tau_T, T, N);
+        equib_pressure(pos, dt, T, V, P, P_eq, N);
 
         
         //====================================================================//
@@ -130,8 +131,8 @@ int main()
             log_data2[i_log] = Ek;
             log_data3[i_log] = Ek+Ep;
             
-            log_data4[i_log] = Tau;
-            printf("\tTemp = %.5f\n", Tau);
+            log_data4[i_log] = T;
+            printf("\tTemp = %.5f \t P = %.5f \n", T,P);
             log_data5[i_log] = P;
             
             log_data6[i_log] = pos[0][0];
