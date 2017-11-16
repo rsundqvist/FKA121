@@ -10,6 +10,7 @@
 
 void calc_acc(double mass, double (*f)[3], double (*acc)[3]);
 double get_kinetic_energy(double mass, double (*vel)[3]);
+void setArray3DToZero(double (*arr)[3]);
 
 /* Main program */
 int main()
@@ -22,19 +23,25 @@ int main()
     double acc[N][3];
     double f[N][3]; // Forces
     
+    // Set arrays to zero
+    setArray3DToZero(pos);  
+    setArray3DToZero(vel);
+    setArray3DToZero(acc);
+    setArray3DToZero(f);  
+
     double a0 = 4.0415; // Lattice parameter
-    double mass = 0.02796304; // Mass of Al atom
+    double mass = 0.002796304; // Mass of Al atom
     
     int Nc = 50; // #primitive calls in each direction 
     double L = Nc * a0; // Length of supercell
     double lattice[4*Nc*Nc*Nc][3];
-    init_fcc(lattice, Nc, a0);
-
+    init_fcc(pos, Nc, a0);
+    
     //========================================================================//
     // Setup
     //========================================================================//
     int i, j, i_log;                                                               // i - actual timestep, i_log - logging of timestep data
-    double dt = 0.1;
+    double dt = 0.001;
     double t_max = 250;
     int nbr_of_timesteps = t_max/dt;
     int ir = 100; // Resolution for i. Record every ir:th timestep.             // Segfault sensitive.
@@ -48,7 +55,7 @@ int main()
     // Verlet
     //========================================================================//
     printf("\nLog resolution: 1 per %d steps, t_max = %.3f \n", ir, t_max);
-    for (i = 1; i < nbr_of_timesteps; i++) {
+    for (i = 1; i < 5; i++) {
         if (i%(nbr_of_timesteps/10) == 0) { // Print progress - 10%
             printf("\tt = %.2f \t\t %.3f  \n", i*dt, ((double)i/nbr_of_timesteps));
         }
@@ -60,16 +67,20 @@ int main()
             vel[j][1] += dt * 0.5 * acc[j][1];
             vel[j][2] += dt * 0.5 * acc[j][2];
         }
+        printf("f = (%2.2f, %2.2f, %2.2f) \n", f[0][0], f[0][1], f[0][2]);
         for (j = 0; j < N; j++) { // q(t+dt)
-            pos[j][0] = periodic_boundT( pos[j][0] + dt * vel[j][0], L );
-            pos[j][1] = periodic_boundT( pos[j][1] + dt * vel[j][1], L );
-            pos[j][2] = periodic_boundT( pos[j][2] + dt * vel[j][2], L );
+            //pos[j][0] = periodic_boundT( pos[j][0] + dt * vel[j][0], L );
+            //pos[j][1] = periodic_boundT( pos[j][1] + dt * vel[j][1], L );
+            //pos[j][2] = periodic_boundT( pos[j][2] + dt * vel[j][2], L );
+            pos[j][0] = pos[j][0] + dt * vel[j][0];
+            pos[j][1] = pos[j][1] + dt * vel[j][1];
+            pos[j][2] = pos[j][2] + dt * vel[j][2];
         }
 
         //=====================//
         // Accelerations
         //=====================//
-        get_forces_AL(f,pos, L, N);  
+        get_forces_AL(f, pos, L, N);  
         calc_acc(mass, f, acc);
         
         for (j = 0; j < N; j++) { // v(t+dt)
@@ -136,8 +147,18 @@ void calc_acc(double mass, double (*f)[3], double (*acc)[3]) {
 double get_kinetic_energy(double mass, double (*vel)[3]) {
     double energy = 0;
     int i;    
-    for(i = 0; i < N; i++) {
+    for(i = 0; i < 5; i++) {
         energy += vel[i][0]*vel[i][0] + vel[i][1]*vel[i][1] + vel[i][2]*vel[i][2];
     }
     return 0.5 * energy/mass;
 }
+
+void setArray3DToZero(double (*arr)[3]) {
+    int k;
+    for(k = 0; k < N; k++) {
+        arr[k][0] = 0;
+        arr[k][1] = 0;
+        arr[k][2] = 0;
+    }
+}
+
