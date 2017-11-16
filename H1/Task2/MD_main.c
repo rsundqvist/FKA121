@@ -156,9 +156,10 @@ int main()
             double t = ir*i*dt;
             
             // Print file1
-            fprintf (file1,"%e \t %e \t %e \t %e     \n",
+            fprintf (file1,"%e \t %e \t %e \t %e \t %e \t %e      \n",
                 t, // Time
-                log_data1[i], log_data2[i], log_data3[i]); // data
+                log_data1[i], log_data2[i], log_data3[i],
+                log_data4[i], log_data5[i]); // data
 
             // Print file1
             // ...
