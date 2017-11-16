@@ -8,6 +8,11 @@
 
 #define N 256
 
+#define Tau_T "något_vettigt"
+#define Tau_eq 773.15
+#define P_eq foo
+
+
 void calc_acc(double mass, double (*f)[3], double (*acc)[3]);
 double get_kinetic_energy(double mass, double (*vel)[3]);
 void setArray3DToZero(double (*arr)[3]);
@@ -36,6 +41,7 @@ int main()
     
     int Nc = 4; // #primitive calls in each direction 
     double L = Nc * a0; // Length of supercell
+    double V = L*L*L;
     init_fcc(pos, Nc, a0);
     randomizeLattice(pos, a0); // Introduce some random deviations
     
@@ -71,9 +77,6 @@ int main()
         }
         //printf("f = (%2.2f, %2.2f, %2.2f) \n", vel[0][0], vel[0][1], vel[0][2]);
         for (j = 0; j < N; j++) { // q(t+dt)
-            //pos[j][0] = periodic_boundT( pos[j][0] + dt * vel[j][0], L );
-            //pos[j][1] = periodic_boundT( pos[j][1] + dt * vel[j][1], L );
-            //pos[j][2] = periodic_boundT( pos[j][2] + dt * vel[j][2], L );
             pos[j][0] = pos[j][0] + dt * vel[j][0];
             pos[j][1] = pos[j][1] + dt * vel[j][1];
             pos[j][2] = pos[j][2] + dt * vel[j][2];
@@ -102,17 +105,6 @@ int main()
             log_data2[i_log] = Ek;
             log_data3[i_log] = Ek+Ep;
         }
-
-/*        int tx = dt*i;
-        if (3175 < tx) {
-            double a = sqrt(acc[0][0]*acc[0][0]+acc[0][1]*acc[0][1]+acc[0][2]*acc[0][2]);
-            double v = sqrt(vel[0][0]*vel[0][0]+vel[0][1]*vel[0][1]+vel[0][2]*vel[0][2]);
-            double x = sqrt(pos[0][0]*pos[0][0]+pos[0][1]*pos[0][1]+pos[0][2]*pos[0][2]);
-            printf("(tx, x,v,a) = (%d, %.5f, %.5f, %.5f)\n", tx, x, v, a);
-        } 
-        if (tx == 3180) {
-            return 1;
-        }*/
     }
     printf("\tt = %.2f \t\t %.3f  \n", i*dt, ((double)i/nbr_of_timesteps));
     
