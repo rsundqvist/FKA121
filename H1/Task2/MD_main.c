@@ -22,7 +22,7 @@ void randomizeLattice(double (*pos)[3],double a0);
 int main()
 {
     //========================================================================//
-    // Task specific - H1.1
+    // Task specific - H1
     //========================================================================//   
     srand(time(NULL));                      
     double pos[N][3]; // x, y, z
@@ -46,6 +46,11 @@ int main()
     randomizeLattice(pos, a0); // Introduce some random deviations
     
     //========================================================================//
+    // Task specific - H1
+    //========================================================================//               
+    double Tau, P; // Temperature, Pressure
+    
+    //========================================================================//
     // Setup
     //========================================================================//
     int i, j, i_log;                                                               // i - actual timestep, i_log - logging of timestep data
@@ -55,9 +60,20 @@ int main()
     int ir = 100; // Resolution for i. Record every ir:th timestep.             // Segfault sensitive.
         
     // Data recording
-    double log_data1 [nbr_of_timesteps/ir];
-    double log_data2 [nbr_of_timesteps/ir];
-    double log_data3 [nbr_of_timesteps/ir];
+    double log_data1 [nbr_of_timesteps/ir]; // E_p
+    double log_data2 [nbr_of_timesteps/ir]; // E_k
+    double log_data3 [nbr_of_timesteps/ir]; // E_tot = E_p + E_k
+    double log_data4 [nbr_of_timesteps/ir]; // Tau, temperature
+    double log_data5 [nbr_of_timesteps/ir]; // P, pressure
+    
+    double log_data6 [nbr_of_timesteps/ir]; // x
+    double log_data7 [nbr_of_timesteps/ir]; // y
+    double log_data8 [nbr_of_timesteps/ir]; // z
+    
+    double log_data9 [nbr_of_timesteps/ir]; // x
+    double log_data10[nbr_of_timesteps/ir]; // y
+    double log_data11[nbr_of_timesteps/ir]; // z
+    
     
     //========================================================================//
     // Verlet
@@ -104,6 +120,17 @@ int main()
             log_data1[i_log] = Ep;
             log_data2[i_log] = Ek;
             log_data3[i_log] = Ek+Ep;
+            
+            log_data4[i_log] = Tau;
+            log_data5[i_log] = P;
+            
+            log_data6[i_log] = pos[0][0];
+            log_data7[i_log] = pos[0][1];
+            log_data8[i_log] = pos[0][2];
+            
+            log_data9[i_log] = pos[69][0];
+            log_data10[i_log] = pos[69][1];
+            log_data11[i_log] = pos[69][2];
         }
     }
     printf("\tt = %.2f \t\t %.3f  \n", i*dt, ((double)i/nbr_of_timesteps));
