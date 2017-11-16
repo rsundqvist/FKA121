@@ -30,9 +30,9 @@ int main()
     //========================================================================//
     int i, j, i_log;                                                               // i - actual timestep, i_log - logging of timestep data
     double dt = 0.1;
-	double t_max = 250;
-	int nbr_of_timesteps = t_max/dt;
-	int ir = 100; // Resolution for i. Record every ir:th timestep.             // Segfault sensitive.
+    double t_max = 250;
+    int nbr_of_timesteps = t_max/dt;
+    int ir = 100; // Resolution for i. Record every ir:th timestep.             // Segfault sensitive.
         
     // Data recording
     double log_data1 [nbr_of_timesteps/ir];
@@ -42,43 +42,42 @@ int main()
     //========================================================================//
     // Verlet
     //========================================================================//
-    printf("\nLog resolution: %d, t_max = %.3f \n", ir, t_max);
+    printf("\nLog resolution: 1 per %d steps, t_max = %.3f \n", ir, t_max);
     for (i = 1; i < nbr_of_timesteps; i++) {
-    	if (i%(nbr_of_timesteps/10) == 0) { // Print progress - 10%
-    		printf("\tt = %.2f \t\t %.3f  \n", i*dt, ((double)i/nbr_of_timesteps));
-    	}
+        if (i%(nbr_of_timesteps/10) == 0) { // Print progress - 10%
+            printf("\tt = %.2f \t\t %.3f  \n", i*dt, ((double)i/nbr_of_timesteps));
+        }
         //======================================//
         // Verlet
         //======================================//
-		for (j = 0; j < N; j++) { // v(t+dt/2)
-		    vel[j][0] += dt * 0.5 * acc[j][0];
-		    vel[j][1] += dt * 0.5 * acc[j][1];
-		    vel[j][2] += dt * 0.5 * acc[j][2];
-		}
-		for (j = 0; j < N; j++) { // q(t+dt)
-		    pos[j][0] += dt * vel[j][0];
-		    pos[j][1] += dt * vel[j][1];
-		    pos[j][2] += dt * vel[j][2];
-		}
+        for (j = 0; j < N; j++) { // v(t+dt/2)
+            vel[j][0] += dt * 0.5 * acc[j][0];
+            vel[j][1] += dt * 0.5 * acc[j][1];
+            vel[j][2] += dt * 0.5 * acc[j][2];
+        }
+        for (j = 0; j < N; j++) { // q(t+dt)
+            pos[j][0] += dt * vel[j][0];
+            pos[j][1] += dt * vel[j][1];
+            pos[j][2] += dt * vel[j][2];
+        }
 
         //=====================//
         // Accelerations
         //=====================//
         get_forces_AL(f,pos, L, N);  
-		//calc_acc(a, q, m, kappa, nbr_of_particles); //TODO
-
-		
-		for (j = 0; j < N; j++) { // v(t+dt)
-		    vel[j][0] += dt * 0.5 * acc[j][0];
-		    vel[j][1] += dt * 0.5 * acc[j][1];
-		    vel[j][2] += dt * 0.5 * acc[j][2];
-		}
-    	
+        //calc_acc(a, q, m, kappa, nbr_of_particles)
+        
+        for (j = 0; j < N; j++) { // v(t+dt)
+            vel[j][0] += dt * 0.5 * acc[j][0];
+            vel[j][1] += dt * 0.5 * acc[j][1];
+            vel[j][2] += dt * 0.5 * acc[j][2];
+        }
+        
         //====================================================================//
         // Record data (frequency depends on resolution ir);
         //====================================================================//
-    	if (i%ir == 0) { // Time to log data?
-    	    i_log = i/ir;
+        if (i%ir == 0) { // Time to log data?
+            i_log = i/ir;
             double energy = get_energy_AL(pos, L, N); // Potential energy
             
             log_data1[i_log] = energy;
@@ -94,26 +93,26 @@ int main()
     //====================================================================//
     FILE * file1 = fopen("energy.dat", "w");
     if (file1 != NULL){
-    	printf("Print to file... ");
+        printf("Print to file... ");
 
-    	for (i = 0; i < nbr_of_timesteps/ir; i++) { // i are log steps now!
-    	    double t = ir*i*dt;
-    	    
-    	    // Print file1
-    		fprintf (file1,"%e \t %e \t %e \t %e     \n",
-    			t, // Time
-    		    log_data1[i], log_data2[i], log_data3[i]); // data
+        for (i = 0; i < nbr_of_timesteps/ir; i++) { // i are log steps now!
+            double t = ir*i*dt;
+            
+            // Print file1
+            fprintf (file1,"%e \t %e \t %e \t %e     \n",
+                t, // Time
+                log_data1[i], log_data2[i], log_data3[i]); // data
 
-    	    // Print file1
-    	    // ...
-    	}
-    	
-    	
-    	// Close file(s)
-    	fclose(file1);
-    	printf("Data printed!\n");
+            // Print file1
+            // ...
+        }
+        
+        
+        // Close file(s)
+        fclose(file1);
+        printf("Data printed!\n");
     } else {
-    	printf("A file is NULL!\n");
+        printf("A file is NULL!\n");
     }
     
    
@@ -153,7 +152,7 @@ int main()
      a matrix containing the positions of all the atoms, L is the length of the 
      supercell and N is the number of atoms.
     */
-    energy = get_energy_AL(pos, L, N);
+    double energy = get_energy_AL(pos, L, N);
     printf("energy = %.5f", energy);
     
     /* 
