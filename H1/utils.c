@@ -16,8 +16,8 @@ int periodic_bound(int i, int N) {
 }
 
 double periodic_boundT(double i, double lim) {
-    int tmpi = (int)(0.5+i*100000);
-    int tmplim = (int)(0.5+lim*100000);
+    int tmpi = (int)(0.5+i*100000000);
+    int tmplim = (int)(0.5+lim*100000000);
     if (tmpi < 0) tmpi += (-tmpi/tmplim+1) * tmplim;
-    return (double)(tmpi % tmplim)/(100000);
+    return (double)(tmpi % tmplim)/(100000000);
 }
