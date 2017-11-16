@@ -7,10 +7,9 @@ data = load('energy.dat');
 t = data(:,1);
 figure(1);
 hold on;
-plot(t,data(:,4))
+plot(t,data(:,1), '-.')
+plot(t,data(:,2), '.')
+plot(t,data(:,3))
 hold off;
 
-%% Plot trajectory
-
-figure(2)
-plot3(data(:,),Y1,Z1)
+legend('E_p', 'E_k', 'E_{tot}');

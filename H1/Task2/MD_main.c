@@ -95,9 +95,12 @@ int main()
         }
         //printf("f = (%2.2f, %2.2f, %2.2f) \n", vel[0][0], vel[0][1], vel[0][2]);
         for (j = 0; j < N; j++) { // q(t+dt)
-            pos[j][0] = pos[j][0] + dt * vel[j][0];
-            pos[j][1] = pos[j][1] + dt * vel[j][1];
-            pos[j][2] = pos[j][2] + dt * vel[j][2];
+            pos[j][0] = periodic_boundT( pos[j][0] + dt * vel[j][0], L );
+            pos[j][1] = periodic_boundT( pos[j][1] + dt * vel[j][1], L );
+            pos[j][2] = periodic_boundT( pos[j][2] + dt * vel[j][2], L );
+            //pos[j][0] = pos[j][0] + dt * vel[j][0];
+            //pos[j][1] = pos[j][1] + dt * vel[j][1];
+            //pos[j][2] = pos[j][2] + dt * vel[j][2];
         }
 
         //=====================//
@@ -143,16 +146,6 @@ int main()
             log_data9[i_log] = pos[69][0];
             log_data10[i_log] = pos[69][1];
             log_data11[i_log] = pos[69][2];
-            
-            /*
-            double log_data6 [nbr_of_timesteps/ir]; // x
-    double log_data7 [nbr_of_timesteps/ir]; // y
-    double log_data8 [nbr_of_timesteps/ir]; // z
-    
-    double log_data9 [nbr_of_timesteps/ir]; // x
-    double log_data10[nbr_of_timesteps/ir]; // y
-    double log_data11[nbr_of_timesteps/ir]; // z
-            */
             
             if (equilibrate) {
                 equilibrate--;
