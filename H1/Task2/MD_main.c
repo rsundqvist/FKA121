@@ -110,6 +110,12 @@ int main()
             vel[j][2] += dt * 0.5 * acc[j][2];
         }
         
+        equib_temp(vel, dt, Tau_eq, Tau_T, Tau, N);
+        quib_preassure(double (*pos)[3], dt, Tau, V, P, N);
+
+        Tau = instantaneus_temp (double m, double * E_k, int N);
+        P = preassure (double Tau, double V, double W, int N);
+        
         //====================================================================//
         // Record data (frequency depends on resolution ir);
         //====================================================================//

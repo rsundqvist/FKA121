@@ -27,7 +27,7 @@ void equib_temp(double (*vel)[3], double dt, double Tau_eq, double Tau_T,
  * pos: 3D positions, dt: timestep,
  * Tau: temperature, V: volume, , P: preassure, N: #particles
  */
-void equib_preassure(double (*pos)[3], double dt,
+void equib_pressure(double (*pos)[3], double dt,
 	double Tau, double V, double P, int N) {
 	//double kappa_T = -1/V * (dV/dT)_T; // Eq. 113
 	double kappa_T = 0.002219033;
@@ -59,7 +59,7 @@ double instantaneus_temp (double m, double * E_k, int N) {
 /*
  * Tau: temperature, V: volume, W: virial, N: #particles
  */
-void preassure (double Tau, double V, double W, int N) {
+double pressure (double Tau, double V, double W, int N) {
 	// Eq. 109, page 49
 	return (N*k_B*T + W)/V;
 }
