@@ -1,9 +1,3 @@
-/*
- MD_main.c
- 
- Created by Anders Lindman on 2013-10-31.
- */
-
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h>
@@ -16,68 +10,80 @@
 /* Main program */
 int main()
 {
-    // H1 specific
-    double  pos[N][3]; // Positions
+    //========================================================================//
+    // Task specific - H1.1
+    //========================================================================//
+    double  pos[N][3]; // Position
     double  f[N][3]; // Forces
-    int Nc = 4; // #primitive calls in each direction                           // 4 seems to be about max - segfault otherwise
+    double lattice[4*N*N*N][3];
+    int Nc = 4; // #primitive calls in each direction                           // Segfault sensitive - 4 seems to be about max
     double a0 = 0.1; // Lattice parameter
     double L = 1; // Length of supercell
 
-    // Verlet
+    //========================================================================//
+    // Setup
+    //========================================================================//
     int i, i_log;                                                               // i - actual timestep, i_log - logging of timestep data
-    double dt = 0;
-	double t_max = 2500;
+    double dt = 0.1;
+	double t_max = 250;
 	int nbr_of_timesteps = t_max/dt;
-	int ir = 100; // Resolution for i. Record every ir:th timestep
+	int ir = 100; // Resolution for i. Record every ir:th timestep.             // Segfault sensitive.
         
-    //========================================================================//
     // Data recording
-    //========================================================================//
-    double data1 [nbr_of_timesteps/ir];
-    double data2 [nbr_of_timesteps/ir];
-    double data3 [nbr_of_timesteps/ir];
+    double log_data1 [nbr_of_timesteps/ir];
+    double log_data2 [nbr_of_timesteps/ir];
+    double log_data3 [nbr_of_timesteps/ir];
     
-    printf("\nLog resolution: %d, t_max = %.3f \n", ir, t_max);
     //========================================================================//
     // Verlet
     //========================================================================//
-    for (i = 1; i < nbr_of_timesteps+1; i++) {
-    	if (i%(nbr_of_timesteps/10) == 0) {
-    		printf("\tt = %.2f \t\t %2.f  \n", i*dt, ((double)i/nbr_of_timesteps));
+    printf("\nLog resolution: %d, t_max = %.3f \n", ir, t_max);
+    for (i = 1; i < nbr_of_timesteps; i++) {
+    	if (i%(nbr_of_timesteps/10) == 0) { // Print progress - 10%
+    		printf("\tt = %.2f \t\t %.3f  \n", i*dt, ((double)i/nbr_of_timesteps));
     	}
     	
-    	if (i%ir == 0) {
+    	// Verlet steps
+    	
+    	
+    	if (i%ir == 0) { // Time to log data?
     	    i_log = i/ir;
             //================================================================//
             // Log step - record data
             //================================================================//
             
-            data1[i_log] = 1;
-            data2[i_log] = 2;
-            data3[i_log] = 3;
+            log_data1[i_log] = 1;
+            log_data2[i_log] = 2;
+            log_data3[i_log] = 3;
         }
     }
+    printf("\tt = %.2f \t\t %.3f  \n", i*dt, ((double)i/nbr_of_timesteps));
     
     //====================================================================//
     // Simulation complete - print data to file(s)
     // fopen("filename", acc), acc \in {"r", "w", "o"} (read, write, append)
     //====================================================================//
-    FILE * file1 = fopen("energy.dat", "w");                                            
-    FILE * file2 = fopen("foo.bar", "a"); 
+    FILE * file1 = fopen("energy.dat", "w");
     if (file1 != NULL){
-    	printf("%s", "Print to file: ");
+    	printf("Print to file.");
+
     	for (i = 0; i < nbr_of_timesteps/ir; i++) { // i are log steps now!
-    	    double t = ir*i*dt;
-    	    
+    	    double t = ir*i*dt;  
+    	    printf("%e \n", t);
     		fprintf (file1,"%e \t %e \t %e \t %e     \n",
     			t, // Time
-    		    data1[i], data2[i], data3[i]); // data
+    		    log_data1[i], log_data2[i], log_data3[i]); // data
     	}
+    	
+    	
+    	// Close file(s)
     	fclose(file1);
     	printf("Data printed!\n");
     } else {
-    	printf("file is NULL\n");
+    	printf("A file is NULL!\n");
     }
+    
+    return 1;
     
     
     /*
@@ -110,16 +116,16 @@ int main()
      size N x 3, where N is the number of atoms. The first, second and third column
      correspond to the x,y and z coordinate respectively.
     */
-    init_fcc(pos, Nc, a0); // segfault
+    init_fcc(lattice, Nc, a0);
     
     /* 
      Function that calculates the potential energy in units of [eV]. pos should be
      a matrix containing the positions of all the atoms, L is the length of the 
      supercell and N is the number of atoms.
     */
-    //double energy;
-    //energy = get_energy_AL(pos, L, N);
-    //printf("energy = %.5f", energy);
+    double energy;
+    energy = get_energy_AL(pos, L, N);
+    printf("energy = %.5f", energy);
     
     /* 
      Function that calculates the virial in units of [eV]. pos should be a matrix
