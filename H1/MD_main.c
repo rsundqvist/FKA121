@@ -13,10 +13,10 @@ int main()
     //========================================================================//
     // Task specific - H1.1
     //========================================================================//
-    double  pos[N][3]; // Position
-    double  f[N][3]; // Forces
-    double lattice[4*N*N*N][3];
+    double pos[N][3]; // Position
+    double f[N][3]; // Forces
     int Nc = 4; // #primitive calls in each direction                           // Segfault sensitive - 4 seems to be about max
+    double lattice[4*Nc*Nc*Nc][3];
     double a0 = 0.1; // Lattice parameter
     double L = 1; // Length of supercell
 
@@ -83,8 +83,6 @@ int main()
     	printf("A file is NULL!\n");
     }
     
-    return 1;
-    
     
     /*
     int bound = 4;
@@ -117,7 +115,7 @@ int main()
      correspond to the x,y and z coordinate respectively.
     */
     init_fcc(lattice, Nc, a0);
-    
+    return 1;
     /* 
      Function that calculates the potential energy in units of [eV]. pos should be
      a matrix containing the positions of all the atoms, L is the length of the 
