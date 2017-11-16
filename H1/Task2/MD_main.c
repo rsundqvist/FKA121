@@ -111,11 +111,14 @@ int main()
             vel[j][2] += dt * 0.5 * acc[j][2];
         }
         
+        double Ek = get_kinetic_energy(mass, vel);
+        double W = get_virial_AL(pos, a0, N);
+        Tau = instantaneus_temp (mass, Ek, N);
+        P = pressure (Tau, V, W, N);
+        
         equib_temp(vel, dt, Tau_eq, Tau_T, Tau, N);
-        quib_pressure(double (*pos)[3], dt, Tau, V, P, N);
+        equib_pressure(pos, dt, Tau, V, P, P_eq, N);
 
-        Tau = instantaneus_temp (double m, double * E_k, int N);
-        P = pressure (double Tau, double V, double W, int N);
         
         //====================================================================//
         // Record data (frequency depends on resolution ir);
@@ -123,7 +126,6 @@ int main()
         if (i%ir == 0) { // Time to log data?
             i_log = i/ir;
             double Ep = get_energy_AL(pos, L, N); // Potential energy
-            double Ek = get_kinetic_energy(mass, vel);
             log_data1[i_log] = Ep;
             log_data2[i_log] = Ek;
             log_data3[i_log] = Ek+Ep;
