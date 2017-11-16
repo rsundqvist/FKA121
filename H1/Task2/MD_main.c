@@ -9,7 +9,7 @@
 
 #define N 256
 
-#define Tau_T 1000
+#define Tau_T 0.1
 #define Tau_eq 773.15
 #define P_eq 0.000000632
 
@@ -117,7 +117,7 @@ int main()
         P = pressure (Tau, V, W, N);
         
         equib_temp(vel, dt, Tau_eq, Tau_T, Tau, N);
-        equib_pressure(pos, dt, Tau, V, P, P_eq, N);
+        //equib_pressure(pos, dt, Tau, V, P, P_eq, N);
 
         
         //====================================================================//
