@@ -65,7 +65,7 @@ int main()
     double log_data1 [nbr_of_timesteps/ir]; // E_p
     double log_data2 [nbr_of_timesteps/ir]; // E_k
     double log_data3 [nbr_of_timesteps/ir]; // E_tot = E_p + E_k
-    double log_data4 [nbr_of_timesteps/ir]; // Tau, temperature
+    double log_data4 [nbr_of_timesteps/ir]; // T, temperature
     double log_data5 [nbr_of_timesteps/ir]; // P, pressure
     
     double log_data6 [nbr_of_timesteps/ir]; // x
@@ -76,7 +76,7 @@ int main()
     double log_data10[nbr_of_timesteps/ir]; // y
     double log_data11[nbr_of_timesteps/ir]; // z
     
-    
+    int equilibrate = 100;
     //========================================================================//
     // Verlet
     //========================================================================//
@@ -117,9 +117,10 @@ int main()
         T = instantaneus_temp (Ek, N);
         P = pressure (T, V, W, N);
         
-        equib_temp(vel, dt, Tau_eq, Tau_T, T, N);
-        equib_pressure(pos, dt, Tau_P, V, P, P_eq, N);
-
+        if (equilibrate) {
+            equib_temp(vel, dt, Tau_eq, Tau_T, T, N);
+            equib_pressure(pos, dt, Tau_P, V, P, P_eq, N);
+        }
         
         //====================================================================//
         // Record data (frequency depends on resolution ir);
@@ -132,7 +133,7 @@ int main()
             log_data3[i_log] = Ek+Ep;
             
             log_data4[i_log] = T;
-            printf("\tTemp = %.5f \t P = %.5f \n", T,P);
+            //printf("\tTemp = %.5f \t P = %.5f \n", T,P);
             log_data5[i_log] = P;
             
             log_data6[i_log] = pos[0][0];
@@ -142,6 +143,12 @@ int main()
             log_data9[i_log] = pos[69][0];
             log_data10[i_log] = pos[69][1];
             log_data11[i_log] = pos[69][2];
+            
+            if (equilibrate) {
+                equilibrate--;
+                printf("Equilibration halt: %d \n", equilibrate);
+                printf("\tTemp = %.5f \t P = %.5f \n", T,P);
+            }
         }
     }
     printf("\tt = %.2f \t\t %.3f  \n", i*dt, ((double)i/nbr_of_timesteps));
