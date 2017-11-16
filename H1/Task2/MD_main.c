@@ -8,9 +8,9 @@
 
 #define N 256
 
-#define Tau_T "något_vettigt"
+#define Tau_T 1
 #define Tau_eq 773.15
-#define P_eq foo
+#define P_eq 0.000000632
 
 
 void calc_acc(double mass, double (*f)[3], double (*acc)[3]);

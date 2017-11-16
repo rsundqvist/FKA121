@@ -29,7 +29,8 @@ void equib_temp(double (*vel)[3], double dt, double Tau_eq, double Tau_T,
  */
 void equib_preassure(double (*pos)[3], double dt,
 	double Tau, double V, double P, int N) {
-	double kappa_T = -1/V * (dV/dT)_T; // Eq. 113
+	//double kappa_T = -1/V * (dV/dT)_T; // Eq. 113
+	double kappa_T = 0.002219033;
 	double alpha_P = 1 + kappa_T*dt/Tau_P*(P_eq - P); // Eq. 112
 	double factor = cbrt(3, alpha_P);
 	
