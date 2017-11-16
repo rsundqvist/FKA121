@@ -5,6 +5,7 @@
 #include "initfcc.h"
 #include "alpotential.h"
 #include "utils.h"
+#include "equilibration.h"
 
 #define N 256
 
@@ -111,10 +112,10 @@ int main()
         }
         
         equib_temp(vel, dt, Tau_eq, Tau_T, Tau, N);
-        quib_preassure(double (*pos)[3], dt, Tau, V, P, N);
+        quib_pressure(double (*pos)[3], dt, Tau, V, P, N);
 
         Tau = instantaneus_temp (double m, double * E_k, int N);
-        P = preassure (double Tau, double V, double W, int N);
+        P = pressure (double Tau, double V, double W, int N);
         
         //====================================================================//
         // Record data (frequency depends on resolution ir);

@@ -25,7 +25,7 @@ void equib_temp(double (*vel)[3], double dt, double Tau_eq, double Tau_T,
 
 /*
  * pos: 3D positions, dt: timestep,
- * Tau: temperature, V: volume, , P: preassure, N: #particles
+ * Tau: temperature, V: volume, , P: pressure, N: #particles
  */
 void equib_pressure(double (*pos)[3], double dt,
 	double Tau, double V, double P, int N) {
