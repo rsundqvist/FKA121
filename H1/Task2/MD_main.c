@@ -144,6 +144,16 @@ int main()
             log_data10[i_log] = pos[69][1];
             log_data11[i_log] = pos[69][2];
             
+            /*
+            double log_data6 [nbr_of_timesteps/ir]; // x
+    double log_data7 [nbr_of_timesteps/ir]; // y
+    double log_data8 [nbr_of_timesteps/ir]; // z
+    
+    double log_data9 [nbr_of_timesteps/ir]; // x
+    double log_data10[nbr_of_timesteps/ir]; // y
+    double log_data11[nbr_of_timesteps/ir]; // z
+            */
+            
             if (equilibrate) {
                 equilibrate--;
                 printf("Equilibration halt: %d \n", equilibrate);
@@ -168,7 +178,10 @@ int main()
             fprintf (file1,"%e \t %e \t %e \t %e \t %e \t %e      \n",
                 t, // Time
                 log_data1[i], log_data2[i], log_data3[i],
-                log_data4[i], log_data5[i]); // data
+                log_data4[i], log_data5[i],
+                log_data6, log_data7, log_data8,
+                log_data9, log_data10, log_data11
+                ); // data
 
             // Print file1
             // ...
