@@ -9,10 +9,12 @@
 
 #define N 256
 
-#define Tau_T 0.1
-#define Tau_P 1000
-#define Tau_eq 773.15
-#define P_eq 0.000000633
+#define Tau_T 0.5
+#define Tau_P 0.5
+//#define Tau_eq 773.15
+#define Tau_eq 5000
+//#define P_eq 0.000000633
+#define P_eq 1
 
 
 void calc_acc(double mass, double (*f)[3], double (*acc)[3]);
@@ -31,6 +33,7 @@ int main()
     double vel[N][3];
     double acc[N][3];
     double f[N][3]; // Forces
+    double fix = 10000;
     
     // Set arrays to zero
     setArray3DToZero(pos);  
@@ -43,11 +46,10 @@ int main()
     
     int Nc = 4; // #primitive calls in each direction 
     double L = Nc * a0; // Length of supercell
-    double L_prev = L;
-    double kappa_T = 1;
-    double alphaP = 1;
-    double * alpha_pP = &alphaP;
-    double V = L*L*L;
+    double kappa_T = -2;
+    double alpha_p;
+    double * alpha_pP = &alpha_p;
+    double V;
     init_fcc(pos, Nc, a0);
     randomizeLattice(pos, a0); // Introduce some random deviations
     
@@ -61,7 +63,7 @@ int main()
     //========================================================================//
     int i, j, i_log;                                                               // i - actual timestep, i_log - logging of timestep data
     double dt = 0.001;
-    double t_max = 100;
+    double t_max = 10;
     int nbr_of_timesteps = t_max/dt;
     int ir = 100; // Resolution for i. Record every ir:th timestep.             // Segfault sensitive.
         
@@ -80,15 +82,16 @@ int main()
     double log_data10[nbr_of_timesteps/ir]; // y
     double log_data11[nbr_of_timesteps/ir]; // z
     
-    int equilibrate = 3000;
+    int equilibrate = 500;
     //========================================================================//
     // Verlet
     //========================================================================//
     printf("\nLog resolution: 1 per %d steps, t_max = %.3f \n", ir, t_max);
-    for (i = 1; i < 1000; i++) {
+    for (i = 1; i < nbr_of_timesteps; i++) {
         if (i%(nbr_of_timesteps/20) == 0) { // Print progress - 10%
             printf("\tt = %.2f \t\t %.3f  \n", i*dt, ((double)i/nbr_of_timesteps));
         }
+      
         //======================================//
         // Verlet
         //======================================//
@@ -102,9 +105,6 @@ int main()
             pos[j][0] = periodic_boundT( pos[j][0] + dt * vel[j][0], L );
             pos[j][1] = periodic_boundT( pos[j][1] + dt * vel[j][1], L );
             pos[j][2] = periodic_boundT( pos[j][2] + dt * vel[j][2], L );
-            //pos[j][0] = pos[j][0] + dt * vel[j][0];
-            //pos[j][1] = pos[j][1] + dt * vel[j][1];
-            //pos[j][2] = pos[j][2] + dt * vel[j][2];
         }
 
         //=====================//
@@ -120,18 +120,23 @@ int main()
         }
         
         double Ek = get_kinetic_energy(mass, vel);
-        double W = get_virial_AL(pos, a0, N);
         T = instantaneus_temp (Ek, N);
         P_prev = P;
+        V = L*L*L; 
+        double W = get_virial_AL(pos, a0, N);
         P = pressure (T, V, W, N);
         if (equilibrate) {
-            equib_pressure(pos, dt, Tau_P, P, P_eq, N, kappa_T, alpha_pP);
-            printf("%.9f \t %.9f \t %.9f \n",*alpha_pP, kappa_T, P);
-            // Rescale cell
-            L_prev = L;
-            L *= *alpha_pP;
-            kappa_T = - 1/(L_prev*L_prev*L_prev) * (L*L*L - L_prev*L_prev*L_prev)/(P - P_prev);
-            equib_temp(vel, dt, Tau_eq, Tau_T, T, N);
+            //printf("fix = %.15f\n", fix);
+            equib_pressure(pos, dt, Tau_P, P, P_eq, N, kappa_T, alpha_pP, fix); // Update pressure
+            
+            a0 *= *alpha_pP; // Rescale cell
+            L = Nc * a0;
+            /*printf("alpha_p = %.5f\n", alpha_p);
+            printf("alpha_pP = %.5f\n", *alpha_pP);
+            printf("a0 = %.5f\n", a0);
+            printf("L = %.5f\n", L);*/
+            
+            equib_temp(vel, dt, Tau_eq, Tau_T, T, N); // Update temperature
         }
         
         //====================================================================//

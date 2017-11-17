@@ -30,10 +30,9 @@ void equib_temp(double (*vel)[3], double dt, double Tau_eq, double Tau_T,
  * Tau: temperature, V: volume, , P: pressure, P_eq: target pressure, N: #particles
  */
 void equib_pressure(double (*pos)[3], double dt,
-	double Tau_P, double P, double P_eq, int N, double kappa_T, double * alpha_pP) {
+	double Tau_P, double P, double P_eq, int N, double kappa_T, double * alpha_pP, double fix) {
 	
-	//double kappa_T = 2.2219033;//0.002219033;
-	*alpha_pP = 1 - kappa_T*dt/Tau_P *(P_eq - P); // Eq. 112
+	*alpha_pP = 1 - kappa_T*dt/Tau_P *(P_eq - P)/fix; // Eq. 112
 	double factor = cbrt(*alpha_pP);
     //printf("%.9f \t %.9f \t %.9f \n",*alpha_pP, kappa_T, factor);
 	
