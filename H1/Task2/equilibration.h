@@ -13,7 +13,7 @@ void equib_temp(double (*vel)[3], double dt, double Tau_eq, double Tau_T,
  * Tau: temperature, V: volume, , P: pressure, N: #particles
  */
 void equib_pressure(double (*pos)[3], double dt,
-	double Tau, double V, double P, double P_eq, int N);
+	double Tau, double P, double P_eq, int N, double kappa_T, double * alpha_pP);
 
 /*
  * m: mass per particle, E_k: kinetic energy, N: #particles

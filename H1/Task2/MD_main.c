@@ -10,9 +10,9 @@
 #define N 256
 
 #define Tau_T 0.1
-#define Tau_P 1
+#define Tau_P 1000
 #define Tau_eq 773.15
-#define P_eq 0.000000632
+#define P_eq 0.000000633
 
 
 void calc_acc(double mass, double (*f)[3], double (*acc)[3]);
@@ -43,6 +43,10 @@ int main()
     
     int Nc = 4; // #primitive calls in each direction 
     double L = Nc * a0; // Length of supercell
+    double L_prev = L;
+    double kappa_T = 1;
+    double alphaP = 1;
+    double * alpha_pP = &alphaP;
     double V = L*L*L;
     init_fcc(pos, Nc, a0);
     randomizeLattice(pos, a0); // Introduce some random deviations
@@ -50,8 +54,8 @@ int main()
     //========================================================================//
     // Task specific - H1
     //========================================================================//               
-    double T, P; // Temperature, Pressure
-    
+    double T, P, P_prev; // Temperature, Pressure
+    P = 0;
     //========================================================================//
     // Setup
     //========================================================================//
@@ -76,12 +80,12 @@ int main()
     double log_data10[nbr_of_timesteps/ir]; // y
     double log_data11[nbr_of_timesteps/ir]; // z
     
-    int equilibrate = 100;
+    int equilibrate = 3000;
     //========================================================================//
     // Verlet
     //========================================================================//
     printf("\nLog resolution: 1 per %d steps, t_max = %.3f \n", ir, t_max);
-    for (i = 1; i < nbr_of_timesteps; i++) {
+    for (i = 1; i < 1000; i++) {
         if (i%(nbr_of_timesteps/20) == 0) { // Print progress - 10%
             printf("\tt = %.2f \t\t %.3f  \n", i*dt, ((double)i/nbr_of_timesteps));
         }
@@ -118,11 +122,16 @@ int main()
         double Ek = get_kinetic_energy(mass, vel);
         double W = get_virial_AL(pos, a0, N);
         T = instantaneus_temp (Ek, N);
+        P_prev = P;
         P = pressure (T, V, W, N);
-        
         if (equilibrate) {
+            equib_pressure(pos, dt, Tau_P, P, P_eq, N, kappa_T, alpha_pP);
+            printf("%.9f \t %.9f \t %.9f \n",*alpha_pP, kappa_T, P);
+            // Rescale cell
+            L_prev = L;
+            L *= *alpha_pP;
+            kappa_T = - 1/(L_prev*L_prev*L_prev) * (L*L*L - L_prev*L_prev*L_prev)/(P - P_prev);
             equib_temp(vel, dt, Tau_eq, Tau_T, T, N);
-            equib_pressure(pos, dt, Tau_P, V, P, P_eq, N);
         }
         
         //====================================================================//

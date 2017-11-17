@@ -1,5 +1,6 @@
 #include <math.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include "equilibration.h"
 
 // http://fy.chalmers.se/~tfsgw/CompPhys/lectures/MD_LectureNotes_171029.pdf
@@ -29,12 +30,12 @@ void equib_temp(double (*vel)[3], double dt, double Tau_eq, double Tau_T,
  * Tau: temperature, V: volume, , P: pressure, P_eq: target pressure, N: #particles
  */
 void equib_pressure(double (*pos)[3], double dt,
-	double Tau_P, double V, double P, double P_eq, int N) {
+	double Tau_P, double P, double P_eq, int N, double kappa_T, double * alpha_pP) {
 	
-	//double kappa_T = -1/V * (dV/dT)_T; // Eq. 113
-	double kappa_T = 0.002219033;
-	double alpha_P = 1 + kappa_T*dt/Tau_P*(P_eq - P); // Eq. 112
-	double factor = cbrt(alpha_P);
+	//double kappa_T = 2.2219033;//0.002219033;
+	*alpha_pP = 1 - kappa_T*dt/Tau_P *(P_eq - P); // Eq. 112
+	double factor = cbrt(*alpha_pP);
+    //printf("%.9f \t %.9f \t %.9f \n",*alpha_pP, kappa_T, factor);
 	
 	int i;
 	for (i = 0; i < N; ++i) // v_new = sqrt( alpha_T ) * v_old;
