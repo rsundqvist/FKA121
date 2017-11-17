@@ -13,9 +13,7 @@ Further developed by Martin Gren on 2014-10-20.
 #define nbr_of_particles 32 /* The number of particles is 3 */
 
 void transformQ(double * q, double * Q,double (*trans_matrix)[nbr_of_particles]);
-void inverseTransformQ(double * q, double * Q,double (*trans_matrix)[nbr_of_particles]);
 double computeModeEnergy(double Qk,double Pk,double omega);
-double computeTotalEnergy(double *p,double*q, double alpha);
 
 /* Main program */
 int main()
@@ -25,7 +23,6 @@ int main()
 	double timestep;
 	int i,j,k;
 	double timestep_sq,current_time;
-	int size_q;
 	double tmax;
 	int nbr_of_timesteps;
 
@@ -33,20 +30,19 @@ int main()
 	FILE *file;
 
 	/* displacement, velocity and acceleration */
-	double q[nbr_of_particles+2];
-	double v[nbr_of_particles+2];
-	double a[nbr_of_particles+2];
+	double q[nbr_of_particles];
+	double v[nbr_of_particles];
+	double a[nbr_of_particles];
 	double Q[nbr_of_particles];
 	double P[nbr_of_particles];
 	double omega[nbr_of_particles];
 	double *p = v;
 
 	/* Set variables */
-	timestep = 0.06;
+	timestep = 0.01;
 	tmax = 25000;
 	nbr_of_timesteps = (int)tmax/timestep;
 	alpha = 0.1;
-	size_q = nbr_of_particles + 2;
 
 	/* Allocating memory for large vectors */
 	/* displacements for writing to file */
@@ -85,10 +81,8 @@ int main()
 		P[i] = 0;
 	}
 	P[0] = sqrt(2*nbr_of_particles);
-	inverseTransformQ(q, Q,trans_matrix);
-	inverseTransformQ(p, P,trans_matrix);
-	q[0] = 0;
-	q[size_q-1] = 0;
+	transformQ(Q, q,trans_matrix);
+	transformQ(P, p,trans_matrix);
 	q_1[0] = a[0];
 	q_2[0] = a[1];
 	q_3[0] = a[2];
@@ -97,25 +91,25 @@ int main()
 
 
 	/* Calculate initial accelerations based on initial displacements */
-	calc_acc(a, q, alpha, size_q);
+	calc_acc(a, q, alpha, nbr_of_particles);
 
 	/* timesteps according to velocity Verlet algorithm */
 	for (i = 1; i < nbr_of_timesteps + 1; i++) {
 		/* v(t+dt/2) */
-		for (j = 0; j < size_q; j++) {
+		for (j = 0; j < nbr_of_particles; j++) {
 		    v[j] += timestep * 0.5 * a[j];
 		} 
 
 		/* q(t+dt) */
-		for (j = 0; j < size_q; j++) {
+		for (j = 0; j < nbr_of_particles; j++) {
 		    q[j] += timestep * v[j];
 		}
 
 		/* a(t+dt) */
-		calc_acc(a, q, alpha, size_q);
+		calc_acc(a, q, alpha, nbr_of_particles);
 
 		/* v(t+dt) */
-		for (j = 0; j < size_q; j++) {
+		for (j = 0; j < nbr_of_particles; j++) {
 		    v[j] += timestep * 0.5 * a[j];
 		} 
 
@@ -126,8 +120,6 @@ int main()
 
 
 		/* Update normal coordiantes and compute energy */
-		q[0] = 0;
-		q[size_q-1] = 0;
 		transformQ(q, Q,trans_matrix);
 		transformQ(p, P,trans_matrix);
 		Ek1[i] = computeModeEnergy(Q[0],P[0],omega[0]);
@@ -136,7 +128,8 @@ int main()
 		Ek4[i] = computeModeEnergy(Q[3],P[3],omega[3]);
 		Ek5[i] = computeModeEnergy(Q[4],P[4],omega[4]);
 		/* Total energy */
-		Ektot[i] = computeTotalEnergy(p, q, alpha);
+        for (j = 0; j < nbr_of_particles; j++)
+		    Ektot[i] += computeModeEnergy(Q[j], P[j], omega[j]);
 	}
 
 	/* Print displacement data to output file */
@@ -173,38 +166,14 @@ void transformQ(double * q, double * Q,double (*trans_matrix)[nbr_of_particles])
  	for (i = 0; i < nbr_of_particles; i++){
         	sum = 0;
         	for (j = 0; j < nbr_of_particles; j++){
-            		sum += q[j+1] * trans_matrix[i][j];
+            		sum += q[j] * trans_matrix[i][j];
         	}
         	Q[i] = sum;
     }
 }
 
-void inverseTransformQ(double * q, double * Q,double (*trans_matrix)[nbr_of_particles]) {
-	/* Transformation from normal modes Q to displacements q.  */
-	int i,j;
-	double sum;
- 	for (i = 0; i < nbr_of_particles; i++){
-        	sum = 0;
-        	for (j = 0; j < nbr_of_particles; j++){
-            		sum += Q[j] * trans_matrix[i][j];
-        	}
-        	q[i+1] = sum;
-    }
-}
 
 double computeModeEnergy(double Qk,double Pk,double omega) {
 	return 0.5*(Pk*Pk + omega*omega*Qk*Qk);
 }
 
-double computeTotalEnergy(double *p,double*q, double alpha) {
-	int i;
-	double energy = 0;
-	// Kinetic energy
-	for(i = 0; i < nbr_of_particles+2;i++)
-		energy += 0.5 * (q[i+1] - q[i]) * (q[i+1] - q[i]) + alpha/3.0 * (q[i+1] - q[i])* (q[i+1] - q[i])* (q[i+1] - q[i]); 
-	// Potential energy	
-	for(i = 1; i < nbr_of_particles+2;i++)
-		energy += p[i]*p[i];
-
-	return energy;
-}
