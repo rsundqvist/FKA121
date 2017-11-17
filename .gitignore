@@ -1,6 +1,9 @@
 #
 MD #H1 binary
 
+# Data-files
+*.dat
+
 # Linux temp files
 *.*~
 *.asv
