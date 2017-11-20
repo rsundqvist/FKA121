@@ -8,6 +8,7 @@
 
 double mathFunction1(double x);
 double mathFunction2(double x);
+double mathFunction3(double x);
 double mathFunctionSinPi(double x);
 double mathFunctionArcsinPi(double x);
 void mcIntegrate(double *ans, double (*fuctionPtr)(double), double x, double x2, int N, gsl_rng * q);
@@ -25,10 +26,10 @@ int main() {
     double ans[2]; // Return value from mcIntegrate
     int N = 10, i = 1;
     // Bounds of inverse cummulative function
-    double x1 = mathFunctionSinPi(0);
-    double x2 = mathFunctionSinPi(1);
+    double x1 = mathFunction3(0);
+    double x2 = mathFunction3(1);
     while(i <= 5) {
-        mcIntegrateImportanceSampling(ans, mathFunction2, mathFunctionArcsinPi, x1, x2, N, q);
+        mcIntegrateImportanceSampling(ans, mathFunction2, mathFunction3, x1, x2, N, q);
         printf("N^%d: \t mu = %.8f, sigma = %.8f \n", i, ans[0], ans[1]);
         N *= 10;
         i++;
@@ -50,8 +51,8 @@ double mathFunctionSinPi(double x) {
     return 0.5 * PI * sin(PI*x);
 }
 
-double mathFunctionArcsinPi(double x) {
-    return asin(2 * x/ PI)/PI;
+double mathFunction3(double x) {
+    return acos(1 - 2*x)/PI;
 }
 
 void mcIntegrate(double *ans, double (*fun)(double), double x1, double x2, int N, gsl_rng * q) {
@@ -87,15 +88,17 @@ gsl_rng * init_rng()
 
 void mcIntegrateImportanceSampling(double *ans, double (*gFun)(double), double (*invFun)(double), double x1, double x2, int N, gsl_rng * q) {
     double rx, y;
-    double ysum = 0, ysqSum = 0;
+    double ysum = 0, ysqSum = 0, testsum = 0;
     // Sample N points
     int i;    
     for(i = 0; i < N; i++) {
         rx = transformationMethod(invFun, x1,x2,q);
+        testsum += rx;
         y = gFun(rx);
         ysum += y;
         ysqSum += y*y;
     }
+    printf("%.5f \n",testsum/N);
     double mu = ysum/N;
     double sigmasq = 1/N * ysqSum - mu*mu;
     if (sigmasq < 0) sigmasq = -sigmasq;
