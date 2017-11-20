@@ -10,20 +10,20 @@ void equib_temp(double (*vel)[3], double dt, double Tau_eq, double Tau_T,
 
 /*
  * pos: 3D positions, dt: timestep,
- * Tau: temperature, V: volume, , P: preassure, N: #particles
+ * Tau: temperature, V: volume, , P: pressure, N: #particles
  */
-void equib_preassure(double (*pos)[3], double dt,
-	double Tau, double V, double P, int N);
+void equib_pressure(double (*pos)[3], double dt,
+	double Tau, double P, double P_eq, int N, double kappa_T, double * alpha_pP, double fix);
 
 /*
  * m: mass per particle, E_k: kinetic energy, N: #particles
  */
-double instantaneus_temp (double m, double * E_k, int N);
+double instantaneus_temp (double E_k, int N);
 
 /*
  * Tau: temperature, V: volume, W: virial, N: #particles
  */
-void preassure (double Tau, double V, double W, int N);
+double pressure (double Tau, double V, double W, int N);
 
 
 #endif

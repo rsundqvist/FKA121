@@ -5,12 +5,16 @@
 #include "initfcc.h"
 #include "alpotential.h"
 #include "utils.h"
+#include "equilibration.h"
 
 #define N 256
 
-#define Tau_T "något_vettigt"
-#define Tau_eq 773.15
-#define P_eq foo
+#define Tau_T 0.5
+#define Tau_P 0.5
+//#define Tau_eq 773.15
+#define Tau_eq 5000
+//#define P_eq 0.000000633
+#define P_eq 1
 
 
 void calc_acc(double mass, double (*f)[3], double (*acc)[3]);
@@ -22,13 +26,14 @@ void randomizeLattice(double (*pos)[3],double a0);
 int main()
 {
     //========================================================================//
-    // Task specific - H1.1
+    // Task specific - H1
     //========================================================================//   
     srand(time(NULL));                      
     double pos[N][3]; // x, y, z
     double vel[N][3];
     double acc[N][3];
     double f[N][3]; // Forces
+    double fix = 10000;
     
     // Set arrays to zero
     setArray3DToZero(pos);  
@@ -41,24 +46,43 @@ int main()
     
     int Nc = 4; // #primitive calls in each direction 
     double L = Nc * a0; // Length of supercell
-    double V = L*L*L;
+    double kappa_T = -2;
+    double alpha_p;
+    double * alpha_pP = &alpha_p;
+    double V;
     init_fcc(pos, Nc, a0);
     randomizeLattice(pos, a0); // Introduce some random deviations
     
     //========================================================================//
+    // Task specific - H1
+    //========================================================================//               
+    double T, P, P_prev; // Temperature, Pressure
+    P = 0;
+    //========================================================================//
     // Setup
     //========================================================================//
     int i, j, i_log;                                                               // i - actual timestep, i_log - logging of timestep data
-    double dt = 0.01;
+    double dt = 0.001;
     double t_max = 10;
     int nbr_of_timesteps = t_max/dt;
     int ir = 100; // Resolution for i. Record every ir:th timestep.             // Segfault sensitive.
         
     // Data recording
-    double log_data1 [nbr_of_timesteps/ir];
-    double log_data2 [nbr_of_timesteps/ir];
-    double log_data3 [nbr_of_timesteps/ir];
+    double log_data1 [nbr_of_timesteps/ir]; // E_p
+    double log_data2 [nbr_of_timesteps/ir]; // E_k
+    double log_data3 [nbr_of_timesteps/ir]; // E_tot = E_p + E_k
+    double log_data4 [nbr_of_timesteps/ir]; // T, temperature
+    double log_data5 [nbr_of_timesteps/ir]; // P, pressure
     
+    double log_data6 [nbr_of_timesteps/ir]; // x
+    double log_data7 [nbr_of_timesteps/ir]; // y
+    double log_data8 [nbr_of_timesteps/ir]; // z
+    
+    double log_data9 [nbr_of_timesteps/ir]; // x
+    double log_data10[nbr_of_timesteps/ir]; // y
+    double log_data11[nbr_of_timesteps/ir]; // z
+    
+    int equilibrate = 500;
     //========================================================================//
     // Verlet
     //========================================================================//
@@ -67,6 +91,7 @@ int main()
         if (i%(nbr_of_timesteps/20) == 0) { // Print progress - 10%
             printf("\tt = %.2f \t\t %.3f  \n", i*dt, ((double)i/nbr_of_timesteps));
         }
+      
         //======================================//
         // Verlet
         //======================================//
@@ -77,9 +102,9 @@ int main()
         }
         //printf("f = (%2.2f, %2.2f, %2.2f) \n", vel[0][0], vel[0][1], vel[0][2]);
         for (j = 0; j < N; j++) { // q(t+dt)
-            pos[j][0] = pos[j][0] + dt * vel[j][0];
-            pos[j][1] = pos[j][1] + dt * vel[j][1];
-            pos[j][2] = pos[j][2] + dt * vel[j][2];
+            pos[j][0] = periodic_boundT( pos[j][0] + dt * vel[j][0], L );
+            pos[j][1] = periodic_boundT( pos[j][1] + dt * vel[j][1], L );
+            pos[j][2] = periodic_boundT( pos[j][2] + dt * vel[j][2], L );
         }
 
         //=====================//
@@ -94,16 +119,53 @@ int main()
             vel[j][2] += dt * 0.5 * acc[j][2];
         }
         
+        double Ek = get_kinetic_energy(mass, vel);
+        T = instantaneus_temp (Ek, N);
+        P_prev = P;
+        V = L*L*L; 
+        double W = get_virial_AL(pos, a0, N);
+        P = pressure (T, V, W, N);
+        if (equilibrate) {
+            //printf("fix = %.15f\n", fix);
+            equib_pressure(pos, dt, Tau_P, P, P_eq, N, kappa_T, alpha_pP, fix); // Update pressure
+            
+            a0 *= *alpha_pP; // Rescale cell
+            L = Nc * a0;
+            /*printf("alpha_p = %.5f\n", alpha_p);
+            printf("alpha_pP = %.5f\n", *alpha_pP);
+            printf("a0 = %.5f\n", a0);
+            printf("L = %.5f\n", L);*/
+            
+            equib_temp(vel, dt, Tau_eq, Tau_T, T, N); // Update temperature
+        }
+        
         //====================================================================//
         // Record data (frequency depends on resolution ir);
         //====================================================================//
         if (i%ir == 0) { // Time to log data?
             i_log = i/ir;
             double Ep = get_energy_AL(pos, L, N); // Potential energy
-            double Ek = get_kinetic_energy(mass, vel);
             log_data1[i_log] = Ep;
             log_data2[i_log] = Ek;
             log_data3[i_log] = Ek+Ep;
+            
+            log_data4[i_log] = T;
+            //printf("\tTemp = %.5f \t P = %.5f \n", T,P);
+            log_data5[i_log] = P;
+            
+            log_data6[i_log] = pos[0][0];
+            log_data7[i_log] = pos[0][1];
+            log_data8[i_log] = pos[0][2];
+            
+            log_data9[i_log] = pos[69][0];
+            log_data10[i_log] = pos[69][1];
+            log_data11[i_log] = pos[69][2];
+            
+            if (equilibrate) {
+                equilibrate--;
+                printf("Equilibration halt: %d \n", equilibrate);
+                printf("\tTemp = %.5f \t P = %.5f \n", T,P);
+            }
         }
     }
     printf("\tt = %.2f \t\t %.3f  \n", i*dt, ((double)i/nbr_of_timesteps));
@@ -120,9 +182,13 @@ int main()
             double t = ir*i*dt;
             
             // Print file1
-            fprintf (file1,"%e \t %e \t %e \t %e     \n",
+            fprintf (file1,"%e \t %e \t %e \t %e \t %e \t %e, \t, %e \t %e \t %e \t %e \t %e \t %e \n",
                 t, // Time
-                log_data1[i], log_data2[i], log_data3[i]); // data
+                log_data1[i], log_data2[i], log_data3[i],
+                log_data4[i], log_data5[i],
+                log_data6[i], log_data7[i], log_data8[i],
+                log_data9[i], log_data10[i], log_data11[i]
+                ); // data
 
             // Print file1
             // ...
