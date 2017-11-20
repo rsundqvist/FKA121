@@ -16,9 +16,7 @@ void free_rng(gsl_rng *);// gsl rng create+delete
 int main() {
 	gsl_rng * q = init_rng();
 
-    double ans[2];
-    double (*Ptr)(double) = mathFunction1;
-
+    double ans[2]; // Return value from mcIntegrate
     int N = 10, i = 1;
     while(i <= 10) {
         mcIntegrate(ans, mathFunction1, 0, 1, N, q);
