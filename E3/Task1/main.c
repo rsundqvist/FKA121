@@ -9,13 +9,12 @@ double mathFunction1(double x);
 void mcIntegrate(double *ans, double (*fuctionPtr)(double), double x, double x2, int N, gsl_rng * q);
 
 
+gsl_rng * init_rng(); // gsl rng create
+void free_rng(gsl_rng *);// gsl rng create+delete
+
+
 int main() {
-    const gsl_rng_type *T;
-    gsl_rng *q;
-    gsl_rng_env_setup();
-    T = gsl_rng_default;
-    q = gsl_rng_alloc(T);
-    gsl_rng_set(q,time(NULL));
+	gsl_rng * q = init_rng();
 
     double ans[2];
     double (*Ptr)(double) = mathFunction1;
@@ -56,7 +55,16 @@ void mcIntegrate(double *ans, double (*functionPtr)(double), double x1, double x
     ans[1] = sqrt(sigmasq/N);
 }
 
-
+gsl_rng * init_rng()
+{
+	const gsl_rng_type *T;
+	gsl_rng *q;
+	gsl_rng_env_setup();
+	T = gsl_rng_default;
+	q = gsl_rng_alloc(T);
+	gsl_rng_set(q,time(NULL));
+	return q;
+}
 
 
 

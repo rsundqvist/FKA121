@@ -5,8 +5,8 @@ CC = gcc # c-compiler
 CFLAGS = -O3 -W # -O3 gives optimization, -W gives warnings
 LIBS = -lm -lgsl -lgslcblas # libraries
 
-OBJECTS = main.o # object files to produce
-PROGRAM = penis # name of executable to be built
+OBJECTS = E3.o # object files to produce
+PROGRAM = run # name of executable to be built
 
 #
 # Rule that every .o files depends upon on the .c version of the file. Build .o files
