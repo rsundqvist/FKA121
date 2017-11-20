@@ -34,6 +34,21 @@ int main() {
         N *= 10;
         i++;
     }
+    // Generate histogram
+    int nPts = 1000000;        
+    double pts[nPts];
+    for(i = 0; i < nPts; i++) {
+        pts[i] = transformationMethod(mathFunction3, x1, x2, q);
+    }
+
+    /* declare file variable */
+	FILE *file;
+
+    //Store histogram pts in file
+	file = fopen("hist.dat","w");
+	for (i = 0; i < nPts; i++)
+		fprintf(file, "%.4f \n",  pts[i]);	
+	fclose(file);
 
     // free memory
 	gsl_rng_free(q);
