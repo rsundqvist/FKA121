@@ -2,7 +2,11 @@
 MD #H1 binary
 
 # Data-files
+<<<<<<< HEAD
 *.dat
+=======
+
+>>>>>>> 6613cc9cc7b5a7b9919a5e3174fc5ceed1602f32
 
 # Linux temp files
 *.*~

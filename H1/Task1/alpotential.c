@@ -220,7 +220,6 @@ void get_forces_AL(double forces[][3], double positions[][3], double cell_length
   free(fx); free(fy); free(fz); fx = NULL; fy = NULL; fz = NULL;
   free(density); density = NULL;
   free(dUembed_drho); dUembed_drho = NULL;
-  
 }
 
 /* Returns the potential energy */

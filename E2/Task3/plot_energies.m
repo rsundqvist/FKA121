@@ -17,8 +17,13 @@ hold off
 legend('E_1(t)','E_2(t)','E_3(t)','E_4(t)','E_5(t)', 'E_{tot}(t)')
 xlabel('Time')
 ylabel('Energy')
-axis([0,250,0,40])
 
 figure(2)
+subplot(1,2,1);
 plot(data(:,1),data(:,7), '-.');
-legend('E_{tot}(t)')
+title('X_{max}');
+
+subplot(1,2,2); N = 32;
+histogram(data(:,8));
+title('Histogram - index with X_{max}');
+
