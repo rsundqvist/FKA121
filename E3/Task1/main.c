@@ -33,7 +33,7 @@ double mathFunction1(double x) {
     return x - x*x;
 }
 
-void mcIntegrate(double *ans, double (*functionPtr)(double), double x1, double x2, int N, gsl_rng * q) {
+void mcIntegrate(double *ans, double (*fun)(double), double x1, double x2, int N, gsl_rng * q) {
 
     double rx, y;
     double ysum = 0, ysqSum = 0;
@@ -41,7 +41,7 @@ void mcIntegrate(double *ans, double (*functionPtr)(double), double x1, double x
     int i;    
     for(i = 0; i < N; i++) {
         rx = x1 + (x2-x1)*gsl_rng_uniform(q);
-        y = functionPtr(rx);
+        y = fun(rx);
         ysum += y;
         ysqSum += y*y;
     }
