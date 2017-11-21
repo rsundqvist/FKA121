@@ -135,7 +135,7 @@ void generateMarkovChain(double (*chain)[3], double (*probFunc)(double[3],double
     //Randomize start position in [-10,10]
     for(i=0; i<3; i++)
         chain[0][i] = gsl_rng_uniform(q);
-    for(i = 0; i< nbr_of_points-1; i++) {
+    for(i = 1; i< nbr_of_points; i++) {
         metropolisStep(chain[i],chain[i+1] , Delta, probFunc, q);
     }
 }
