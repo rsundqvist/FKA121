@@ -6,22 +6,13 @@
 
 #define PI 3.14159265359
 
-double mathFunction1(double x);
-double mathFunction2(double x);
-double mathFunction3(double x);
-double mathFunction4(double r[3]);
-double mathFunctionSinPi(double x);
-double mathFunctionArcsinPi(double x);
-void mcIntegrate(double *ans, double (*fuctionPtr)(double), double x, double x2, int N, gsl_rng * q);
-void mcIntegrateImportanceSampling(double *ans, double (*pFun)(double), double (*invFun)(double), double x1, double x2, int N, gsl_rng * q);
-double transformationMethod(double (*invFun)(double), double x1, double x2, gsl_rng * q);
-
 //Metropolis
 void metropolisStep(double c[3], double ans[3], double Delta, double (*probFunc)(double[3],double[3]), gsl_rng * q);
 double propFunction(double c1[3], double c2[3]);
 double nextCoordinate(double c, double Delta, gsl_rng * q);
 void generateMarkovChain(double (*chain)[3], double (*probFunc)(double[3],double[3]), double Delta, int nbr_of_points, gsl_rng * q);
 void metropolisIntegrate3D(double *ans, double (*gfun)(double[3]), double(*samplePoints)[3], int nbr_of_points);
+double mathFunction4(double r[3]);
 
 // gsl stuff
 gsl_rng * init_rng(); // gsl rng create
@@ -46,29 +37,12 @@ int main() {
 	gsl_rng_free(q);
 }
 
-double mathFunction1(double x) {
-    return x - x*x;
-}
-
-double mathFunction2(double x) {
-    return mathFunction1(x)/mathFunctionSinPi(x);
-}
-
-double mathFunctionSinPi(double x) {
-    return 0.5 * PI * sin(PI*x);
-}
-
-double mathFunction3(double x) {
-    return acos(1 - 2*x)/PI;
-}
-
 double mathFunction4(double r[3]) {
     double x = r[0], y = r[1], z = r[2];
     return x*x + x*x*y*y + x*x*y*y*z*z;
 }
 
 void mcIntegrate(double *ans, double (*fun)(double), double x1, double x2, int N, gsl_rng * q) {
-
     double rx, y;
     double ysum = 0, ysqSum = 0;
     // Sample N points
@@ -98,36 +72,9 @@ gsl_rng * init_rng()
 	return q;
 }
 
-void mcIntegrateImportanceSampling(double *ans, double (*gFun)(double), double (*invFun)(double), double x1, double x2, int N, gsl_rng * q) {
-    double rx, y;
-    double ysum = 0, ysqSum = 0;
-    // Sample N points
-    int i;    
-    for(i = 0; i < N; i++) {
-        rx = transformationMethod(invFun, x1,x2,q);
-        y = gFun(rx);
-        ysum += y;
-        ysqSum += y*y;
-    }
-    double mu = ysum/N;
-    double sigmasq = 1/N * ysqSum - mu*mu;
-    if (sigmasq < 0) sigmasq = -sigmasq;
-
-    ans[0] = mu;
-    ans[1] = sqrt(sigmasq/N);
-}
-
-
-// Generate a random value from a continous probability distribution
-double transformationMethod(double (*invFun)(double), double x1, double x2, gsl_rng * q) { 
-    double rx = x1 + (x2-x1)*gsl_rng_uniform(q);
-    return invFun(rx);
-}
-
 double nextCoordinate(double c, double Delta, gsl_rng * q) {
     double r = gsl_rng_uniform(q); // [0, 1) - n.b. half-open!
-    double cNext = c + Delta*(r - 0.5);
-    return cNext;
+    return c + Delta*(r - 0.5);
 }
 
 void generateMarkovChain(double (*chain)[3], double (*probFunc)(double[3],double[3]), double Delta, int nbr_of_points, gsl_rng * q) {
@@ -135,9 +82,8 @@ void generateMarkovChain(double (*chain)[3], double (*probFunc)(double[3],double
     //Randomize start position in [-10,10]
     for(i=0; i<3; i++)
         chain[0][i] = gsl_rng_uniform(q);
-    for(i = 1; i< nbr_of_points; i++) {
+    for(i = 1; i< nbr_of_points; i++)
         metropolisStep(chain[i],chain[i+1] , Delta, probFunc, q);
-    }
 }
 
 void metropolisStep(double c[3], double ans[3], double Delta, double (*probFunc)(double[3],double[3]), gsl_rng * q) {
