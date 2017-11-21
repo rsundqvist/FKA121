@@ -15,6 +15,8 @@ void mcIntegrate(double *ans, double (*fuctionPtr)(double), double x, double x2,
 void mcIntegrateImportanceSampling(double *ans, double (*pFun)(double), double (*invFun)(double), double x1, double x2, int N, gsl_rng * q);
 double transformationMethod(double (*invFun)(double), double x1, double x2, gsl_rng * q);
 
+//Metropolis
+double nextCoordinate(double c, double Delta, double acceptRate, gsl_rng * q);
 
 gsl_rng * init_rng(); // gsl rng create
 void free_rng(gsl_rng *);// gsl rng create+delete
@@ -116,4 +118,14 @@ double transformationMethod(double (*invFun)(double), double x1, double x2, gsl_
     return invFun(rx);
 }
 
+double nextCoordinate(double c, double Delta, gsl_rng * q) {
+    double r = gsl_rng_uniform(q); // [0, 1) - n.b. half-open!
+	double cNext = c + Delta * (r-0.5);
+}
 
+double trialStep(double c, double Delta, gsl_rng * q) {
+	double pr = pt/pm; // p ratio
+	double r = gsl_rng_uniform(q);
+	if (pr > r) return nextCoordinate(c, Delta, q); // Accepted
+	else return c; // Rejected - no change.
+}
