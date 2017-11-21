@@ -4,61 +4,63 @@
 #include <math.h>
 #include <time.h>
 
-#define PI 3.14159265359
+// Exakt svar: 0.875
 
 //Metropolis
-void metropolisStep(double c[3], double ans[3], double Delta, double (*probFunc)(double[3],double[3]), gsl_rng * q);
+void metropolisStep(double prev[3], double next[3], double Delta, double (*probFunc)(double[3],double[3]), gsl_rng * q);
 double propFunction(double c1[3], double c2[3]);
 double nextCoordinate(double c, double Delta, gsl_rng * q);
-void generateMarkovChain(double (*chain)[3], double (*probFunc)(double[3],double[3]), double Delta, int nbr_of_points, gsl_rng * q);
-void metropolisIntegrate3D(double *ans, double (*gfun)(double[3]), double(*samplePoints)[3], int nbr_of_points);
+void generateMarkovChain(double (*chain)[3], double (*probFunc)(double[3],double[3]), double Delta, int N, gsl_rng * q);
+void metropolisIntegrate3D(double *ans, double (*gfun)(double[3]), double(*samplePoints)[3], int N);
 double mathFunction4(double r[3]);
+
+void setZero(double (*arr)[3], int N);
 
 // gsl stuff
 gsl_rng * init_rng(); // gsl rng create
 
 
+
+int count,total;
 int main() {
 	gsl_rng * q = init_rng();
+	/*
+	int j;
+	for (j = 0; j < 1000; j++)
+	    printf("r = %.5f\n", gsl_rng_uniform(q));
 
+    return;*/
     double ans[2]; // Return value from integration
     int N = 10, i = 1;
-    double Delta = 10;
+    double Delta = 2;
     while(i <= 5) {
+        count = 0, total = 0;
         double markovChain[N][3];
+        //setZero(markovChain, N);
         generateMarkovChain(markovChain, propFunction, Delta, N, q);
         metropolisIntegrate3D(ans, mathFunction4, markovChain, N);
         printf("N=10^%d \t In = %.5f \t sigma = %.5f \n",i,ans[0],ans[1]);
         N *= 10;
         i++;
+        //printf("%d    %d    %.3f \n", count, total, (double)count/total); // print accept rate. Target ~ 0.5
     }
 
     // free memory
 	gsl_rng_free(q);
 }
 
-double mathFunction4(double r[3]) {
-    double x = r[0], y = r[1], z = r[2];
-    return x*x + x*x*y*y + x*x*y*y*z*z;
+void setZero(double (*arr)[3], int N) {
+    int i;
+    for (i = 0; i < N; i++){
+        arr[i][0] = 0;
+        arr[i][1] = 0;
+        arr[i][2] = 0;
+    }
 }
 
-void mcIntegrate(double *ans, double (*fun)(double), double x1, double x2, int N, gsl_rng * q) {
-    double rx, y;
-    double ysum = 0, ysqSum = 0;
-    // Sample N points
-    int i;    
-    for(i = 0; i < N; i++) {
-        rx = x1 + (x2-x1)*gsl_rng_uniform(q);
-        y = fun(rx);
-        ysum += y;
-        ysqSum += y*y;
-    }
-    double mu = ysum/N;
-    double sigmasq = 1/N * ysqSum - mu*mu;
-    if (sigmasq < 0) sigmasq = -sigmasq;
-
-    ans[0] = mu;
-    ans[1] = sqrt(sigmasq/N);
+double mathFunction4(double r[3]) {
+    double x = r[0], y = r[1], z = r[2];
+    return x*x*(1 + y*y + y*y*z*z);  //*exp(-x*x-y*y-z*z);
 }
 
 gsl_rng * init_rng()
@@ -74,48 +76,64 @@ gsl_rng * init_rng()
 
 double nextCoordinate(double c, double Delta, gsl_rng * q) {
     double r = gsl_rng_uniform(q); // [0, 1) - n.b. half-open!
+    
+	//printf("r = %.5f, cInFunction = %.5f\n", r, c);
+	//printf("return value = %.5f\n", c + Delta*(r - 0.5));
+	
     return c + Delta*(r - 0.5);
 }
 
-void generateMarkovChain(double (*chain)[3], double (*probFunc)(double[3],double[3]), double Delta, int nbr_of_points, gsl_rng * q) {
+void generateMarkovChain(double (*chain)[3], double (*probFunc)(double[3],double[3]), double Delta, int N, gsl_rng * q) {
     int i;
     //Randomize start position in [-10,10]
     for(i=0; i<3; i++)
-        chain[0][i] = gsl_rng_uniform(q);
-    for(i = 1; i< nbr_of_points; i++)
-        metropolisStep(chain[i],chain[i+1] , Delta, probFunc, q);
-}
-
-void metropolisStep(double c[3], double ans[3], double Delta, double (*probFunc)(double[3],double[3]), gsl_rng * q) {
-    int i;
-    double cNext[3];
-    for (i = 0; i < 3; ++i) {
-        cNext[i] = nextCoordinate(c[i], Delta, q);
+        chain[0][i] = -5+10*gsl_rng_uniform(q);
+    for(i = 1; i< N; i++) {
+        metropolisStep(chain[i-1], chain[i], Delta, probFunc, q);
+        //printf("i = %d\n", i);
     }
-    double pr = probFunc(c, cNext);
-    double r = gsl_rng_uniform(q);
-    if (pr >= r) // Accept new step
-        for (i = 0; i < 3; ++i)
-            ans[i] = cNext[i];
-    //printf("%.3f (%.6f,%.6f,%.6f) \n", pr,cNext[0],cNext[1],cNext[2]);
 }
 
-void metropolisIntegrate3D(double *ans, double (*gFun)(double[3]), double(*samplePoints)[3], int nbr_of_points) {
-    double y;
-    double ysum = 0, ysqSum = 0;
+void metropolisStep(double prev[3], double next[3], double Delta, double (*probFunc)(double[3],double[3]), gsl_rng * q) {
+    int i;
+    double tmp[3];
+    for (i = 0; i < 3; ++i) {
+        //printf("prev[i] = %.5f\n", prev[i]);
+        tmp[i] = nextCoordinate(prev[i], Delta, q);
+    }
+    double pr = probFunc(prev, tmp);
+    double r = gsl_rng_uniform(q);
+    
+    if (pr >= r) {// Accept new step
+        for (i = 0; i < 3; ++i)
+            next[i] = tmp[i];
+    } else {
+        for (i = 0; i < 3; ++i)
+            next[i] = prev[i];
+    }
+    
+    if (pr >= r)        
+        count++;
+    total++;
+    //printf("%.3f (%.6f,%.6f,%.6f) \n\n", pr,next[0],next[1],next[2]);
+}
+
+void metropolisIntegrate3D(double *ans, double (*gFun)(double[3]), double(*samplePoints)[3], int N) {
+    double f;
+    double fsum = 0, fsqSum = 0;
 
     int i;    
-    for(i = 0; i < nbr_of_points; i++) {
-        y = gFun(samplePoints[i]);
-        ysum += y;
-        ysqSum += y*y;
+    for(i = 0; i < N; i++) {
+        f = gFun(samplePoints[i]);
+        fsum += f;
+        fsqSum += f*f;
     }
-    double mu = ysum/nbr_of_points;
-    double sigmasq = 1/nbr_of_points * ysqSum - mu*mu;
+    double mu = fsum/N;
+    double sigmasq = 1/N * fsqSum - mu*mu;
     if (sigmasq < 0) sigmasq = -sigmasq;
 
     ans[0] = mu;
-    ans[1] = sqrt(sigmasq/nbr_of_points);
+    ans[1] = sqrt(sigmasq/N);
 }
 
 double propFunction(double c1[3], double c2[3]){
