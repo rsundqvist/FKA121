@@ -92,7 +92,7 @@ void metropolisStep(double c[3], double ans[3], double Delta, double (*probFunc)
     for (i = 0; i < 3; ++i) {
         cNext[i] = nextCoordinate(c[i], Delta, q);
     }
-    double pr = probFunc(cNext, c);
+    double pr = probFunc(c, cNext);
     double r = gsl_rng_uniform(q);
     if (pr >= r) // Accept new step
         for (i = 0; i < 3; ++i)
