@@ -16,17 +16,19 @@ void mcIntegrateImportanceSampling(double *ans, double (*pFun)(double), double (
 double transformationMethod(double (*invFun)(double), double x1, double x2, gsl_rng * q);
 
 //Metropolis
-double nextCoordinate(double c, double Delta, double acceptRate, gsl_rng * q);
+void metropolisStep(double c[3], double Delta, gsl_rng * q);
+double propFunction(double c1[3], double c2[3]);
+double nextCoordinate(double c, double Delta, gsl_rng * q);
 
+// gsl stuff
 gsl_rng * init_rng(); // gsl rng create
-void free_rng(gsl_rng *);// gsl rng create+delete
 
 
 int main() {
 	gsl_rng * q = init_rng();
 
     double ans[2]; // Return value from mcIntegrate
-    int N = 10, i = 1;
+    int N = 10, i = 4;
     // Bounds of inverse cummulative function
     double x1 = mathFunction3(0);
     double x2 = mathFunction3(1);
@@ -111,21 +113,30 @@ void mcIntegrateImportanceSampling(double *ans, double (*gFun)(double), double (
 
 
 // Generate a random value from a continous probability distribution
-double transformationMethod(double (*invFun)(double), double x1, double x2, gsl_rng * q) {
-    
+double transformationMethod(double (*invFun)(double), double x1, double x2, gsl_rng * q) { 
     double rx = x1 + (x2-x1)*gsl_rng_uniform(q);
-    //printf("rx \t %.5f \t %.5f \n",rx, invFun(rx));
     return invFun(rx);
 }
 
 double nextCoordinate(double c, double Delta, gsl_rng * q) {
     double r = gsl_rng_uniform(q); // [0, 1) - n.b. half-open!
-	double cNext = c + Delta * (r-0.5);
+    double cNext = c + Delta*(r - 0.5);
 }
 
-double trialStep(double c, double Delta, gsl_rng * q) {
-	double pr = pt/pm; // p ratio
-	double r = gsl_rng_uniform(q);
-	if (pr > r) return nextCoordinate(c, Delta, q); // Accepted
-	else return c; // Rejected - no change.
+void metropolisStep(double c[3], double Delta, gsl_rng * q) {
+    double cNext[3];
+    for (int i = 0; i < 3; ++i) {
+        cNext[i] = nextCoordinate(c[i], Delta, q);
+    }
+    double pr = propFunction(c, cNext);
+    double r = gsl_rng_uniform(q);
+    if (pr > r) // Accept new step
+        for (int i = 0; i < 3; ++i)
+            c[i] = cNext[i];
+}
+
+double propFunction(double c1[3], double c2[3]){
+    double c1Sq = c1[0]*c1[0] + c1[1]*c1[1] + c1[2]*c1[2];
+    double c2Sq = c2[0]*c2[0] + c2[1]*c2[1] + c2[2]*c2[2];
+    return exp(c1-c2);
 }
