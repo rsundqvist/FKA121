@@ -6,7 +6,7 @@
 
 // Exakt svar: 0.875
 
-//Metropolis
+// Metropolis
 void metropolisStep(double prev[3], double next[3], double Delta, double (*probFunc)(double[3],double[3]), gsl_rng * q);
 double propFunction(double c1[3], double c2[3]);
 double nextCoordinate(double c, double Delta, gsl_rng * q);
@@ -14,6 +14,8 @@ void generateMarkovChain(double (*chain)[3], double (*probFunc)(double[3],double
 void metropolisIntegrate3D(double *ans, double (*gfun)(double[3]), double(*samplePoints)[3], int N);
 double mathFunction4(double r[3]);
 
+// Utility
+void randomize(double * v, int sz, double min, double max, gsl_rng * q);
 void setZero(double (*arr)[3], int N);
 
 // gsl stuff
@@ -36,7 +38,9 @@ int main() {
     while(i <= 5) {
         count = 0, total = 0;
         double markovChain[N][3];
-        //setZero(markovChain, N);
+        setZero(markovChain, N);
+        randomize(markovChain[0], 3, -1, 1, q);
+        
         generateMarkovChain(markovChain, propFunction, Delta, N, q);
         metropolisIntegrate3D(ans, mathFunction4, markovChain, N);
         printf("N=10^%d \t In = %.5f \t sigma = %.5f \n",i,ans[0],ans[1]);
@@ -47,6 +51,12 @@ int main() {
 
     // free memory
 	gsl_rng_free(q);
+}
+
+void randomize(double * v, int sz, double min, double max, gsl_rng * q) {
+    int i;
+    for(i = 0; i < sz; i++)
+        v[i] = min + (max-min) * gsl_rng_uniform(q);
 }
 
 void setZero(double (*arr)[3], int N) {
@@ -79,23 +89,17 @@ double nextCoordinate(double c, double Delta, gsl_rng * q) {
 }
 
 void generateMarkovChain(double (*chain)[3], double (*probFunc)(double[3],double[3]), double Delta, int N, gsl_rng * q) {
+    if (chain[0][0] == 0 && chain[0][0] == 0 && chain[0][0] == 0) {
+        printf("The initial position is set to (0, 0, 0). Is this correct?\n");
+    }
+    
     int i;
-    //Randomize start position in [-10,10]
-    for(i=0; i<3; i++)
-        chain[0][i] = -2+4*gsl_rng_uniform(q);
-        
     for(i = 0; i < 3; i++) {
         double * vec = chain[i];
-        printf("\t(%.5f, %.5f, %.5f)\n", vec[0], vec[1], vec[2]);
     }
     for(i = 1; i< N; i++) {
         metropolisStep(chain[i-1], chain[i], Delta, probFunc, q);
         //printf("i = %d\n", i);
-    }
-    printf("-------------------\n");
-    for(i = 0; i < 7; i++) {
-        double * vec = chain[i];
-        printf("\t(%.5f, %.5f, %.5f)\n", vec[0], vec[1], vec[2]);
     }
 }
 
