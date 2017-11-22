@@ -1,4 +1,4 @@
-#include<stats_func.h>
+#include "stats_func.h"
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h>
