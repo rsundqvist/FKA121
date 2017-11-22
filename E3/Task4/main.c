@@ -14,9 +14,9 @@ int main() {
     readValues("MC.txt", values, N);
 
     //int s = findS(values, N, 0.005);
-    double B = 8;
+    double B = 8000;
     double s = blockAverageS(values, N, B);
-    printf("s = %d\n", s);
+    printf("s = %.4f\n", s);
 }   
 
 
