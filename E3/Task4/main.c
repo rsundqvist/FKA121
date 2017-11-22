@@ -4,10 +4,10 @@
 #include <math.h>
 #include <time.h>
 
-void readValues(const char *url, double * values, unsigned int N);
+void readValues(const char *url, double * values, int N);
 
 int main() {
-    unsigned int N = 1000000; // 10^6
+    int N = 1000000; // 10^6
     double values[N];
     readValues("MC.txt", values, N);
     
@@ -16,12 +16,12 @@ int main() {
         printf("%lf\n", values[i]);
 }
 
-void readValues(const char *url, double *values, unsigned int N) {
+void readValues(const char *url, double *values, int N) {
     FILE * f = fopen(url, "r");
     if(f == NULL)
         printf("Failed to open file: \"%s\"", url);
  
-    unsigned int i; 
+    int i; 
     for(i = 0; i < N; ++i) {
         fscanf(f, "%lf",&values[i]);
     }
