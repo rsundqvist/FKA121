@@ -9,8 +9,10 @@
 
 #define N 256
 
-#define Tau_T 3
-#define Tau_P 3
+#define TIME_MAX 1000
+#define EQUILIBRATION_TIME 600;
+#define Tau_T 50
+#define Tau_P 50
 #define Tau_eq 773.15
 #define P_eq 0.000000633
 
@@ -43,10 +45,10 @@ int main()
     
     int Nc = 4; // #primitive calls in each direction 
     double L = Nc * a0; // Length of supercell
-    double kappa_T = 0.00213033;
+    double kappa_T = 2.21901462901; // Isothermal compressibility, converted to our units: Source: http://www.knowledgedoor.com/2/elements_handbook/aluminum.html
     double alpha_p;
     double * alpha_pP = &alpha_p;
-    double V;
+    double V = L*L*L;
     init_fcc(pos, Nc, a0);
     randomizeLattice(pos, a0); // Introduce some random deviations
     
@@ -60,9 +62,9 @@ int main()
     //========================================================================//
     int i, j, i_log;                                                               // i - actual timestep, i_log - logging of timestep data
     double dt = 0.001;
-    double t_max = 30;
+    double t_max = TIME_MAX;
     int nbr_of_timesteps = t_max/dt;
-    int ir = 100; // Resolution for i. Record every ir:th timestep.             // Segfault sensitive.
+    int ir = 50; // Resolution for i. Record every ir:th timestep.             // Segfault sensitive.
         
     // Data recording
     double log_data1 [nbr_of_timesteps/ir]; // E_p
@@ -79,22 +81,26 @@ int main()
     double log_data10[nbr_of_timesteps/ir]; // y
     double log_data11[nbr_of_timesteps/ir]; // z
     
-    double et = 10; //equilibration time
+    double et = EQUILIBRATION_TIME; //equilibration time
     //========================================================================//
     // Verlet
     //========================================================================//
     printf("\nLog resolution: 1 per %d steps, t_max = %.3f \n", ir, t_max);
     
-    // Initialize accelerations
+    // Initial values accelerations
     get_forces_AL(f, pos, L, N);  
     calc_acc(mass, f, acc);
+    Ek = get_kinetic_energy(mass, vel);
+    T = instantaneus_temp (Ek, N);
+    W = get_virial_AL(pos, L, N);
+    P = pressure (T, V, W, N);
     for (i = 1; i < nbr_of_timesteps; i++) {
-        if (i%(nbr_of_timesteps/20) == 0) { // Print progress - 10%
+        if (100*(i-1)%(nbr_of_timesteps) == 0) { // Print progress
             printf("\tt = %.2f \t\t %.3f  \n", i*dt, ((double)i/nbr_of_timesteps));
             
             if (et > 0) {
                 printf("et = %.2f ", et);
-                printf("\tTemp = %.3f \t P = %.10f \n", T,P);
+                printf("\tT = %.3f \t P = %.10f \n", T,P);
             }
         }
       
@@ -134,8 +140,8 @@ int main()
             equib_pressure(pos, dt, Tau_P, P, P_eq, N, kappa_T, alpha_pP); // Update pressure
             a0 *= *alpha_pP; // Rescale cell
             L = Nc * a0;            
-            equib_temp(vel, dt, Tau_eq, Tau_T, T, N); // Update temperature
             et -= dt;
+            equib_temp(vel, dt, Tau_eq, Tau_T, T, N); // Update temperature
         }
         
         //====================================================================//

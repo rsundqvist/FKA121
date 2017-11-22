@@ -4,8 +4,8 @@
 #include "equilibration.h"
 
 // http://fy.chalmers.se/~tfsgw/CompPhys/lectures/MD_LectureNotes_171029.pdf
-#define k_B 0.00008617332
-// k_B = <8.6173324*10^-5
+#define k_B 0.000086173324
+// k_B = 8.6173324*10^-5, from rejected hand-in
 
 /*
  * vel: velocities, dt: timestep, Tau_eq: target temperature, Tau_T: time decay constant
@@ -35,7 +35,7 @@ void equib_pressure(double (*pos)[3], double dt,
 	
 	double f = cbrt(1 - kappa_T*dt/Tau_P *(P_eq - P)); // Eq. 112
 	*alpha_pP = f;
-	
+	//printf("f = %.15f\n", f);
 	int i;
 	for (i = 0; i < N; ++i) // v_new = sqrt( alpha_T ) * v_old;
 	{
