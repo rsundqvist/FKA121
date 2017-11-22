@@ -4,7 +4,8 @@
 #include "equilibration.h"
 
 // http://fy.chalmers.se/~tfsgw/CompPhys/lectures/MD_LectureNotes_171029.pdf
-#define k_B 0.0000080000617330
+#define k_B 0.00008617332
+// k_B = <8.6173324*10^-5
 
 /*
  * vel: velocities, dt: timestep, Tau_eq: target temperature, Tau_T: time decay constant
@@ -30,18 +31,17 @@ void equib_temp(double (*vel)[3], double dt, double Tau_eq, double Tau_T,
  * Tau: temperature, V: volume, , P: pressure, P_eq: target pressure, N: #particles
  */
 void equib_pressure(double (*pos)[3], double dt,
-	double Tau_P, double P, double P_eq, int N, double kappa_T, double * alpha_pP, double fix) {
+	double Tau_P, double P, double P_eq, int N, double kappa_T, double * alpha_pP) {
 	
-	*alpha_pP = 1 - kappa_T*dt/Tau_P *(P_eq - P)/fix; // Eq. 112
-	double factor = cbrt(*alpha_pP);
-    //printf("%.9f \t %.9f \t %.9f \n",*alpha_pP, kappa_T, factor);
+	double f = cbrt(1 - kappa_T*dt/Tau_P *(P_eq - P)); // Eq. 112
+	*alpha_pP = f;
 	
 	int i;
 	for (i = 0; i < N; ++i) // v_new = sqrt( alpha_T ) * v_old;
 	{
-		pos[i][0] = factor * pos[i][0];
-		pos[i][1] = factor * pos[i][1];
-		pos[i][2] = factor * pos[i][2];
+		pos[i][0] = f * pos[i][0];
+		pos[i][1] = f * pos[i][1];
+		pos[i][2] = f * pos[i][2];
 	}
 }
 
@@ -49,14 +49,12 @@ void equib_pressure(double (*pos)[3], double dt,
  * m: mass per particle, E_k: kinetic energy, N: #particles
  */
 double instantaneus_temp (double E_k, int N) {
-	// Eq. 36, page 19
-	return 2/(3*N*k_B) * E_k;
+	return 2/(3*N*k_B) * E_k; // Eq. 36, page 19
 }
 
 /*
  * Tau: temperature, V: volume, W: virial, N: #particles
  */
 double pressure (double Tau, double V, double W, int N) {
-	// Eq. 109, page 49
-	return (N*k_B*Tau + W)/V;
+	return (N*k_B*Tau + W)/V; // Eq. 109, page 49
 }

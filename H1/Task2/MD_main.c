@@ -9,12 +9,10 @@
 
 #define N 256
 
-#define Tau_T 0.5
-#define Tau_P 0.5
-//#define Tau_eq 773.15
-#define Tau_eq 5000
-//#define P_eq 0.000000633
-#define P_eq 1
+#define Tau_T 3
+#define Tau_P 3
+#define Tau_eq 773.15
+#define P_eq 0.000000633
 
 
 void calc_acc(double mass, double (*f)[3], double (*acc)[3]);
@@ -33,7 +31,6 @@ int main()
     double vel[N][3];
     double acc[N][3];
     double f[N][3]; // Forces
-    double fix = 10000;
     
     // Set arrays to zero
     setArray3DToZero(pos);  
@@ -41,12 +38,12 @@ int main()
     setArray3DToZero(acc);
     setArray3DToZero(f);  
 
-    double a0 = 4.046; // Lattice parameter
+    double a0 = 4.05; // Lattice parameter
     double mass = 0.002796304; // Mass of Al atom
     
     int Nc = 4; // #primitive calls in each direction 
     double L = Nc * a0; // Length of supercell
-    double kappa_T = -2;
+    double kappa_T = 0.00213033;
     double alpha_p;
     double * alpha_pP = &alpha_p;
     double V;
@@ -56,14 +53,14 @@ int main()
     //========================================================================//
     // Task specific - H1
     //========================================================================//               
-    double T, P, P_prev; // Temperature, Pressure
-    P = 0;
+    double T = 0, P = 0, P_prev = P; // Temperature, Pressure
+    double Ek, W;
     //========================================================================//
     // Setup
     //========================================================================//
     int i, j, i_log;                                                               // i - actual timestep, i_log - logging of timestep data
     double dt = 0.001;
-    double t_max = 10;
+    double t_max = 30;
     int nbr_of_timesteps = t_max/dt;
     int ir = 100; // Resolution for i. Record every ir:th timestep.             // Segfault sensitive.
         
@@ -82,29 +79,38 @@ int main()
     double log_data10[nbr_of_timesteps/ir]; // y
     double log_data11[nbr_of_timesteps/ir]; // z
     
-    int equilibrate = 500;
+    double et = 10; //equilibration time
     //========================================================================//
     // Verlet
     //========================================================================//
     printf("\nLog resolution: 1 per %d steps, t_max = %.3f \n", ir, t_max);
+    
+    // Initialize accelerations
+    get_forces_AL(f, pos, L, N);  
+    calc_acc(mass, f, acc);
     for (i = 1; i < nbr_of_timesteps; i++) {
         if (i%(nbr_of_timesteps/20) == 0) { // Print progress - 10%
             printf("\tt = %.2f \t\t %.3f  \n", i*dt, ((double)i/nbr_of_timesteps));
+            
+            if (et > 0) {
+                printf("et = %.2f ", et);
+                printf("\tTemp = %.3f \t P = %.10f \n", T,P);
+            }
         }
       
         //======================================//
         // Verlet
         //======================================//
         for (j = 0; j < N; j++) { // v(t+dt/2)
-            vel[j][0] += dt * 0.5 * acc[j][0];
-            vel[j][1] += dt * 0.5 * acc[j][1];
-            vel[j][2] += dt * 0.5 * acc[j][2];
+            vel[j][0] += dt * 0.5*acc[j][0];
+            vel[j][1] += dt * 0.5*acc[j][1];
+            vel[j][2] += dt * 0.5*acc[j][2];
         }
         //printf("f = (%2.2f, %2.2f, %2.2f) \n", vel[0][0], vel[0][1], vel[0][2]);
         for (j = 0; j < N; j++) { // q(t+dt)
-            pos[j][0] = periodic_boundT( pos[j][0] + dt * vel[j][0], L );
-            pos[j][1] = periodic_boundT( pos[j][1] + dt * vel[j][1], L );
-            pos[j][2] = periodic_boundT( pos[j][2] + dt * vel[j][2], L );
+            pos[j][0] = pos[j][0] + dt*vel[j][0];
+            pos[j][1] = pos[j][1] + dt*vel[j][1];
+            pos[j][2] = pos[j][2] + dt*vel[j][2];
         }
 
         //=====================//
@@ -114,29 +120,22 @@ int main()
         calc_acc(mass, f, acc);
         
         for (j = 0; j < N; j++) { // v(t+dt)
-            vel[j][0] += dt * 0.5 * acc[j][0];
-            vel[j][1] += dt * 0.5 * acc[j][1];
-            vel[j][2] += dt * 0.5 * acc[j][2];
+            vel[j][0] += dt * 0.5*acc[j][0];
+            vel[j][1] += dt * 0.5*acc[j][1];
+            vel[j][2] += dt * 0.5*acc[j][2];
         }
-        
-        double Ek = get_kinetic_energy(mass, vel);
+        Ek = get_kinetic_energy(mass, vel);
         T = instantaneus_temp (Ek, N);
         P_prev = P;
         V = L*L*L; 
-        double W = get_virial_AL(pos, a0, N);
+        W = get_virial_AL(pos, L, N);
         P = pressure (T, V, W, N);
-        if (equilibrate) {
-            //printf("fix = %.15f\n", fix);
-            equib_pressure(pos, dt, Tau_P, P, P_eq, N, kappa_T, alpha_pP, fix); // Update pressure
-            
+        if (et >= 0) {
+            equib_pressure(pos, dt, Tau_P, P, P_eq, N, kappa_T, alpha_pP); // Update pressure
             a0 *= *alpha_pP; // Rescale cell
-            L = Nc * a0;
-            /*printf("alpha_p = %.5f\n", alpha_p);
-            printf("alpha_pP = %.5f\n", *alpha_pP);
-            printf("a0 = %.5f\n", a0);
-            printf("L = %.5f\n", L);*/
-            
+            L = Nc * a0;            
             equib_temp(vel, dt, Tau_eq, Tau_T, T, N); // Update temperature
+            et -= dt;
         }
         
         //====================================================================//
@@ -150,7 +149,6 @@ int main()
             log_data3[i_log] = Ek+Ep;
             
             log_data4[i_log] = T;
-            //printf("\tTemp = %.5f \t P = %.5f \n", T,P);
             log_data5[i_log] = P;
             
             log_data6[i_log] = pos[0][0];
@@ -160,12 +158,6 @@ int main()
             log_data9[i_log] = pos[69][0];
             log_data10[i_log] = pos[69][1];
             log_data11[i_log] = pos[69][2];
-            
-            if (equilibrate) {
-                equilibrate--;
-                printf("Equilibration halt: %d \n", equilibrate);
-                printf("\tTemp = %.5f \t P = %.5f \n", T,P);
-            }
         }
     }
     printf("\tt = %.2f \t\t %.3f  \n", i*dt, ((double)i/nbr_of_timesteps));
