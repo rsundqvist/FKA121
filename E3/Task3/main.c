@@ -32,7 +32,7 @@ int main() {
     return;*/
     double ans[2]; // Return value from integration
     int N = 10, i = 1;
-    double Delta = 2;
+    double Delta = 1.8;
     while(i <= 5) {
         count = 0, total = 0;
         double markovChain[N][3];
@@ -56,11 +56,6 @@ void setZero(double (*arr)[3], int N) {
         arr[i][1] = 0;
         arr[i][2] = 0;
     }
-}
-
-double mathFunction4(double r[3]) {
-    double x = r[0], y = r[1], z = r[2];
-    return x*x*(1 + y*y + y*y*z*z);  //*exp(-x*x-y*y-z*z);
 }
 
 gsl_rng * init_rng()
@@ -87,10 +82,20 @@ void generateMarkovChain(double (*chain)[3], double (*probFunc)(double[3],double
     int i;
     //Randomize start position in [-10,10]
     for(i=0; i<3; i++)
-        chain[0][i] = -5+10*gsl_rng_uniform(q);
+        chain[0][i] = -2+4*gsl_rng_uniform(q);
+        
+    for(i = 0; i < 3; i++) {
+        double * vec = chain[i];
+        printf("\t(%.5f, %.5f, %.5f)\n", vec[0], vec[1], vec[2]);
+    }
     for(i = 1; i< N; i++) {
         metropolisStep(chain[i-1], chain[i], Delta, probFunc, q);
         //printf("i = %d\n", i);
+    }
+    printf("-------------------\n");
+    for(i = 0; i < 7; i++) {
+        double * vec = chain[i];
+        printf("\t(%.5f, %.5f, %.5f)\n", vec[0], vec[1], vec[2]);
     }
 }
 
@@ -104,7 +109,7 @@ void metropolisStep(double prev[3], double next[3], double Delta, double (*probF
     double pr = probFunc(prev, tmp);
     double r = gsl_rng_uniform(q);
     
-    if (pr >= r) {// Accept new step
+    if (pr > r) {// Accept new step
         for (i = 0; i < 3; ++i)
             next[i] = tmp[i];
     } else {
@@ -140,4 +145,9 @@ double propFunction(double c1[3], double c2[3]){
     double c1Sq = -c1[0]*c1[0] - c1[1]*c1[1] - c1[2]*c1[2];
     double c2Sq = -c2[0]*c2[0] - c2[1]*c2[1] - c2[2]*c2[2];
     return exp(c2Sq)/exp(c1Sq);
+}
+
+double mathFunction4(double r[3]) {
+    double x = r[0], y = r[1], z = r[2];
+    return x*x*(1 + y*y + y*y*z*z);  //*exp(-x*x-y*y-z*z);
 }
