@@ -41,3 +41,24 @@ double autoCorrelation(double * values, int nbr_of_values, int k) {
     double phiSq = getSquaredValueMean(values, nbr_of_values);
     return (phi_ik - phi_i)/(phiSq - phi_i);
 }
+
+int findS(double * values, int nbr_of_values, double threshold) {
+    int k;
+    int s = -1;     
+    double target = 0.135;
+    for(k = 0; k < nbr_of_values; k++) {
+        double  phiK = autoCorrelation(values, nbr_of_values, k);
+        printf("phi_%d = %.7f, target = %.7f \t %.5f \n",k,phiK, target, d_abs(phiK - target));
+        if(d_abs(phiK - target) <= threshold ) {
+            s = k;
+            break;
+        }       
+    }
+    return s;
+}
+
+double d_abs(double d) {
+    if(d < 0)
+        d = -d;
+    return d;
+}

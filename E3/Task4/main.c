@@ -12,9 +12,9 @@ int main() {
     int N = 1000000; // 10^6
     double values[N];
     readValues("MC.txt", values, N);
-   
-    double ac = autoCorrelation(values, N, k);
-    printf();
+
+    int s = findS(values, N, 0.001);
+    printf("s = %d\n", s);
 }
 
 

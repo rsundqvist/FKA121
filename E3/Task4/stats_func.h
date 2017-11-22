@@ -5,5 +5,7 @@
 extern double getMean(double *, int n);
 extern double getSquaredValueMean(double * values, int nbr_of_values);
 extern double getAheadMean(double * values, int nbr_of_values, int k);
-double autoCorrelation(double * values, int nbr_of_values, int k);
+extern double autoCorrelation(double * values, int nbr_of_values, int k);
+extern double d_abs(double d);
+extern int findS(double * values, int nbr_of_values, double threshold);
 #endif
