@@ -45,7 +45,7 @@ double autoCorrelation(double * values, int nbr_of_values, int k) {
 int findS(double * values, int nbr_of_values, double threshold) {
     int k;
     int s = -1;     
-    double target = 0.135;
+    double target = 0.1353352832;
     for(k = 0; k < nbr_of_values; k++) {
         double  phiK = autoCorrelation(values, nbr_of_values, k);
         printf("phi_%d = %.7f, target = %.7f \t %.5f \n",k,phiK, target, d_abs(phiK - target));
@@ -61,4 +61,40 @@ double d_abs(double d) {
     if(d < 0)
         d = -d;
     return d;
+}
+
+double blockAverageS(double * values, int nbr_of_values, int B) {
+    int k, j;
+    int nBlockAverages = (int)round(nbr_of_values/B);
+    double blockAverages[nBlockAverages];
+    setZero(blockAverages, nBlockAverages);
+    for(k = 0; k < nBlockAverages; k++) {
+        j = k+1;
+        blockAverages[k] = blockAverage(values, nbr_of_values, j, B);
+    }
+    return B *sampleVariance(blockAverages,nBlockAverages)/sampleVariance(values, nbr_of_values);
+}
+
+double blockAverage(double * values, int nbr_of_values, int j, int B) {
+    int i;
+    double sum = 0;
+    for(i = 0; i < B; i++)
+        sum += values[i + (j-1)*B];
+    return sum/B;
+}
+
+double sampleVariance(double * values, int nbr_of_values) {
+    int i;
+    double mean = getMean(values, nbr_of_values);
+    double sum = 0;
+    for(i = 0; i < nbr_of_values; i++)
+        sum += (values[i] - mean)*(values[i] - mean);
+    return sum/(nbr_of_values - 1);
+}
+
+void setZero(double * arr, int N) {
+    int i;
+    for (i = 0; i < N; i++){
+        arr[i] = 0;
+    }
 }
