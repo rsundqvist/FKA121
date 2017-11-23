@@ -11,8 +11,8 @@
 
 #define TIME_MAX 1000
 #define EQUILIBRATION_TIME 600;
-#define Tau_T 50
-#define Tau_P 50
+#define Tau_T 25
+#define Tau_P 25
 #define Tau_eq 973.15
 #define P_eq 0.000000633
 
@@ -64,7 +64,7 @@ int main()
     double dt = 0.01;
     double t_max = TIME_MAX;
     int nbr_of_timesteps = t_max/dt;
-    int ir = 50; // Resolution for i. Record every ir:th timestep.             // Segfault sensitive.
+    int ir = 10; // Resolution for i. Record every ir:th timestep.             // Segfault sensitive.
         
     // Data recording
     double log_data1 [nbr_of_timesteps/ir]; // E_p
@@ -138,7 +138,7 @@ int main()
         V = L*L*L; 
         W = get_virial_AL(pos, L, N);
         P = pressure (T, V, W, N);
-        if (et >= 0) {
+        if (et >= 0 || P < 0) {
             equib_pressure(pos, dt, Tau_P, P, P_eq, N, kappa_T, alpha_pP); // Update pressure
             a0 *= *alpha_pP; // Rescale cell
             L = Nc * a0;            
