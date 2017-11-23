@@ -13,7 +13,7 @@
 #define EQUILIBRATION_TIME 600;
 #define Tau_T 50
 #define Tau_P 50
-#define Tau_eq 773.15
+#define Tau_eq 973.15
 #define P_eq 0.000000633
 
 
@@ -61,7 +61,7 @@ int main()
     // Setup
     //========================================================================//
     int i, j, i_log;                                                               // i - actual timestep, i_log - logging of timestep data
-    double dt = 0.001;
+    double dt = 0.01;
     double t_max = TIME_MAX;
     int nbr_of_timesteps = t_max/dt;
     int ir = 50; // Resolution for i. Record every ir:th timestep.             // Segfault sensitive.
@@ -82,6 +82,8 @@ int main()
     double log_data11[nbr_of_timesteps/ir]; // z
     
     double et = EQUILIBRATION_TIME; //equilibration time
+    double Tau_eq_current = 1500; // Put at 1500 Kelvin first.
+    int announce = 1;
     //========================================================================//
     // Verlet
     //========================================================================//
@@ -141,7 +143,15 @@ int main()
             a0 *= *alpha_pP; // Rescale cell
             L = Nc * a0;            
             et -= dt;
-            equib_temp(vel, dt, Tau_eq, Tau_T, T, N); // Update temperature
+            if (T >= Tau_eq_current && announce){
+                Tau_eq_current = Tau_eq;
+                printf("t = %.5f: T = %.3f. Starting to lower to %.3f!\n", i*dt, T, Tau_eq_current);
+                printf("t = %.5f: T = %.3f. Starting to lower to %.3f!\n", i*dt, T, Tau_eq_current);
+                printf("t = %.5f: T = %.3f. Starting to lower to %.3f!\n", i*dt, T, Tau_eq_current);
+                printf("t = %.5f: T = %.3f. Starting to lower to %.3f!\n", i*dt, T, Tau_eq_current);
+                announce = 0;
+            }
+            equib_temp(vel, dt, Tau_eq_current, Tau_T, T, N); // Update temperature
         }
         
         //====================================================================//
