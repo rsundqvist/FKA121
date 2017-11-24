@@ -13,10 +13,21 @@ int main() {
     double values[N];
     readValues("MC.txt", values, N);
 
-    //int s = findS(values, N, 0.005);
-    double B = 8000;
-    double s = blockAverageS(values, N, B);
-    printf("s = %.4f\n", s);
+    int s1 = findS(values, N, 0);
+    printf("s = %d\n", s1);
+    
+    
+    int B;
+    double s2; 
+    FILE *file;
+	file = fopen("block_average.dat","w");
+    for (B = 2; B < 30000; B++) {
+        s2 = blockAverageS(values, N, B);
+		fprintf(file, "%d \t %.4f \n", B, s2);
+		if (B%3000==0) printf("B = %d\n", B);
+    }
+    fclose(file);
+    printf("Done!\n");
 }   
 
 

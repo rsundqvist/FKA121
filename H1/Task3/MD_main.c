@@ -81,6 +81,8 @@ int main()
     double log_data10[nbr_of_timesteps/ir]; // y
     double log_data11[nbr_of_timesteps/ir]; // z
     
+    double log_data12[nbr_of_timesteps/ir]; // V: Volume
+    
     double et = EQUILIBRATION_TIME; //equilibration time
     double Tau_eq_current = 1500; // Put at 1500 Kelvin first.
     int announce = 1;
@@ -174,6 +176,8 @@ int main()
             log_data9[i_log] = pos[69][0];
             log_data10[i_log] = pos[69][1];
             log_data11[i_log] = pos[69][2];
+            
+            log_data12[i_log] = V;
         }
     }
     printf("\tt = %.2f \t\t %.3f  \n", i*dt, ((double)i/nbr_of_timesteps));
@@ -195,7 +199,8 @@ int main()
                 log_data1[i], log_data2[i], log_data3[i],
                 log_data4[i], log_data5[i],
                 log_data6[i], log_data7[i], log_data8[i],
-                log_data9[i], log_data10[i], log_data11[i]
+                log_data9[i], log_data10[i], log_data11[i],
+                log_data12[i]
                 ); // data
 
             // Print file1
