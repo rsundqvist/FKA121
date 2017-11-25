@@ -22,9 +22,10 @@ hold on;
 P_mean = mean(data(equibEnd:end,6))
 plot(t,data(:,6))
 plot([0, max(t)],[P_mean P_mean], 'k');
-legend('P [eV/Å^3]', '<P>');
+plot([0, max(t)],[0.000000633 0.000000633], ':');
+legend('P [eV/Å^3]', '<P>', 'P_{eq}');
 xlabel('Time [ps]')
-ylabel('Pressure [eV/Å^3]')
+ylabel('Pressure [eV/�^3]')
 
 
 hold off;
