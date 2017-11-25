@@ -191,7 +191,7 @@ int main()
             log_data12[i_log] = L;
 
             log_data13[i_log] = msd(allPos, i_log);
-            for (int j = 0; j < 0*N; ++j)
+            for (j = 0; j < 0*N; ++j)
             {
                 pos0[j][0] = pos[j][0];
                 pos0[j][1] = pos[j][1];
