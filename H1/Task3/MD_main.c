@@ -13,7 +13,7 @@
 #define EQUILIBRATION_TIME 600;
 #define Tau_T 25
 #define Tau_P 25
-#define Tau_eq 973.15
+#define Tau_eq 773.15
 #define P_eq 0.000000633
 
 
@@ -21,6 +21,7 @@ void calc_acc(double mass, double (*f)[3], double (*acc)[3]);
 double get_kinetic_energy(double mass, double (*vel)[3]);
 void setArray3DToZero(double (*arr)[3]);
 void randomizeLattice(double (*pos)[3],double a0);
+double msd(double (*allPos)[N][3],int currentTime);
 
 /* Main program */
 int main()
@@ -29,7 +30,8 @@ int main()
     // Task specific - H1
     //========================================================================//   
     srand(time(NULL));                      
-    double pos[N][3]; // x, y, z
+    double pos[N][3]; // x, y, z 
+    double pos0[N][3]; // x, y, z
     double vel[N][3];
     double acc[N][3];
     double f[N][3]; // Forces
@@ -51,6 +53,14 @@ int main()
     double V = L*L*L;
     init_fcc(pos, Nc, a0);
     randomizeLattice(pos, a0); // Introduce some random deviations
+
+    for (int i = 0; i < N; ++i)
+    {
+        pos0[i][0] = pos[i][0];
+        pos0[i][1] = pos[i][1];
+        pos0[i][2] = pos[i][2];
+    }
+
     
     //========================================================================//
     // Task specific - H1
@@ -65,8 +75,9 @@ int main()
     double t_max = TIME_MAX;
     int nbr_of_timesteps = t_max/dt;
     int ir = 10; // Resolution for i. Record every ir:th timestep.             // Segfault sensitive.
-        
+    
     // Data recording
+    double allPos[nbr_of_timesteps/ir][N][3];
     double log_data1 [nbr_of_timesteps/ir]; // E_p
     double log_data2 [nbr_of_timesteps/ir]; // E_k
     double log_data3 [nbr_of_timesteps/ir]; // E_tot = E_p + E_k
@@ -82,6 +93,8 @@ int main()
     double log_data11[nbr_of_timesteps/ir]; // z
     
     double log_data12[nbr_of_timesteps/ir]; // L
+
+    double log_data13[nbr_of_timesteps/ir]; // naive msd
     
     double et = EQUILIBRATION_TIME; //equilibration time
     double Tau_eq_current = 1500; // Put at 1500 Kelvin first.
@@ -176,6 +189,17 @@ int main()
             log_data10[i_log] = pos[69][1];
             log_data11[i_log] = pos[69][2];
             log_data12[i_log] = L;
+
+            log_data13[i_log] = msd(allPos, i_log);
+            for (int j = 0; j < 0*N; ++j)
+            {
+                pos0[j][0] = pos[j][0];
+                pos0[j][1] = pos[j][1];
+                pos0[j][2] = pos[j][2];
+                allPos[i_log][j][0] = pos[j][0];
+                allPos[i_log][j][1] = pos[j][1];
+                allPos[i_log][j][3] = pos[j][3];
+            }
         }
     }
     printf("\tt = %.2f \t\t %.3f  \n", i*dt, ((double)i/nbr_of_timesteps));
@@ -184,7 +208,7 @@ int main()
     // Simulation complete - print data to file(s)
     // fopen("filename", acc), acc \in {"r", "w", "o"} (read, write, append)
     //====================================================================//
-    FILE * file1 = fopen("energy.dat", "w");
+    FILE * file1 = fopen("msd_973.dat", "w");
     if (file1 != NULL){
         printf("Print to file... ");
 
@@ -192,13 +216,14 @@ int main()
             double t = ir*i*dt;
             
             // Print file1
-            fprintf (file1,"%e \t %e \t %e \t %e \t %e \t %e \t %e, \t, %e \t %e \t %e \t %e \t %e \t %e \n",
+            fprintf (file1,"%e \t %e \t %e \t %e \t %e \t %e \t %e, \t, %e \t %e \t %e \t %e \t %e \t %e \t %e \n",
                 t, // Time
                 log_data1[i], log_data2[i], log_data3[i],
                 log_data4[i], log_data5[i],
                 log_data6[i], log_data7[i], log_data8[i],
                 log_data9[i], log_data10[i], log_data11[i],
-                log_data12[i]
+                log_data12[i],
+                log_data13[i]
                 ); // data
 
             // Print file1
@@ -255,4 +280,20 @@ void randomizeLattice(double (*pos)[3],double a0) {
         pos[i][1] += - 0.05 *a0 + 0.1 * a0 * r2;
         pos[i][2] += - 0.05 *a0 + 0.1 * a0 * r3;
     }
+}
+
+double msd(double (*allPos)[N][3],int currentTime) {
+    double msd = 0, x,y,z;
+    int i,j,tempSum;
+    for(i = 1; i < currentTime; i++) {
+        tempSum = 0;
+        for(j = 0; j < N; j++) {
+            x = allPos[i][j][0] - allPos[i-1][j][0];
+            y = allPos[i][j][1] - allPos[i-1][j][1];
+            z = allPos[i][j][2] - allPos[i-1][j][2];
+            tempSum += x*x + y*y + z*z;
+        }
+        msd += tempSum;
+    }
+    return msd/(currentTime*N);
 }
