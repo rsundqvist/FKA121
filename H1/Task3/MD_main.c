@@ -31,7 +31,6 @@ int main()
     //========================================================================//   
     srand(time(NULL));                      
     double pos[N][3]; // x, y, z 
-    double pos0[N][3]; // x, y, z
     double vel[N][3];
     double acc[N][3];
     double f[N][3]; // Forces
@@ -54,14 +53,6 @@ int main()
     init_fcc(pos, Nc, a0);
     randomizeLattice(pos, a0); // Introduce some random deviations
 
-    for (int i = 0; i < N; ++i)
-    {
-        pos0[i][0] = pos[i][0];
-        pos0[i][1] = pos[i][1];
-        pos0[i][2] = pos[i][2];
-    }
-
-    
     //========================================================================//
     // Task specific - H1
     //========================================================================//               
@@ -193,9 +184,6 @@ int main()
             log_data13[i_log] = msd(allPos, i_log);
             for (j = 0; j < 0*N; ++j)
             {
-                pos0[j][0] = pos[j][0];
-                pos0[j][1] = pos[j][1];
-                pos0[j][2] = pos[j][2];
                 allPos[i_log][j][0] = pos[j][0];
                 allPos[i_log][j][1] = pos[j][1];
                 allPos[i_log][j][3] = pos[j][3];
