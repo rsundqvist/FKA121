@@ -44,16 +44,30 @@ double autoCorrelation(double * values, int nbr_of_values, int k) {
 
 int findS(double * values, int nbr_of_values, double threshold) {
     int k;
-    int s = -1;     
+    int s = -1, extra = nbr_of_values, found = 0;     
+    
+    FILE *file;
+	file = fopen("phi_k.dat","w");
+	
+	
     double target = 0.1353352832;
     for(k = 0; k < nbr_of_values; k++) {
         double  phiK = autoCorrelation(values, nbr_of_values, k);
-        printf("phi_%d = %.7f, target = %.7f \t %.5f \n",k,phiK, target, d_abs(phiK - target));
-        if(d_abs(phiK - target) <= threshold ) {
+        //printf("phi_%d = %.7f, target = %.7f \t %.5f \n",k,phiK, target, phiK - target);
+		fprintf(file, "%d \t %.4f \n", k, phiK);
+		extra--;
+        if(phiK < target && !found) {
             s = k;
+            found = 1;
+            printf("FOUND!\nFOUND!\nFOUND!\nFOUND!\nFOUND!\nFOUND!\nFOUND!\nFOUND!\nFOUND!\nFOUND!\n");
+            extra = k*20;
+        }
+        if(extra <= 0) {
             break;
-        }       
-    }
+        } 
+    }	
+	fclose(file);
+    
     return s;
 }
 

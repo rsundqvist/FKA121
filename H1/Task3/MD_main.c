@@ -176,7 +176,12 @@ int main()
             log_data9[i_log] = pos[69][0];
             log_data10[i_log] = pos[69][1];
             log_data11[i_log] = pos[69][2];
+<<<<<<< HEAD
             log_data12[i_log] = L;
+=======
+            
+            log_data12[i_log] = V;
+>>>>>>> 7194a9a6fd9f67cc37762f5b3882ceecd5588b4a
         }
     }
     printf("\tt = %.2f \t\t %.3f  \n", i*dt, ((double)i/nbr_of_timesteps));
@@ -198,7 +203,8 @@ int main()
                 log_data1[i], log_data2[i], log_data3[i],
                 log_data4[i], log_data5[i],
                 log_data6[i], log_data7[i], log_data8[i],
-                log_data9[i], log_data10[i], log_data11[i]
+                log_data9[i], log_data10[i], log_data11[i],
+                log_data12[i]
                 ); // data
 
             // Print file1
