@@ -65,7 +65,7 @@ int main()
     double dt = 0.01;
     double t_max = TIME_MAX;
     int nbr_of_timesteps = t_max/dt;
-    int ir = 10; // Resolution for i. Record every ir:th timestep.             // Segfault sensitive.
+    int ir = 20; // Resolution for i. Record every ir:th timestep.             // Segfault sensitive.
     
     // Data recording
     double allPos[nbr_of_timesteps/ir][N][3];
