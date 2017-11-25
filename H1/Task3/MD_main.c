@@ -55,7 +55,7 @@ int main()
     //========================================================================//
     // Task specific - H1
     //========================================================================//               
-    double T = 0, P = 0, P_prev = P; // Temperature, Pressure
+    double T = 0, P = 0; // Temperature, Pressure
     double Ek, W;
     //========================================================================//
     // Setup
@@ -136,7 +136,6 @@ int main()
         }
         Ek = get_kinetic_energy(mass, vel);
         T = instantaneus_temp (Ek, N);
-        P_prev = P;
         V = L*L*L; 
         W = get_virial_AL(pos, L, N);
         P = pressure (T, V, W, N);
@@ -176,12 +175,7 @@ int main()
             log_data9[i_log] = pos[69][0];
             log_data10[i_log] = pos[69][1];
             log_data11[i_log] = pos[69][2];
-<<<<<<< HEAD
             log_data12[i_log] = L;
-=======
-            
-            log_data12[i_log] = V;
->>>>>>> 7194a9a6fd9f67cc37762f5b3882ceecd5588b4a
         }
     }
     printf("\tt = %.2f \t\t %.3f  \n", i*dt, ((double)i/nbr_of_timesteps));
@@ -198,7 +192,7 @@ int main()
             double t = ir*i*dt;
             
             // Print file1
-            fprintf (file1,"%e \t %e \t %e \t %e \t %e \t %e, \t, %e \t %e \t %e \t %e \t %e \t %e \n",
+            fprintf (file1,"%e \t %e \t %e \t %e \t %e \t %e \t %e, \t, %e \t %e \t %e \t %e \t %e \t %e \n",
                 t, // Time
                 log_data1[i], log_data2[i], log_data3[i],
                 log_data4[i], log_data5[i],
