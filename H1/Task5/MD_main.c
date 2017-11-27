@@ -9,7 +9,7 @@
 
 #define N 256
 
-#define TIME_MAX 1200
+#define TIME_MAX 1000
 #define EQUILIBRATION_TIME 600;
 #define Tau_T 25
 #define Tau_P 25
@@ -32,7 +32,7 @@ int main()
     srand(time(NULL));                      
     double pos[N][3]; // x, y, z 
     double vel[N][3];
-    double prevVel[N][3];
+    double prevPos[N][3];
     double acc[N][3];
     double f[N][3]; // Forces
     
@@ -85,8 +85,8 @@ int main()
     
     double log_data12[nbr_of_timesteps/ir]; // L
 
-    double log_data13[nbr_of_timesteps/ir]; // mean speed
-    double log_data14[nbr_of_timesteps/ir]; // velocity correlation
+    double log_data13[nbr_of_timesteps/ir]; // mean msd
+    double log_data14[nbr_of_timesteps/ir]; // msd correlation
     
     double et = EQUILIBRATION_TIME; //equilibration time
     double Tau_eq_current = 1500; // Put at 1500 Kelvin first.
@@ -116,9 +116,9 @@ int main()
 		// Update old velocities
 		if(i == recordCorrelation )
         	for(j = 0; j < N; j++) {
-        		prevVel[j][0] = vel[j][0];
-        		prevVel[j][1] = vel[j][1];
-        		prevVel[j][2] = vel[j][2];
+        		prevPos[j][0] = pos[j][0];
+        		prevPos[j][1] = pos[j][1];
+        		prevPos[j][2] = pos[j][2];
         	}
 
         //======================================//
@@ -191,7 +191,7 @@ int main()
             log_data12[i_log] = L;
 
             if(i > recordCorrelation )
-        		log_data13[i_log - recordCorrelation/ir] = velocityCorr(vel, prevVel, N);
+        		log_data13[i_log - recordCorrelation/ir] = msdCorr(vel, prevPos, N);
         	// log_data14 calculated outside
         }
     }
@@ -208,7 +208,7 @@ int main()
     // Simulation complete - print data to file(s)
     // fopen("filename", acc), acc \in {"r", "w", "o"} (read, write, append)
     //====================================================================//
-    FILE * file1 = fopen("velcorr_773.dat", "w");
+    FILE * file1 = fopen("msd_773.dat", "w");
     if (file1 != NULL){
         printf("Print to file... ");
 
@@ -216,14 +216,14 @@ int main()
             double t = ir*i*dt;
             
             // Print file1
-            fprintf (file1,"%e \t %e \t %e \t %e \t %e \t %e \t %e, \t, %e \t %e \t %e \t %e \t %e \t %e \t %e \n",
+            fprintf (file1,"%e \t %e \t %e \t %e \t %e \t %e \t %e \t %e, \t, %e \t %e \t %e \t %e \t %e \t %e \t %e \n",
                 t, // Time
                 log_data1[i], log_data2[i], log_data3[i],
                 log_data4[i], log_data5[i],
                 log_data6[i], log_data7[i], log_data8[i],
                 log_data9[i], log_data10[i], log_data11[i],
                 log_data12[i],
-                log_data14[i]
+                log_data13[i], log_data14[i]
                 ); // data
 
             // Print file1
