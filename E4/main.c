@@ -5,14 +5,11 @@
 #include <time.h>
 
 #define N 100
-#define k_B 1
-#define m 1
-#define T 1
-#define eta 1
 #define TIME_MAX 10
 
 double get_mean(double *vector);
 double get_variance(double *vector, double mu);
+void calc_acc(double *a, double *q, double *v, double m, double k, double eta);
 gsl_rng * init_rng();
 
 //==============//
@@ -22,7 +19,12 @@ int main()
 {
     //========================================================================//
     // Task specific - E4
-    //========================================================================//                                                       // i - actual timestep, i_log - logging of timestep data
+    //========================================================================//
+    char output_file[255];
+    sprintf(output_file, "test%d.dat", 1);
+
+    double T = 1, k_B = 1, m = 1, eta = 1, k = 1;
+
     double dt = 0.01;
     double c_0 = exp(-eta*dt);
     double v_th = sqrt(k_B*T/m);        
@@ -91,7 +93,7 @@ int main()
         //=====================//
         // Accelerations
         //=====================//
-        //calc_acc(todo);
+        calc_acc(a, q, v, m, k, eta);
         
         for (j = 0; j < N; j++) { // v(t+dt)
             v[j] += 0.5*sqrt(c_0)*a[j]*dt + sqrt(c_0)*v[j] + v_th*sqrt(1-c_0)*G_2;
@@ -126,7 +128,7 @@ int main()
     //====================================================================//
     // Simulation complete - print data to file(s)
     //====================================================================//
-    FILE * file1 = fopen("e4.dat", "w");
+    FILE * file1 = fopen(output_file, "w");
     if (file1 != NULL){
         for (i = 0; i < nbr_of_timesteps/ir; i++) { // i are log steps now!
             double t = ir*i*dt;
@@ -137,20 +139,26 @@ int main()
                 log_data1[i], log_data2[i],
                 log_data3[i], log_data4[i]
                 );
-
-            // Print file1
-            // ...
         }
         
         
         // Close file(s)
         fclose(file1);
-        printf("Data printed!\n");
+        printf("Data printed to file: \"%s\".\n", output_file);
     } else {
-        printf("A file is NULL!\n");
+        printf("File is NULL!\n");
     }
 
     return 0;
+}
+
+void calc_acc(double *a, double *q, double *v, double m, double k, double eta) {
+	int j;
+	for (int j = 0; j < N; ++j)
+	{
+		a[j] = - k*q[j]*q[j] - m*eta*v[j];
+		a[j] /= m;
+	}
 }
 
 gsl_rng * init_rng() {
