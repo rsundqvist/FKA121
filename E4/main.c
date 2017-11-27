@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include <gsl/gsl_rng.h>
+#include <gsl/gsl_randist.h>
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
@@ -74,10 +74,8 @@ int main()
             printf("\tt = %.2f \t\t %.3f  \n", (i-1)*dt, ((double)(i-1)/nbr_of_timesteps));
         }
           
-        //G_1 = gsl_ran_ugaussian(gslr); // unit gaussian
-        //G_2 = gsl_ran_ugaussian(gslr);
-    	G_1 = 0;
-    	G_2 = 0;
+        G_1 = gsl_ran_ugaussian(gslr); // unit gaussian
+        G_2 = gsl_ran_ugaussian(gslr);
 
         //======================================//
         // Verlet
@@ -121,7 +119,6 @@ int main()
             log_data7[i_log] = q[(N-1)/2];
             log_data8[i_log] = q[3*(N-1)/4];
             log_data9[i_log] = q[N-1];
-            return -1;
         }
     }
     printf("\tt = %.2f \t\t %.3f  \n", i*dt, ((double)i/nbr_of_timesteps));
