@@ -4,14 +4,15 @@
 #include <math.h>
 #include <time.h>
 
-#define N 0
-#define k_B 0
-#define m 0
-#define T 0
-#define eta 0
+#define N 1
+#define k_B 1
+#define m 1
+#define T 1
+#define eta 1
+#define TIME_MAX 10
 
-double get_mu(double vector[N]);
-double get_sigma_squared(double vector[N], double mu);
+double get_mean(double *vector);
+double get_variance(double *vector, double mu);
 gsl_rng * init_rng();
 
 //==============//
@@ -21,28 +22,32 @@ int main()
 {
     //========================================================================//
     // Task specific - E4
-    //========================================================================//
+    //========================================================================//                                                       // i - actual timestep, i_log - logging of timestep data
+    double dt = 0.01;
     double c_0 = exp(-eta*dt);
     double v_th = sqrt(k_B*T/m);        
-    double q[N], v[N], a[N]; // pos, vel, acc
+    double q[N]; // position
+    double v[N]; // velelocity
+    double a[N]; // acceleration
     
     // TODO: kontrollera att enheter funkar överallt
     double T_a = 48.5;  // microseconds
     double T_b = 147.3; // microseconds
     
-    double x_0 = 0.1 //micrometers
-    double x_0 = 2.0 //micrometers per microsecond
+    double x_0 = 0.1; //micrometers
+    double v_0 = 2.0; //micrometers per microsecond
     double f_0 = 3*1000; // kHz, regular not angular
     
     double mu_q, sigma_sq_q;
     double mu_v, sigma_sq_v;
+
+    double G_1, G_2;
     
     //========================================================================//
     // Setup
     //========================================================================//
-    gsl_rng *q = init_rng();
-    int i, j, i_log;                                                               // i - actual timestep, i_log - logging of timestep data
-    double dt = 0.01;
+    gsl_rng *gslr = init_rng();
+    int i, j, i_log;        
     double t_max = TIME_MAX;
     int nbr_of_timesteps = t_max/dt;
     int ir = 10; // Resolution for i. Record every ir:th timestep.             // Segfault sensitive.
@@ -67,15 +72,10 @@ int main()
     for (i = 1; i < nbr_of_timesteps; i++) {
         if (100*(i-1)%(nbr_of_timesteps) == 0) { // Print progress
             printf("\tt = %.2f \t\t %.3f  \n", i*dt, ((double)i/nbr_of_timesteps));
-            
-            if (et > 0) {
-                printf("et = %.2f ", et);
-                printf("\tT = %.3f \t P = %.10f \n", T,P);
-            }
         }
           
-        G_1 = gsl_ran_gaussian(q, 1);
-        G_2 = gsl_ran_gaussian(q, 1);
+        G_1 = gsl_ran_gaussian(gslr, 1);
+        G_2 = gsl_ran_gaussian(gslr, 1);
     
         //======================================//
         // Verlet
@@ -91,10 +91,10 @@ int main()
         //=====================//
         // Accelerations
         //=====================//
-        calc_acc(mass, f, acc);
+        //calc_acc(todo); // todo acceleration
         
         for (j = 0; j < N; j++) { // v(t+dt)
-            v[j] += 0.5*sqrt(c_0)*a[j]*dt + sqrt(c0)*v[k] + v_th*sqrt(1-c0)*G_2;
+            v[j] += 0.5*sqrt(c_0)*a[j]*dt + sqrt(c_0)*v[j] + v_th*sqrt(1-c_0)*G_2;
         }
         
         //====================================================================//
@@ -104,10 +104,10 @@ int main()
             i_log = i/ir;         
                 
             // Mu and sigma squared
-            mu_q = get_mu(q[N]);
-            sigma_sq_q = get_sigma_squared(q, mu_q);
-            mu_v = get_mu(v[N]);
-            sigma_sq_v = get_sigma_squared(v, mu_v);
+            mu_q = get_mean(q);
+            sigma_sq_q = get_variance(q, mu_q);
+            mu_v = get_mean(v);
+            sigma_sq_v = get_variance(v, mu_v);
             log_data1[i_log] = mu_q;
             log_data2[i_log] = sigma_sq_q;
             log_data3[i_log] = mu_v;
@@ -154,29 +154,29 @@ int main()
 }
 
 gsl_rng * init_rng() {
-	const gsl_rng_type *T;
+	const gsl_rng_type *rngT;
 	gsl_rng *q;
 	gsl_rng_env_setup();
-	T = gsl_rng_default;
-	q = gsl_rng_alloc(T);
+	rngT = gsl_rng_default;
+	q = gsl_rng_alloc(rngT);
 	gsl_rng_set(q,time(NULL));
 	return q;
 }
 
-double get_mu(double vector[N]) {
+double get_mean(double *vector) {
     double sum = 0;
     int j;
     for (j = 0; j < N; ++j)
-        sum+=pos[j];
+        sum+=vector[j];
     
     return sum/N;
 }
 
-double get_sigma_squared(double vector[N], double mu) {
+double get_variance(double *vector, double mean) {
     double sum = 0, d;
     int j;
     for (j = 0; j < N; ++j) {
-        d = vector[j] - mu;
+        d = vector[j] - mean;
         sum += d*d;
     }
     

@@ -21,7 +21,7 @@ void calc_acc(double mass, double (*f)[3], double (*acc)[3]);
 double get_kinetic_energy(double mass, double (*vel)[3]);
 void setArray3DToZero(double (*arr)[3]);
 void randomizeLattice(double (*pos)[3],double a0);
-double msd(double (*allPos)[N][3],int currentTime);
+double vel_corr(double (*vel)[3], double (*vel0)[3]);
 
 /* Main program */
 int main()
@@ -58,6 +58,7 @@ int main()
     //========================================================================//               
     double T = 0, P = 0; // Temperature, Pressure
     double Ek, W;
+    double velCorrSum = 0;
     //========================================================================//
     // Setup
     //========================================================================//
@@ -65,10 +66,16 @@ int main()
     double dt = 0.01;
     double t_max = TIME_MAX;
     int nbr_of_timesteps = t_max/dt;
-    int ir = 50; // Resolution for i. Record every ir:th timestep.             // Segfault sensitive.
+    int ir = 10; // Resolution for i. Record every ir:th timestep.             // Segfault sensitive.
     
     // Data recording
-    double allPos[nbr_of_timesteps/ir][N][3];
+    double vel0[N][3];
+    for (j = 0; j < N; ++j) // Velocity is zero at start - not really needed
+    {
+        vel0[j][0] = vel[j][0];
+        vel0[j][1] = vel[j][1];
+        vel0[j][2] = vel[j][2];
+    }
     double log_data1 [nbr_of_timesteps/ir]; // E_p
     double log_data2 [nbr_of_timesteps/ir]; // E_k
     double log_data3 [nbr_of_timesteps/ir]; // E_tot = E_p + E_k
@@ -181,12 +188,13 @@ int main()
             log_data11[i_log] = pos[69][2];
             log_data12[i_log] = L;
 
-            log_data13[i_log] = msd(allPos, i_log);
-            for (j = 0; j < 0*N; ++j)
+            velCorrSum += vel_corr(vel,vel0);
+            log_data13[i_log] = velCorrSum/i_log;
+            for (j = 0; j < N; ++j)
             {
-                allPos[i_log][j][0] = pos[j][0];
-                allPos[i_log][j][1] = pos[j][1];
-                allPos[i_log][j][3] = pos[j][3];
+                vel0[j][0] = vel[j][0];
+                vel0[j][1] = vel[j][1];
+                vel0[j][2] = vel[j][2];
             }
         }
     }
@@ -270,18 +278,14 @@ void randomizeLattice(double (*pos)[3],double a0) {
     }
 }
 
-double msd(double (*allPos)[N][3],int currentTime) {
-    double msd = 0, x,y,z;
-    int i,j,tempSum;
-    for(i = 1; i < currentTime; i++) {
-        tempSum = 0;
+double vel_corr(double (*vel)[3], double (*vel0)[3]) {
+    double x,y,z, sum = 0;
+    int j;
         for(j = 0; j < N; j++) {
-            x = allPos[i][j][0] - allPos[i-1][j][0];
-            y = allPos[i][j][1] - allPos[i-1][j][1];
-            z = allPos[i][j][2] - allPos[i-1][j][2];
-            tempSum += x*x + y*y + z*z;
+            x = vel[j][0] * vel0[j][0];
+            y = vel[j][1] * vel0[j][1];
+            z = vel[j][2] * vel0[j][2];
+            sum += x*x + y*y + z*z;
         }
-        msd += tempSum;
-    }
-    return msd/(currentTime*N);
+    return sum/N;
 }
