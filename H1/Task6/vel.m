@@ -2,8 +2,8 @@
 close all;
 clear all;
 
-data = load('msd_973.dat');
-data2 = load('msd_773.dat');
+data = load('velcorr_973.dat');
+%data2 = load('msd_773.dat');
 
 
 
