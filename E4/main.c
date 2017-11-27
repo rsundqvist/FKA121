@@ -10,6 +10,10 @@
 #define T 0
 #define eta 0
 
+double get_mu(double vector[N]);
+double get_sigma_squared(double vector[N], double mu);
+gsl_rng * init_rng();
+
 //==============//
 // Main program //
 //==============//
@@ -22,6 +26,17 @@ int main()
     double v_th = sqrt(k_B*T/m);        
     double q[N], v[N], a[N]; // pos, vel, acc
     
+    // TODO: kontrollera att enheter funkar överallt
+    double T_a = 48.5;  // microseconds
+    double T_b = 147.3; // microseconds
+    
+    double x_0 = 0.1 //micrometers
+    double x_0 = 2.0 //micrometers per microsecond
+    double f_0 = 3*1000; // kHz, regular not angular
+    
+    double mu_q, sigma_sq_q;
+    double mu_v, sigma_sq_v;
+    
     //========================================================================//
     // Setup
     //========================================================================//
@@ -33,9 +48,16 @@ int main()
     int ir = 10; // Resolution for i. Record every ir:th timestep.             // Segfault sensitive.
     
     // Data recording
-    double log_data1 [nbr_of_timesteps/ir];
-    double log_data2 [nbr_of_timesteps/ir];
-    double log_data3 [nbr_of_timesteps/ir];
+    double log_data1 [nbr_of_timesteps/ir]; // mu_q
+    double log_data2 [nbr_of_timesteps/ir]; // sigma_sq_q
+    double log_data3 [nbr_of_timesteps/ir]; // mu_v
+    double log_data4 [nbr_of_timesteps/ir]; // sigma_sq_v
+    
+    double log_data5 [nbr_of_timesteps/ir]; // Trajectory 1
+    double log_data6 [nbr_of_timesteps/ir]; // Trajectory 2
+    double log_data7 [nbr_of_timesteps/ir]; // Trajectory 3
+    double log_data8 [nbr_of_timesteps/ir]; // Trajectory 4
+    double log_data9 [nbr_of_timesteps/ir]; // Trajectory 5
     
     //========================================================================//
     // Verlet
@@ -79,10 +101,24 @@ int main()
         // Record data
         //====================================================================//
         if (i%ir == 0) { // Time to log data?
-            i_log = i/ir;
-            log_data1[i_log] = 0;
-            log_data2[i_log] = 0;
-            log_data3[i_log] = 0;
+            i_log = i/ir;         
+                
+            // Mu and sigma squared
+            mu_q = get_mu(q[N]);
+            sigma_sq_q = get_sigma_squared(q, mu_q);
+            mu_v = get_mu(v[N]);
+            sigma_sq_v = get_sigma_squared(v, mu_v);
+            log_data1[i_log] = mu_q;
+            log_data2[i_log] = sigma_sq_q;
+            log_data3[i_log] = mu_v;
+            log_data4[i_log] = sigma_sq_v;
+            
+            // Trajectories
+            log_data5[i_log] = q[0];
+            log_data6[i_log] = q[5];
+            log_data7[i_log] = q[15];
+            log_data8[i_log] = q[20];
+            log_data9[i_log] = q[N-1];
         }
     }
     printf("\tt = %.2f \t\t %.3f  \n", i*dt, ((double)i/nbr_of_timesteps));
@@ -96,9 +132,10 @@ int main()
             double t = ir*i*dt;
             
             // Print file1
-            fprintf (file1,"%e \t %e \t %e \t %e \n",
+            fprintf (file1,"%e \t %e \t %e \t %e \t %e\n",
                 t, // Time
-                log_data1[i], log_data2[i], log_data3[i],
+                log_data1[i], log_data2[i],
+                log_data3[i], log_data4[i]
                 );
 
             // Print file1
@@ -116,8 +153,7 @@ int main()
     return 0;
 }
 
-gsl_rng * init_rng()
-{
+gsl_rng * init_rng() {
 	const gsl_rng_type *T;
 	gsl_rng *q;
 	gsl_rng_env_setup();
@@ -125,4 +161,24 @@ gsl_rng * init_rng()
 	q = gsl_rng_alloc(T);
 	gsl_rng_set(q,time(NULL));
 	return q;
+}
+
+double get_mu(double vector[N]) {
+    double sum = 0;
+    int j;
+    for (j = 0; j < N; ++j)
+        sum+=pos[j];
+    
+    return sum/N;
+}
+
+double get_sigma_squared(double vector[N], double mu) {
+    double sum = 0, d;
+    int j;
+    for (j = 0; j < N; ++j) {
+        d = vector[j] - mu;
+        sum += d*d;
+    }
+    
+    return sum/N;
 }
