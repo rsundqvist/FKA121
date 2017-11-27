@@ -3,12 +3,11 @@
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
+#include "stat.h"
 
 #define N 100
 #define TIME_MAX 10
 
-double get_mean(double *vector);
-double get_variance(double *vector, double mu);
 void calc_acc(double *a, double *q, double *v, double m, double k, double eta);
 gsl_rng * init_rng();
 
@@ -106,10 +105,10 @@ int main()
             i_log = i/ir;         
                 
             // Mu and sigma squared
-            mu_q = get_mean(q);
-            sigma_sq_q = get_variance(q, mu_q);
-            mu_v = get_mean(v);
-            sigma_sq_v = get_variance(v, mu_v);
+            mu_q = get_mean(q, N);
+            sigma_sq_q = get_variance(q, mu_q, N);
+            mu_v = get_mean(v, N);
+            sigma_sq_v = get_variance(v, mu_v, N);
             log_data1[i_log] = mu_q;
             log_data2[i_log] = sigma_sq_q;
             log_data3[i_log] = mu_v;
@@ -169,24 +168,4 @@ gsl_rng * init_rng() {
 	q = gsl_rng_alloc(rngT);
 	gsl_rng_set(q,time(NULL));
 	return q;
-}
-
-double get_mean(double *vector) {
-    double sum = 0;
-    int j;
-    for (j = 0; j < N; ++j)
-        sum+=vector[j];
-    
-    return sum/N;
-}
-
-double get_variance(double *vector, double mean) {
-    double sum = 0, d;
-    int j;
-    for (j = 0; j < N; ++j) {
-        d = vector[j] - mean;
-        sum += d*d;
-    }
-    
-    return sum/N;
 }
