@@ -4,7 +4,7 @@
 #include <math.h>
 #include <time.h>
 
-#define N 1
+#define N 100
 #define k_B 1
 #define m 1
 #define T 1
@@ -70,13 +70,15 @@ int main()
     printf("\nLog resolution: 1 per %d steps, t_max = %.3f \n", ir, t_max);
     
     for (i = 1; i < nbr_of_timesteps; i++) {
-        if (100*(i-1)%(nbr_of_timesteps) == 0) { // Print progress
-            printf("\tt = %.2f \t\t %.3f  \n", i*dt, ((double)i/nbr_of_timesteps));
+        if (10*(i-1)%(nbr_of_timesteps) == 0) { // Print progress
+            printf("\tt = %.2f \t\t %.3f  \n", (i-1)*dt, ((double)(i-1)/nbr_of_timesteps));
         }
           
-        G_1 = gsl_ran_gaussian(gslr, 1);
-        G_2 = gsl_ran_gaussian(gslr, 1);
-    
+        //G_1 = gsl_ran_ugaussian(gslr); // unit gaussian
+        //G_2 = gsl_ran_ugaussian(gslr);
+    	G_1 = 0;
+    	G_2 = 0;
+
         //======================================//
         // Verlet
         //======================================//
@@ -91,7 +93,7 @@ int main()
         //=====================//
         // Accelerations
         //=====================//
-        //calc_acc(todo); // todo acceleration
+        //calc_acc(todo);
         
         for (j = 0; j < N; j++) { // v(t+dt)
             v[j] += 0.5*sqrt(c_0)*a[j]*dt + sqrt(c_0)*v[j] + v_th*sqrt(1-c_0)*G_2;
@@ -115,10 +117,11 @@ int main()
             
             // Trajectories
             log_data5[i_log] = q[0];
-            log_data6[i_log] = q[5];
-            log_data7[i_log] = q[15];
-            log_data8[i_log] = q[20];
+            log_data6[i_log] = q[(N-1)/4];
+            log_data7[i_log] = q[(N-1)/2];
+            log_data8[i_log] = q[3*(N-1)/4];
             log_data9[i_log] = q[N-1];
+            return -1;
         }
     }
     printf("\tt = %.2f \t\t %.3f  \n", i*dt, ((double)i/nbr_of_timesteps));
