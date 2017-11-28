@@ -103,7 +103,7 @@ int main()
     W = get_virial_AL(pos, L, N);
     P = pressure (T, V, W, N);
     
-    FILE * file_all = fopen("allpos.dat", "w");
+    FILE * file_all = fopen("allpos_liquid.dat", "w");
     for (i = 1; i < nbr_of_timesteps; i++) {
         if (100*(i-1)%(nbr_of_timesteps) == 0) { // Print progress
             printf("\tt = %.2f \t\t %.3f  \n", (i-1)*dt, ((double)(i-1)/nbr_of_timesteps));
@@ -198,7 +198,7 @@ int main()
     // Simulation complete - print data to file(s)
     // fopen("filename", acc), acc \in {"r", "w", "o"} (read, write, append)
     //====================================================================//
-    FILE * file1 = fopen("allpos_liquid.dat", "w");
+    FILE * file1 = fopen("data.dat", "w");
     if (file1 != NULL){
         printf("Print to file... ");
 

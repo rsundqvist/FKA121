@@ -1,7 +1,7 @@
 %% Plot vol
 close all;
 
-loadAllpos;
+%loadAllpos;
 
 dt = 1;
 timeSteps = size(data, 1);
@@ -12,10 +12,11 @@ h = waitbar(0, 'Progress - overall');
 h2 = waitbar(0, 'Progress - particle');
 maxStepSize = 1; % Step size if amplified by ir in MD_main.c!
 
+ir = 5;
 N = 256;
 
 msd_solid = zeros(maxStepSize, timeSteps);
-for stepSize=1:maxStepSize*0
+for stepSize=1:maxStepSize
     waitbar(0.5*stepSize/maxStepSize, h);
     for i=1:N
         waitbar(i/N, h2);
@@ -50,20 +51,4 @@ close(h2);
 disp('Beep!');
 beep;
 
-figure
-hold on
-for stepSize=1:maxStepSize
-    series = msd_solid(stepSize,:)/N;
-    plot(series, 'DisplayName', ['stepSize = ' num2str(stepSize)]);
-end
-legend(gca, 'show');
-
-figure
-hold on
-for stepSize=1:maxStepSize
-    series = msd_liquid(stepSize,:)/N;
-    plot(series, 'DisplayName', ['stepSize = ' num2str(stepSize)]);
-end
-legend(gca, 'show');
-
-hold off;
+plot_msd;
