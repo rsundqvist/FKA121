@@ -88,7 +88,7 @@ int main()
     
     double et = EQUILIBRATION_TIME; //equilibration time
     double Tau_eq_current = 1500; // Put at 1500 Kelvin first.
-    Tau_eq_current = Tau_eq; // Comment out to smelt
+    //Tau_eq_current = Tau_eq; // Comment out to smelt
     int announce = 1;
     //========================================================================//
     // Verlet
@@ -152,6 +152,7 @@ int main()
             et -= dt;
             if (T >= Tau_eq_current && announce){
                 Tau_eq_current = Tau_eq;
+                printf("t = %.5f: T = %.3f. Starting to lower to %.3f!\n", i*dt, T, Tau_eq_current);
                 printf("t = %.5f: T = %.3f. Starting to lower to %.3f!\n", i*dt, T, Tau_eq_current);
                 printf("t = %.5f: T = %.3f. Starting to lower to %.3f!\n", i*dt, T, Tau_eq_current);
                 printf("t = %.5f: T = %.3f. Starting to lower to %.3f!\n", i*dt, T, Tau_eq_current);
