@@ -13,10 +13,9 @@
 #define EQUILIBRATION_TIME 600;
 #define Tau_T 25
 #define Tau_P 25
-#define Tau_eq 773.15
+#define Tau_eq 973.15
 #define P_eq 0.000000633
 
-int recordCorrelation = 60000;
 void calc_acc(double mass, double (*f)[3], double (*acc)[3]);
 double get_kinetic_energy(double mass, double (*vel)[3]);
 void setArray3DToZero(double (*arr)[3]);
@@ -32,7 +31,6 @@ int main()
     srand(time(NULL));                      
     double pos[N][3]; // x, y, z 
     double vel[N][3];
-    double prevPos[N][3];
     double acc[N][3];
     double f[N][3]; // Forces
     
@@ -66,7 +64,7 @@ int main()
     double dt = 0.01;
     double t_max = TIME_MAX;
     int nbr_of_timesteps = t_max/dt;
-    int ir = 2; // Resolution for i. Record every ir:th timestep.             // Segfault sensitive.
+    int ir = 5; // Resolution for i. Record every ir:th timestep.             // Segfault sensitive.
     
     // Data recording
     double log_data1 [nbr_of_timesteps/ir]; // E_p
@@ -104,6 +102,8 @@ int main()
     T = instantaneus_temp (Ek, N);
     W = get_virial_AL(pos, L, N);
     P = pressure (T, V, W, N);
+    
+    FILE * file_all = fopen("allpos.dat", "w");
     for (i = 1; i < nbr_of_timesteps; i++) {
         if (100*(i-1)%(nbr_of_timesteps) == 0) { // Print progress
             printf("\tt = %.2f \t\t %.3f  \n", (i-1)*dt, ((double)(i-1)/nbr_of_timesteps));
@@ -113,13 +113,6 @@ int main()
                 printf("\tT = %.3f \t P = %.10f \n", T,P);
             }
         }
-		// Update old velocities
-		if(i == recordCorrelation )
-        	for(j = 0; j < N; j++) {
-        		prevPos[j][0] = pos[j][0];
-        		prevPos[j][1] = pos[j][1];
-        		prevPos[j][2] = pos[j][2];
-        	}
 
         //======================================//
         // Verlet
@@ -189,26 +182,22 @@ int main()
             log_data10[i_log] = pos[69][1];
             log_data11[i_log] = pos[69][2];
             log_data12[i_log] = L;
-
-            if(i > recordCorrelation )
-        		log_data13[i_log - recordCorrelation/ir] = msdCorr(vel, prevPos, N);
-        	// log_data14 calculated outside
+        
+            fprintf(file_all, "%e ", i*dt);
+            for (j = 0; j < N; ++j) {
+                fprintf (file_all," %e %e %e ", pos[j][0], pos[j][1], pos[j][2]);
+            }
+            fprintf(file_all, "\n");
+            
         }
     }
     printf("\tt = %.2f \t\t %.3f  \n", i*dt, ((double)i/nbr_of_timesteps));
-    
-    int nbr_of_logsteps = (nbr_of_timesteps-recordCorrelation)/ir;
-    int l;
-	for (l = 0; l < nbr_of_logsteps; ++l)
-	{
-		log_data14[l] = get_cl(log_data13, nbr_of_logsteps, l);
-	}
 
     //====================================================================//
     // Simulation complete - print data to file(s)
     // fopen("filename", acc), acc \in {"r", "w", "o"} (read, write, append)
     //====================================================================//
-    FILE * file1 = fopen("msd_773.dat", "w");
+    FILE * file1 = fopen("allpos_liquid.dat", "w");
     if (file1 != NULL){
         printf("Print to file... ");
 
@@ -216,14 +205,13 @@ int main()
             double t = ir*i*dt;
             
             // Print file1
-            fprintf (file1,"%e \t %e \t %e \t %e \t %e \t %e \t %e \t %e, \t, %e \t %e \t %e \t %e \t %e \t %e \t %e \n",
+            fprintf (file1,"%e \t %e \t %e \t %e \t %e \t %e \t %e \t %e, \t, %e \t %e \t %e \t %e \t %e \n",
                 t, // Time
                 log_data1[i], log_data2[i], log_data3[i],
                 log_data4[i], log_data5[i],
                 log_data6[i], log_data7[i], log_data8[i],
                 log_data9[i], log_data10[i], log_data11[i],
-                log_data12[i],
-                log_data13[i], log_data14[i]
+                log_data12[i]
                 ); // data
 
             // Print file1
@@ -233,6 +221,7 @@ int main()
         
         // Close file(s)
         fclose(file1);
+        fclose(file_all);
         printf("Data printed!\n");
     } else {
         printf("A file is NULL!\n");
