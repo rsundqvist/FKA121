@@ -6,7 +6,7 @@ for stepSize=1:maxStepSize
     %series = series.*series;
     plot(series, 'DisplayName', ['Solid: stepSize = ' num2str(stepSize*ir)]);
     
-    series = msd_liquid(stepSize,:)/N;
+    series = msd_liquid(stepSize,liquid_i0:end)/N;
     %series = series.*series;
     plot(series, 'DisplayName', ['Liquid: stepSize = ' num2str(stepSize*ir)]);
 end
