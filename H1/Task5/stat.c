@@ -56,20 +56,20 @@ double velocityCorr(double (*vel)[3], double (*prevVel)[3], int N) {
     return sum/N;
 }
 
-double msdCorr(double (*pos)[3], double (*prevPos)[3], int N) {
-    int i;
+double msdCorr(int timeSteps, int N, double (*pos)[N][3], int stepSize) {
+    int i,j;
     double sum = 0, x1, y1, z1, x0, y0, z0;
     for(i = 0; i < N; i++) {
-        x1 = pos[i][0];
-        y1 = pos[i][1];
-        z1 = pos[i][2];
-
-        x0 = prevPos[i][0];
-        y0 = prevPos[i][1];
-        z0 = prevPos[i][2];
-
-
-        sum += (x1-x0)*(x1-x0) + (y1-y0)*(y1-y0) + (z1-z0)*(z1-z0);
+        for(j = 0; j < timeSteps - stepSize; j++) {
+            x1= pos[j+stepSize][i][0];
+            y1= pos[j+stepSize][i][1];
+            z1= pos[j+stepSize][i][2];
+            x0= pos[j][i][0];
+            y0= pos[j][i][1];
+            z0= pos[j][i][2];
+            sum += (x1-x0)*(x1-x0) + (y1-y0)*(y1-y0) + (z1-z0)*(z1-z0);
+        }
+        sum /= timeSteps - stepSize;
     }
     return sum/N;
 }
