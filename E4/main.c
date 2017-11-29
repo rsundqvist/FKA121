@@ -154,9 +154,8 @@ int main()
 void calc_acc(double *a, double *q, double *v, double m, double k, double eta, gsl_rng *gslr) {
 	int j;
 	double f;
-	for (int j = 0; j < N; ++j)
-	{   
-	    epsilon = 
+	for (j = 0; j < N; ++j)
+	{
 		f = - k*q[j] - m*eta*v[j] + m*gsl_ran_ugaussian(gslr);
 		a[j] = f/m;
 	}
