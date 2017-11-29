@@ -68,6 +68,11 @@ int main()
     double log_data8 [nbr_of_timesteps/ir]; // Trajectory 4
     double log_data9 [nbr_of_timesteps/ir]; // Trajectory 5
     
+    // Debug
+    double log_data10 [nbr_of_timesteps/ir];
+    double log_data11 [nbr_of_timesteps/ir];
+    double log_data12 [nbr_of_timesteps/ir];
+    
     //========================================================================//
     // Verlet
     //========================================================================//
@@ -124,6 +129,11 @@ int main()
             log_data7[i_log] = q[(N-1)/2];
             log_data8[i_log] = q[3*(N-1)/4];
             log_data9[i_log] = q[N-1];
+            
+            // Debug
+            log_data10[i_log] = q[0];
+            log_data11[i_log] = v[0];
+            log_data12[i_log] = a[0];
         }
     }
     printf("\tt = %.2f \t\t %.3f  \n", i*dt, ((double)i/nbr_of_timesteps));
@@ -137,11 +147,12 @@ int main()
             double t = ir*i*dt;
             
             // Print file1
-            fprintf (file1,"%e %e %e %e %e %e %e %e %e %e\n",
+            fprintf (file1,"%e %e %e %e %e %e %e %e %e %e %e %e %e\n",
                 t, // Time
                 log_data1[i], log_data2[i], //avg q(t), mu/sigma
                 log_data3[i], log_data4[i], //avg v(t), mu/sigma
-                log_data5[i], log_data6[i], log_data7[i], log_data8[i], log_data9[i] //Individual trajectories q_j(t)
+                log_data5[i], log_data6[i], log_data7[i], log_data8[i], log_data9[i], //Individual trajectories q_j(t)
+                log_data10[i], log_data11[i], log_data12[i] //debug
                 );
         }
         
