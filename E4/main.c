@@ -22,7 +22,7 @@ int main()
     char output_file[255];
     sprintf(output_file, "e4.dat", 0);
 
-    double T = 1, k_B = 1, m = 1, eta = 1, k = 1;
+    double T = 297, k_B = 1, m = 1, eta = 1, k = 1;
 
     double dt = 0.01;
     double c_0 = exp(-eta*dt);
@@ -133,10 +133,11 @@ int main()
             double t = ir*i*dt;
             
             // Print file1
-            fprintf (file1,"%e \t %e \t %e \t %e \t %e\n",
+            fprintf (file1,"%e %e %e %e %e %e %e %e %e %e\n",
                 t, // Time
-                log_data1[i], log_data2[i],
-                log_data3[i], log_data4[i]
+                log_data1[i], log_data2[i], //avg q(t), mu/sigma
+                log_data3[i], log_data4[i], //avg v(t), mu/sigma
+                log_data5[i], log_data6[i], log_data7[i], log_data8[i], log_data9[i] //Individual trajectories q_j(t)
                 );
         }
         
