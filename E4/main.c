@@ -6,7 +6,7 @@
 #include "stat.h"
 
 #define N 100
-#define TIME_MAX 10
+#define TIME_MAX 30
 
 void calc_acc(double *a, double *q, double *v, double m, double k, double eta, gsl_rng *gslr);
 gsl_rng * init_rng();
@@ -22,16 +22,19 @@ int main()
     char output_file[255];
     sprintf(output_file, "e4.dat", 0);
 
-    double T = 297, k_B = 1, m = 1, eta = 1, k = 1;
+    double T = 297;
+    double k_B = 8.3145e+03; // Boltzmann, k_B [JK^-1] / u
+    double m = 60.08; // mass, 60.08g/mol gives mass of 60.08u
+    double eta = 1;
+    double k = 1;
 
-    double dt = 0.01;
+    double dt = 0.0001;
     double c_0 = exp(-eta*dt);
     double v_th = sqrt(k_B*T/m);        
     double q[N]; // position
     double v[N]; // velocity
     double a[N]; // acceleration
     
-    // TODO: kontrollera att enheter funkar överallt
     double T_a = 48.5;  // microseconds
     double T_b = 147.3; // microseconds
     
@@ -70,6 +73,7 @@ int main()
     //========================================================================//
     printf("\nLog resolution: 1 per %d steps, t_max = %.3f \n", ir, t_max);
     
+    calc_acc(a, q, v, m, k, eta, gslr);
     for (i = 1; i < nbr_of_timesteps; i++) {
         if (10*(i-1)%(nbr_of_timesteps) == 0) { // Print progress
             printf("\tt = %.2f \t\t %.3f  \n", (i-1)*dt, ((double)(i-1)/nbr_of_timesteps));
