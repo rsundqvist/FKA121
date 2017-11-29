@@ -30,8 +30,6 @@ int main() {
     printf("Done!\n");
 }   
 
-
-
 void readValues(const char *url, double *values, int N) {
     FILE * f = fopen(url, "r");
     if(f == NULL)
