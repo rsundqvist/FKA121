@@ -1,13 +1,14 @@
 data = load('e4.dat');
 
-lim = 10;
+lim = 15;
 t = data(1:lim, 1);
 mu_q = data(1:lim, 2);
 sigma_q = sqrt(data(1:lim, 3));
 mu_v = data(1:lim, 4);
 sigma_v = sqrt(data(1:lim, 5));
 
-traj_q = data(1:lim, 6:end);
+traj_q = data(1:lim, 6:10);
+debug = data(1:lim, 11:13);
 
 figure;
 subplot(2,1,1);

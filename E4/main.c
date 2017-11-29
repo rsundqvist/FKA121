@@ -7,6 +7,7 @@
 
 #define N 100
 #define TIME_MAX 30
+#define PI 3.14159265359
 
 void calc_acc(double *a, double *q, double *v, double m, double k, double eta, gsl_rng *gslr);
 gsl_rng * init_rng();
@@ -25,8 +26,10 @@ int main()
     double T = 297;
     double k_B = 8.3145e+03; // Boltzmann, k_B [JK^-1] / u
     double m = 60.08; // mass, 60.08g/mol gives mass of 60.08u
-    double eta = 1;
-    double k = 1;
+    double eta = 30; //TODO
+    double frequency = 3000; // TODO FIX UNITS
+    double omega = 2*PI*frequency;
+    double k = m*omega*omega; //TODO
 
     double dt = 0.0001;
     double c_0 = exp(-eta*dt);
@@ -93,7 +96,7 @@ int main()
         for (j = 0; j < N; j++) { // v(t+dt/2)
             v[j] += dt*0.5*a[j] + v_th*sqrt(1-c_0)*G_1;
         }
-        //printf("f = (%2.2f, %2.2f, %2.2f) \n", vel[0][0], vel[0][1], vel[0][2]);
+        
         for (j = 0; j < N; j++) { // q(t+dt)
             q[j] += dt * v[j];
         }
@@ -172,7 +175,7 @@ void calc_acc(double *a, double *q, double *v, double m, double k, double eta, g
 	double f;
 	for (j = 0; j < N; ++j)
 	{
-		f = -k*q[j] -m*eta*v[j] + m*gsl_ran_ugaussian(gslr);
+		f = -k*q[j] -eta*v[j] + gsl_ran_ugaussian(gslr);
 		a[j] = f/m;
 	}
 }
