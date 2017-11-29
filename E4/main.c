@@ -20,7 +20,7 @@ int main()
     // Task specific - E4
     //========================================================================//
     char output_file[255];
-    sprintf(output_file, "test%d.dat", 1);
+    sprintf(output_file, "e4.dat", 0);
 
     double T = 1, k_B = 1, m = 1, eta = 1, k = 1;
 
@@ -156,7 +156,7 @@ void calc_acc(double *a, double *q, double *v, double m, double k, double eta, g
 	double f;
 	for (j = 0; j < N; ++j)
 	{
-		f = - k*q[j] - m*eta*v[j] + m*gsl_ran_ugaussian(gslr);
+		f = -k*q[j] -m*eta*v[j] + m*gsl_ran_ugaussian(gslr);
 		a[j] = f/m;
 	}
 }
