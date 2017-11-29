@@ -1,4 +1,4 @@
-#include<stdio.h>
+#include <stdio.h>
 #include <gsl/gsl_rng.h>
 #include <stdlib.h>
 #include <math.h>
@@ -29,8 +29,6 @@ int main() {
     fclose(file);
     printf("Done!\n");
 }   
-
-
 
 void readValues(const char *url, double *values, int N) {
     FILE * f = fopen(url, "r");
