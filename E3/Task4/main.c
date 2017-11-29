@@ -1,4 +1,4 @@
-#include<stdio.h>
+#include <stdio.h>
 #include <gsl/gsl_rng.h>
 #include <stdlib.h>
 #include <math.h>

@@ -13,7 +13,7 @@
 #define EQUILIBRATION_TIME 600;
 #define Tau_T 25
 #define Tau_P 25
-#define Tau_eq 973.15
+#define Tau_eq 773.15
 #define P_eq 0.000000633
 
 int recordCorrelation = 60000;
@@ -90,7 +90,7 @@ int main()
     
     double et = EQUILIBRATION_TIME; //equilibration time
     double Tau_eq_current = 1500; // Put at 1500 Kelvin first.
-    //Tau_eq_current = Tau_eq; // Comment out to smelt
+    Tau_eq_current = Tau_eq; // Comment out to smelt
     int announce = 1;
     //========================================================================//
     // Verlet
@@ -208,7 +208,7 @@ int main()
     // Simulation complete - print data to file(s)
     // fopen("filename", acc), acc \in {"r", "w", "o"} (read, write, append)
     //====================================================================//
-    FILE * file1 = fopen("velcorr_973.dat", "w");
+    FILE * file1 = fopen("velcorr_773.dat", "w");
     if (file1 != NULL){
         printf("Print to file... ");
 
