@@ -8,7 +8,7 @@
 #define N 100
 #define TIME_MAX 10
 
-void calc_acc(double *a, double *q, double *v, double m, double k, double eta);
+void calc_acc(double *a, double *q, double *v, double m, double k, double eta, gsl_rng *gslr);
 gsl_rng * init_rng();
 
 //==============//
@@ -28,7 +28,7 @@ int main()
     double c_0 = exp(-eta*dt);
     double v_th = sqrt(k_B*T/m);        
     double q[N]; // position
-    double v[N]; // velelocity
+    double v[N]; // velocity
     double a[N]; // acceleration
     
     // TODO: kontrollera att enheter funkar överallt
@@ -92,7 +92,7 @@ int main()
         //=====================//
         // Accelerations
         //=====================//
-        calc_acc(a, q, v, m, k, eta);
+        calc_acc(a, q, v, m, k, eta, gslr);
         
         for (j = 0; j < N; j++) { // v(t+dt)
             v[j] += 0.5*sqrt(c_0)*a[j]*dt + sqrt(c_0)*v[j] + v_th*sqrt(1-c_0)*G_2;
@@ -151,12 +151,14 @@ int main()
     return 0;
 }
 
-void calc_acc(double *a, double *q, double *v, double m, double k, double eta) {
+void calc_acc(double *a, double *q, double *v, double m, double k, double eta, gsl_rng *gslr) {
 	int j;
+	double f;
 	for (int j = 0; j < N; ++j)
-	{
-		a[j] = - k*q[j]*q[j] - m*eta*v[j];
-		a[j] /= m;
+	{   
+	    epsilon = 
+		f = - k*q[j] - m*eta*v[j] + m*gsl_ran_ugaussian(gslr);
+		a[j] = f/m;
 	}
 }
 
