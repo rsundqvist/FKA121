@@ -1,7 +1,7 @@
 %% Plot vol
 close all;
 
-%loadAllpos;
+loadAllpos;
 
 dt = 1;
 timeSteps = size(data, 1);

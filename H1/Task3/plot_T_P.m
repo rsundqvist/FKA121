@@ -2,7 +2,7 @@
 close all;
 clear all;
 
-data = load('energy.dat');
+data = load('msd_973.dat');
 
 t = data(:,1);
 figure(1);
@@ -25,7 +25,7 @@ plot([0, max(t)],[P_mean P_mean], 'k');
 plot([0, max(t)],[0.000000633 0.000000633], ':');
 legend('P [eV/Ã…^3]', '<P>', 'P_{eq}');
 xlabel('Time [ps]')
-ylabel('Pressure [eV/Å^3]')
+ylabel('Pressure [eV/ï¿½^3]')
 
 
 hold off;

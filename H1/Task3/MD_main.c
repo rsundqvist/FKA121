@@ -95,7 +95,7 @@ int main()
     double log_data13[nbr_of_timesteps/ir]; // naive msd
     
     double et = EQUILIBRATION_TIME; //equilibration time
-    double Tau_eq_current = 1500; // Put at 1500 Kelvin first.
+    double Tau_eq_current = 773;//1500; // Put at 1500 Kelvin first.
     int announce = 1;
     //========================================================================//
     // Verlet
