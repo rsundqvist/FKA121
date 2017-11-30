@@ -6,7 +6,7 @@
 #include "stat.h"
 
 #define N 100
-#define TIME_MAX 5
+#define TIME_MAX 20000
 #define PI 3.14159265359
 
 void calc_acc(double *a, double *q, double *v, double m, double k, double eta, gsl_rng *gslr);
@@ -30,7 +30,7 @@ int main()
     double omega_0 = 2*PI*f_0;
     double k = m*omega_0*omega_0;
 
-    double dt = 0.0001;
+    double dt = 0.01;
     double q[N]; // position
     double v[N]; // velocity
     double a[N]; // acceleration
@@ -56,7 +56,7 @@ int main()
     int i, j, i_log;        
     double t_max = TIME_MAX;
     int nbr_of_timesteps = t_max/dt;
-    int ir = 10; // Resolution for i. Record every ir:th timestep.
+    int ir = 20; // Resolution for i. Record every ir:th timestep.
     
     // Data recording
     double log_data1 [nbr_of_timesteps/ir]; // mu_q
@@ -70,10 +70,11 @@ int main()
     double log_data8 [nbr_of_timesteps/ir]; // Trajectory 4
     double log_data9 [nbr_of_timesteps/ir]; // Trajectory 5
     
-    // Debug
-    double log_data10 [nbr_of_timesteps/ir];
+    double log_data10 [nbr_of_timesteps/ir]; // Speed 1
     double log_data11 [nbr_of_timesteps/ir];
     double log_data12 [nbr_of_timesteps/ir];
+    double log_data13 [nbr_of_timesteps/ir];
+    double log_data14 [nbr_of_timesteps/ir]; // Speed 5
     
     //========================================================================//
     // Verlet
@@ -89,22 +90,15 @@ int main()
         if (10*(i-1)%(nbr_of_timesteps) == 0) { // Print progress
             printf("\tt = %.2f \t\t %.3f  \n", (i-1)*dt, ((double)(i-1)/nbr_of_timesteps));
         }
-        
-        //printf("(q, v, a) = (%e, %e, %e)\n", q[0], v[0], a[0]);
-        printf("(q, v, a) = (%.5f, %.5f, %.5f)\n", q[0], v[0], a[0]);
           
 
         //======================================//
         // Verlet
         //======================================//
-        printf("v components:\n");
         for (j = 0; j < N; j++) { // v(t+dt/2)
             G_1 = gsl_ran_ugaussian(gslr);
             v[j] = dt*0.5*a[j] + v_th*sqrt(1-c_0)*G_1;
         }
-        printf("    dt*0.5*a[j] = %.10f\n", dt*0.5*a[j]);
-        printf("    v_th*sqrt(1-c_0)*G_1 = %.10f\n", v_th*sqrt(1-c_0)*G_1);
-        printf("    v = %.10f\n", v[j]);
         
         for (j = 0; j < N; j++) { // q(t+dt)
             q[j] += dt * v[j];
@@ -119,15 +113,12 @@ int main()
             G_2 = gsl_ran_ugaussian(gslr);
             v[j] = 0.5*sqrt(c_0)*a[j]*dt + sqrt(c_0)*v[j] + v_th*sqrt(1-c_0)*G_2;
         }
-        printf("    0.5*sqrt(c_0)*a[j]*dt = %.10f\n", 0.5*sqrt(c_0)*a[j]*dt);
-        printf("    sqrt(c_0)*v[j] + v_th*sqrt(1-c_0)*G_2 = %.10f\n", sqrt(c_0)*v[j] + v_th*sqrt(1-c_0)*G_2);
-        printf("    v = %.10f\n", v[j]);
         
         //====================================================================//
         // Record data
         //====================================================================//
-        if (i%ir == 0) { // Time to log data?
-            i_log = i/ir;         
+        if ((i-1)%ir == 0) { // Time to log data?
+            i_log = (i-1)/ir;         
                 
             // Mu and sigma squared
             mu_q = get_mean(q, N);
@@ -146,10 +137,12 @@ int main()
             log_data8[i_log] = q[3*(N-1)/4];
             log_data9[i_log] = q[N-1];
             
-            // Debug
-            log_data10[i_log] = q[0];
-            log_data11[i_log] = v[0];
-            log_data12[i_log] = a[0];
+            // Speeds
+            log_data10[i_log] = v[0];
+            log_data11[i_log] = v[(N-1)/4];
+            log_data12[i_log] = v[(N-1)/2];
+            log_data13[i_log] = v[3*(N-1)/4];
+            log_data14[i_log] = v[N-1];
         }
     }
     printf("\tt = %.2f \t\t %.3f  \n", i*dt, ((double)i/nbr_of_timesteps));
@@ -163,12 +156,12 @@ int main()
             double t = ir*i*dt;
             
             // Print file1
-            fprintf (file1,"%e %e %e %e %e %e %e %e %e %e %e %e %e\n",
+            fprintf (file1,"%e %e %e %e %e %e %e %e %e %e %e %e %e %e %e %e %e %e\n",
                 t, // Time
                 log_data1[i], log_data2[i], //avg q(t), mu/sigma
                 log_data3[i], log_data4[i], //avg v(t), mu/sigma
                 log_data5[i], log_data6[i], log_data7[i], log_data8[i], log_data9[i], //Individual trajectories q_j(t)
-                log_data10[i], log_data11[i], log_data12[i] //debug
+                log_data10[i], log_data11[i], log_data12[i], log_data13[i], log_data14[i] //Individual velocities v_j(t)
                 );
         }
         
