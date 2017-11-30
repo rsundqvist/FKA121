@@ -28,9 +28,9 @@ int main()
         
     gsl_rng * q = init_rng();
     //Parameters
-    int chainLength = 200000;
+    int chainLength = 250000;
     double alpha = 0.1;
-    double d = 0.3;
+    double d = 3;
 
     // Initialize Markov chain
     double chain[chainLength][6];
