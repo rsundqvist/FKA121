@@ -27,14 +27,8 @@ double weight(double * r1, double * r2, double norm) {
 }
 
 double trialWavefunction(double * r, double alpha) {
-    double r1[3];
-    r1[0] = r[0];
-    r1[1] = r[1];
-    r1[2] = r[2];
-    double r2[3];
-    r2[0] = r[3];
-    r2[1] = r[4];
-    r2[2] = r[5];    
+    double r1[3] = {r[0], r[1], r[2]};
+    double r2[3] = {r[3], r[4], r[5]};
     double r1_norm = norm(r1);
     double r2_norm = norm(r2); 
     double r12[3];
@@ -56,7 +50,7 @@ void metropolisIntegrate6D(double *ans, double (*gFun)(double[6]), double(*sampl
     }
     double mu = fsum/N;
     double sigmasq = 1/N * fsqSum - mu*mu;
-    if (sigmasq < 0) sigmasq = -sigmasq;
+    if (sigmasq < 0) sigmasq = -sigmasq; //TODO: fortfarande absa?
 
     ans[0] = mu;
     ans[1] = sqrt(sigmasq/N);
