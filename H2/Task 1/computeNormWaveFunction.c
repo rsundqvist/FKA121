@@ -8,6 +8,8 @@
 // Function declerations
 double trialWavefunction(double * r, double alpha);
 void metropolisIntegrate6D(double *ans, double (*gFun)(double[6]), double(*samplePoints)[6], int N);
+void metropolisStep(double prev[6], double next[6], double Delta, double (*probFunc)(double[6],double[6]), gsl_rng * q);
+void generateMarkovChain(double (*chain)[6], double (*probFunc)(double[6],double[6]), double Delta, int N, gsl_rng * q);
 
 // GSL
 gsl_rng * init_rng(); // gsl rng create
@@ -18,6 +20,10 @@ int main() {
 
 gsl_rng * q = init_rng();
 return 1;
+}
+
+double weight(double * r1, double * r2, double norm) {
+
 }
 
 double trialWavefunction(double * r, double alpha) {
