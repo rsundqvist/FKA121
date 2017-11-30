@@ -2,7 +2,7 @@ Zu = 2 % Unscreened
 Zvov = 27/16 %variationally optimized value
 p = @(r, Z) Z.^3*4*r.^2 .*exp(-2.*Z.*r);
 
-r = linspace(0, 4);
+r = linspace(0, 3);
 
 figure;
 hold on
