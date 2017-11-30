@@ -24,9 +24,9 @@ int main()
     sprintf(output_file, "e4.dat", 0);
 
     double T = 297;
-    double k_B = 8.3145e+03; // Boltzmann, k_B [JK^-1] / u
+    double k_B = 8.3145e+03; // Boltzmann, k_B [JK^-1] divided by u
     double m = 60.08; // mass, 60.08g/mol gives mass of 60.08u
-    double eta = 30; //TODO
+    double eta = 1; //TODO
     double frequency = 3000; // TODO FIX UNITS
     double omega = 2*PI*frequency;
     double k = m*omega*omega; //TODO
@@ -82,20 +82,27 @@ int main()
     printf("\nLog resolution: 1 per %d steps, t_max = %.3f \n", ir, t_max);
     
     calc_acc(a, q, v, m, k, eta, gslr);
+    nbr_of_timesteps = 10;
     for (i = 1; i < nbr_of_timesteps; i++) {
         if (10*(i-1)%(nbr_of_timesteps) == 0) { // Print progress
-            printf("\tt = %.2f \t\t %.3f  \n", (i-1)*dt, ((double)(i-1)/nbr_of_timesteps));
+            //printf("\tt = %.2f \t\t %.3f  \n", (i-1)*dt, ((double)(i-1)/nbr_of_timesteps));
         }
+        
+        //printf("(q, v, a) = (%e, %e, %e)\n", q[0], v[0], a[0]);
+        printf("(q, v, a) = (%.5f, %.5f, %.5f)\n", q[0], v[0], a[0]);
           
-        G_1 = gsl_ran_ugaussian(gslr); // unit gaussian
-        G_2 = gsl_ran_ugaussian(gslr);
 
         //======================================//
         // Verlet
         //======================================//
+        printf("v components:\n");
         for (j = 0; j < N; j++) { // v(t+dt/2)
+            G_1 = gsl_ran_ugaussian(gslr);
             v[j] += dt*0.5*a[j] + v_th*sqrt(1-c_0)*G_1;
         }
+        printf("    dt*0.5*a[j] = %.10f\n", dt*0.5*a[j]);
+        printf("    v_th*sqrt(1-c_0)*G_1 = %.10f\n", v_th*sqrt(1-c_0)*G_1);
+        printf("    v = %.10f\n", v[j]);
         
         for (j = 0; j < N; j++) { // q(t+dt)
             q[j] += dt * v[j];
@@ -107,8 +114,12 @@ int main()
         calc_acc(a, q, v, m, k, eta, gslr);
         
         for (j = 0; j < N; j++) { // v(t+dt)
+            G_2 = gsl_ran_ugaussian(gslr);
             v[j] += 0.5*sqrt(c_0)*a[j]*dt + sqrt(c_0)*v[j] + v_th*sqrt(1-c_0)*G_2;
         }
+        printf("    0.5*sqrt(c_0)*a[j]*dt = %.10f\n", 0.5*sqrt(c_0)*a[j]*dt);
+        printf("    sqrt(c_0)*v[j] + v_th*sqrt(1-c_0)*G_2 = %.10f\n", sqrt(c_0)*v[j] + v_th*sqrt(1-c_0)*G_2);
+        printf("    v = %.10f\n", v[j]);
         
         //====================================================================//
         // Record data
