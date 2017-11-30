@@ -30,7 +30,7 @@ int main()
     //Parameters
     int chainLength = 200000;
     double alpha = 0.1;
-    double d = 0.05;
+    double d = 0.3;
 
     // Initialize Markov chain
     double chain[chainLength][6];
