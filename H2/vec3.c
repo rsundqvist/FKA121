@@ -38,8 +38,11 @@ double dot(double vec1[3], double vec2[3]) {
     return vec1[0]*vec2[0] + vec1[1]*vec2[1] + vec1[2]*vec2[2];
 }
 
-const char* to_string(double vec[3]) {
-    char *str = malloc(sizeof(char)*100);
-    sprintf(str, "[%.5f, %.5f, %.5f]", vec[0], vec[1], vec[2]);
-    return str;
+double angle(double vec1[3], double vec2[3]) {
+    double n = norm(vec1)*norm(vec2);
+    return acos(dot(vec1, vec2)/n);
+}
+
+void print_vec(double vec[3]) {
+    printf("[%.5f, %.5f, %.5f]", vec[0], vec[1], vec[2]);
 }
