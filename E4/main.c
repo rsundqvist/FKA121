@@ -6,7 +6,7 @@
 #include "stat.h"
 
 #define N 100
-#define TIME_MAX 1
+#define TIME_MAX 5
 #define PI 3.14159265359
 
 void calc_acc(double *a, double *q, double *v, double m, double k, double eta, gsl_rng *gslr);
@@ -26,20 +26,20 @@ int main()
     double T = 297;
     double k_B = 8.3145e+03; // Boltzmann, k_B [JK^-1] divided by u
     double m = 60.08; // mass, 60.08g/mol gives mass of 60.08u
-    double eta = 1; //TODO
     double f_0 = 3.0000e-3;
     double omega_0 = 2*PI*f_0;
     double k = m*omega_0*omega_0;
 
-    double dt = 0.001;
-    double c_0 = exp(-eta*dt);
-    double v_th = sqrt(k_B*T/m);        
+    double dt = 0.0001;
     double q[N]; // position
     double v[N]; // velocity
     double a[N]; // acceleration
     
-    double T_a = 48.5;  // microseconds
-    double T_b = 147.3; // microseconds
+    double Tau_a = 48.5;  // relaxation time in microseconds, case A
+    double Tau_b = 147.3; // case B
+    double eta = 1/Tau_a;
+    double c_0 = exp(-eta*dt);
+    double v_th = sqrt(k_B*T/m);
     
     double x_0 = 0.1; // micrometers
     double v_0 = 2.0; // micrometers per microsecond
@@ -56,7 +56,7 @@ int main()
     int i, j, i_log;        
     double t_max = TIME_MAX;
     int nbr_of_timesteps = t_max/dt;
-    int ir = 10; // Resolution for i. Record every ir:th timestep.             // Segfault sensitive.
+    int ir = 10; // Resolution for i. Record every ir:th timestep.
     
     // Data recording
     double log_data1 [nbr_of_timesteps/ir]; // mu_q
@@ -87,7 +87,7 @@ int main()
     calc_acc(a, q, v, m, k, eta, gslr);
     for (i = 1; i < nbr_of_timesteps; i++) {
         if (10*(i-1)%(nbr_of_timesteps) == 0) { // Print progress
-            //printf("\tt = %.2f \t\t %.3f  \n", (i-1)*dt, ((double)(i-1)/nbr_of_timesteps));
+            printf("\tt = %.2f \t\t %.3f  \n", (i-1)*dt, ((double)(i-1)/nbr_of_timesteps));
         }
         
         //printf("(q, v, a) = (%e, %e, %e)\n", q[0], v[0], a[0]);
@@ -100,7 +100,7 @@ int main()
         printf("v components:\n");
         for (j = 0; j < N; j++) { // v(t+dt/2)
             G_1 = gsl_ran_ugaussian(gslr);
-            v[j] += dt*0.5*a[j] + v_th*sqrt(1-c_0)*G_1;
+            v[j] = dt*0.5*a[j] + v_th*sqrt(1-c_0)*G_1;
         }
         printf("    dt*0.5*a[j] = %.10f\n", dt*0.5*a[j]);
         printf("    v_th*sqrt(1-c_0)*G_1 = %.10f\n", v_th*sqrt(1-c_0)*G_1);
@@ -117,7 +117,7 @@ int main()
         
         for (j = 0; j < N; j++) { // v(t+dt)
             G_2 = gsl_ran_ugaussian(gslr);
-            v[j] += 0.5*sqrt(c_0)*a[j]*dt + sqrt(c_0)*v[j] + v_th*sqrt(1-c_0)*G_2;
+            v[j] = 0.5*sqrt(c_0)*a[j]*dt + sqrt(c_0)*v[j] + v_th*sqrt(1-c_0)*G_2;
         }
         printf("    0.5*sqrt(c_0)*a[j]*dt = %.10f\n", 0.5*sqrt(c_0)*a[j]*dt);
         printf("    sqrt(c_0)*v[j] + v_th*sqrt(1-c_0)*G_2 = %.10f\n", sqrt(c_0)*v[j] + v_th*sqrt(1-c_0)*G_2);
