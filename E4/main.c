@@ -6,7 +6,7 @@
 #include "stat.h"
 
 #define N 100
-#define TIME_MAX 30
+#define TIME_MAX 1
 #define PI 3.14159265359
 
 void calc_acc(double *a, double *q, double *v, double m, double k, double eta, gsl_rng *gslr);
@@ -27,11 +27,11 @@ int main()
     double k_B = 8.3145e+03; // Boltzmann, k_B [JK^-1] divided by u
     double m = 60.08; // mass, 60.08g/mol gives mass of 60.08u
     double eta = 1; //TODO
-    double frequency = 3000; // TODO FIX UNITS
-    double omega = 2*PI*frequency;
-    double k = m*omega*omega; //TODO
+    double f_0 = 3.0000e-3;
+    double omega_0 = 2*PI*f_0;
+    double k = m*omega_0*omega_0;
 
-    double dt = 0.0001;
+    double dt = 0.001;
     double c_0 = exp(-eta*dt);
     double v_th = sqrt(k_B*T/m);        
     double q[N]; // position
@@ -41,9 +41,8 @@ int main()
     double T_a = 48.5;  // microseconds
     double T_b = 147.3; // microseconds
     
-    double x_0 = 0.1; //micrometers
-    double v_0 = 2.0; //micrometers per microsecond
-    double f_0 = 3*1000; // kHz, regular not angular
+    double x_0 = 0.1; // micrometers
+    double v_0 = 2.0; // micrometers per microsecond
     
     double mu_q, sigma_sq_q;
     double mu_v, sigma_sq_v;
@@ -81,8 +80,11 @@ int main()
     //========================================================================//
     printf("\nLog resolution: 1 per %d steps, t_max = %.3f \n", ir, t_max);
     
+    for (j = 0; j < N; j++) { // Initial conditions
+        q[j] = x_0;
+        v[j] = v_0;
+    }
     calc_acc(a, q, v, m, k, eta, gslr);
-    nbr_of_timesteps = 10;
     for (i = 1; i < nbr_of_timesteps; i++) {
         if (10*(i-1)%(nbr_of_timesteps) == 0) { // Print progress
             //printf("\tt = %.2f \t\t %.3f  \n", (i-1)*dt, ((double)(i-1)/nbr_of_timesteps));
@@ -186,7 +188,7 @@ void calc_acc(double *a, double *q, double *v, double m, double k, double eta, g
 	double f;
 	for (j = 0; j < N; ++j)
 	{
-		f = -k*q[j] -eta*v[j] + gsl_ran_ugaussian(gslr);
+		f = -k*q[j] -m*eta*v[j] + m*gsl_ran_ugaussian(gslr);
 		a[j] = f/m;
 	}
 }
