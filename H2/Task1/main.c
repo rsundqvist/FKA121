@@ -32,9 +32,7 @@ int main()
 double trialWaveFunction(double * r1, double * r2, double alpha) {
     double r1_norm = norm(r1);
     double r2_norm = norm(r2);
-    double r12[3];
-    diff(r1,r2,r12);
-    double r12_norm = norm(r12);
+    double r12_norm = distance(r1, r2);
 
     return exp(-2*(r1_norm + r2_norm))*(r12_norm/(2*(1 + alpha*r12_norm)));
 }

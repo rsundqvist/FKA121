@@ -4,6 +4,7 @@
 
 double norm(double vec[3]);
 double angle(double vec1[3], double vec2[3]);
+double distance(double vec1[3], double vec2[3]);
 
 void copy(double vec[3], double copy[3]);
 void unit(double vec[3], double unit[3]);

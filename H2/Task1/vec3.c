@@ -14,6 +14,12 @@ void copy(double vec[3], double copy[3]) {
     copy[2] = vec[2];
 }
 
+double distance(double vec1[3], double vec2[3]) {
+    double vec12[3];
+    diff(vec1, vec2, vec12);
+    return norm(vec12);
+}
+
 void diff(double vec1[3], double vec2[3], double diff[3]) {
     diff[0] = vec1[0] - vec2[0];
     diff[1] = vec1[1] - vec2[1];
