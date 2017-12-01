@@ -28,9 +28,9 @@ int main()
         
     gsl_rng * q = init_rng();
     //Parameters
-    int chainLength = 10000;
+    int chainLength = 100000;
     double alpha = 0.1;
-    double d = 3;
+    double d = 1.85;
 
     // Initialize Markov chain
     double chain[chainLength][6];
@@ -77,6 +77,7 @@ int main()
         printf("File is NULL!\n");
     }
 
+    printf("Acceptance rate: %.3f\n", (double)metropolisCount/metropolisTotal);
     return 0;
 }
 

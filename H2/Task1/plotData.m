@@ -42,5 +42,5 @@ figure(3)
 histogram(r,'Normalization','pdf');
 
 figure(4);
-theta = data(:,7);
-plot(theta);
+theta = data(:,7); %angle between electrons
+histogram(theta,'Normalization','pdf');
