@@ -28,7 +28,7 @@ int main()
         
     gsl_rng * q = init_rng();
     //Parameters
-    int chainLength = 250000;
+    int chainLength = 25000;
     double alpha = 0.1;
     double d = 3;
 
