@@ -28,7 +28,7 @@ int main()
         
     gsl_rng * q = init_rng();
     //Parameters
-    int chainLength = 25000;
+    int chainLength = 10000;
     double alpha = 0.1;
     double d = 3;
 
@@ -45,12 +45,28 @@ int main()
     //====================================================================//
     int i;
     FILE * file1 = fopen(output_file, "w");
+    double x1,y1,z1;
+    double x2,y2,z2;
+    double theta;
     if (file1 != NULL){
         for (i = 0; i < chainLength; i++) {         
             // Print file1
-            fprintf (file1,"%e %e %e %e %e %e\n",
-                chain[i][0],chain[i][1],chain[i][2],
-                chain[i][3],chain[i][4],chain[i][5]);
+            x1 = chain[i][0];
+            y1 = chain[i][1];
+            z1 = chain[i][2];
+
+            x2 = chain[i][3];
+            y2 = chain[i][4];
+            z2 = chain[i][5];
+
+            double r1[3] = {x1,y1,z1}; // Must redeclare to use this syntax
+            double r2[3] = {x2,y2,z2};
+
+            fprintf (file1,"%e %e %e %e %e %e %e\n",
+                x1,y1,z1,
+                x2,y2,z2,
+                angle(r1,r2)
+                );
         }
         
         

@@ -17,9 +17,9 @@ Xm = (X1+X2)/2;
 Ym = (Y1+Y2)/2;
 Zm = (Z1+Z2)/2;
 
-plot3(X1, Y1, Z1)
-plot3(X2, Y2, Z2)
-plot3(Xm, Ym, Zm)
+plot3(X1, Y1, Z1);
+plot3(X2, Y2, Z2);
+plot3(Xm, Ym, Zm);
 
 [x, y, z] = sphere(256);
 h = surfl(x, y, z); 
@@ -40,3 +40,7 @@ hold off
 figure(3)
 %r = [r1; r2];
 histogram(r,'Normalization','pdf');
+
+figure(4);
+theta = data(:,7);
+plot(theta);
