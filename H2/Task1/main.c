@@ -103,7 +103,8 @@ void statstuff(double * values, int N) {
 	bfile = fopen("block_average.dat","w");
     for (B = 2; B < 30000; B++) {
         s2 = blockAverageS(values, N, B);
-		fprintf(bfile, "%d \t %.4f \n", B, s2);
+        printf("s2 = %.5f\n", s2);
+		fprintf(bfile, "%d \t %e \n", B, s2);
 		if (B%3000==0) printf("B = %d\n", B);
     }
     fclose(bfile);
