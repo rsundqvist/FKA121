@@ -36,16 +36,15 @@ int main()
     //Parameters
     int chainLength = 150000;
     double alpha = 0.1;
-    double d = 1.1;
+    double d = 0.4;
 
     // Initialize Markov chain
     double chain[chainLength][6];
     setZero(chain, chainLength);
-    randomize(chain[0],6,0,0.1,q);
+    randomize(chain[0],6,0,1,q);
     
     // Sample Markov chain
     generateMarkovChain(chain, alpha, d, chainLength, q);
-    
     //====================================================================//
     // Simulation complete - print data to file(s)
     //====================================================================//
