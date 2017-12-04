@@ -14,6 +14,9 @@ void metropolisStep(double prev[6], double next[6], double alpha, double d, gsl_
 double absWaveFunction(double * R, double alpha);
 void setZero(double (*arr)[6], int N);
 void randomize(double * v, int sz, double min, double max, gsl_rng * q);
+
+double energy2(double R1[3], double R2[3], double alpha);
+double energy(double R[6], double alpha);
 // Global variables
 int metropolisCount = 0; // Used for counting the acceptance rate of Metropolis
 int metropolisTotal = 0;
@@ -164,3 +167,36 @@ gsl_rng * init_rng()
 double probFunction(double * Rnew, double * Rold, double alpha){
     return absWaveFunction(Rnew, alpha)/absWaveFunction(Rold, alpha);//trialWaveFunction(Rnew,alpha)/trialWaveFunction(Rold,alpha);
 }
+
+double energy(double R[6], double alpha) {
+    double R1[3] = {R[0], R[1], R[2]};
+    double R2[3] = {R[3], R[4], R[5]};
+    return energy2(R1, R2, alpha);
+}
+
+double energy2(double R1[3], double R2[3], double alpha) {
+    double R1u[3];
+    double R2u[3];
+    unit(R1, R1u);
+    unit(R2, R2u);
+    double R12u[3];
+    diff(R1u, R2u, R12u);
+    
+    double R12[3];
+    diff(R1, R2, R12);
+    
+    double r12 = distance(R1, R2);
+    double r1 = norm(R1);
+    double r2 = norm(R2);
+    double d = 1+alpha*r12;    
+    
+    
+    
+    return -4
+    + dot(R12u, R12)/( r12*pow(d, 2) )
+    - 1/( r12*pow(d, 3) ) 
+    - 1/( 4*pow(d, 4) )
+    + 1/r12;
+}
+
+
