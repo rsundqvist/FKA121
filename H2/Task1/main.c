@@ -11,6 +11,7 @@ double trialWaveFunction(double * R, double alpha);
 double probFunction(double * Rnew, double * Rold, double alpha);
 void generateMarkovChain(double (*chain)[6], double alpha, double d, int N, gsl_rng * q);
 void metropolisStep(double prev[6], double next[6], double alpha, double d, gsl_rng * q);
+double absWaveFunction(double * R, double alpha);
 void setZero(double (*arr)[6], int N);
 void randomize(double * v, int sz, double min, double max, gsl_rng * q);
 // Global variables
@@ -28,14 +29,14 @@ int main()
         
     gsl_rng * q = init_rng();
     //Parameters
-    int chainLength = 100000;
+    int chainLength = 250000;
     double alpha = 0.1;
-    double d = 1.85;
+    double d = 1.1;
 
     // Initialize Markov chain
     double chain[chainLength][6];
     setZero(chain, chainLength);
-    randomize(chain[0],6,0,1,q);
+    randomize(chain[0],6,0,0.1,q);
     
     // Sample Markov chain
     generateMarkovChain(chain, alpha, d, chainLength, q);
@@ -94,6 +95,11 @@ void setZero(double (*arr)[6], int N) {
             arr[i][j] = 0;
 }
 
+double absWaveFunction(double * R, double alpha) {
+    double wav = trialWaveFunction(R, alpha);
+    return wav*wav;
+}
+
 double trialWaveFunction(double * R, double alpha) {
     // Compute r1 and r2
     double r1[3] = {R[0],R[1],R[2]};
@@ -103,7 +109,7 @@ double trialWaveFunction(double * R, double alpha) {
     // Compute r12
     double r12_norm = distance(r1, r2);
 
-    return exp(-2*(r1_norm + r2_norm))*(r12_norm/(2*(1 + alpha*r12_norm)));
+    return exp(-2*(r1_norm + r2_norm))*exp(r12_norm/(2*(1 + alpha*r12_norm)));
 }
 
 void generateMarkovChain(double (*chain)[6], double alpha, double d, int N, gsl_rng * q) {
@@ -120,7 +126,9 @@ void metropolisStep(double prev[6], double next[6], double alpha, double d, gsl_
 
     double tmp[6];
     double r;
+    //int ri = gsl_rng_uniform(q)*6;
     for (i = 0; i < 6; ++i) {
+    //for (i = ri; i < ri+1; ++i) {
         r = gsl_rng_uniform(q);
         tmp[i] = prev[i] + d*(r - 0.5);
     }
@@ -154,5 +162,5 @@ gsl_rng * init_rng()
 
 // Computing the probability of accepting a new proposal in the Markov chain
 double probFunction(double * Rnew, double * Rold, double alpha){
-    return trialWaveFunction(Rnew,alpha)/trialWaveFunction(Rold,alpha);
+    return absWaveFunction(Rnew, alpha)/absWaveFunction(Rold, alpha);//trialWaveFunction(Rnew,alpha)/trialWaveFunction(Rold,alpha);
 }
