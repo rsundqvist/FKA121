@@ -33,7 +33,7 @@ int main()
         
     gsl_rng * q = init_rng();
     //Parameters
-    int chainLength = 250000;
+    int chainLength = 150000;
     double alpha = 0.1;
     double d = 1.1;
 
@@ -103,7 +103,6 @@ void statstuff(double * values, int N) {
     FILE *bfile;
 	bfile = fopen("block_average.dat","w");
     for (B = 2; B < 30000; B++) {
-		printf("B = %d\n", B);
         s2 = blockAverageS(values, N, B);
 		fprintf(bfile, "%d \t %.4f \n", B, s2);
 		if (B%3000==0) printf("B = %d\n", B);

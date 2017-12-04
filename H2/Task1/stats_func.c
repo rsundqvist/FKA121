@@ -81,7 +81,9 @@ double blockAverageS(double * values, int nbr_of_values, int B) {
     int k, j;
     int nBlockAverages = (int)round(nbr_of_values/B);
     double blockAverages[nBlockAverages];
-    setZero(blockAverages, nBlockAverages);
+    for (j = 0; j < nBlockAverages; j++){
+        blockAverages[j] = 0;    
+    }
     for(k = 0; k < nBlockAverages; k++) {
         j = k+1;
         blockAverages[k] = blockAverage(values, nbr_of_values, j, B);
