@@ -14,6 +14,7 @@ void metropolisStep(double prev[6], double next[6], double alpha, double d, gsl_
 double absWaveFunction(double * R, double alpha);
 void setZero(double (*arr)[6], int N);
 void randomize(double * v, int sz, double min, double max, gsl_rng * q);
+void statstuff(double * values, int N);
 
 double energy2(double R1[3], double R2[3], double alpha);
 double energy(double R[6], double alpha);
@@ -82,7 +83,33 @@ int main()
     }
 
     printf("Acceptance rate: %.3f\n", (double)metropolisCount/metropolisTotal);
+    
+    int N = chainLength;
+    double *values = malloc(sizeof (double[N]));
+    for (i = 0; i < N; i++) {
+        values[i] = energy(chain[i], alpha);
+        //printf("v = %.5f\n", values[i]);
+    }
+    statstuff(values, N);
+    
     return 0;
+}
+void statstuff(double * values, int N) {
+    int s1 = findS(values, N, 0);
+    printf("s (autocorr) = %d\n", s1);
+    
+    int B;
+    double s2; 
+    FILE *bfile;
+	bfile = fopen("block_average.dat","w");
+    for (B = 2; B < 30000; B++) {
+		printf("B = %d\n", B);
+        s2 = blockAverageS(values, N, B);
+		fprintf(bfile, "%d \t %.4f \n", B, s2);
+		if (B%3000==0) printf("B = %d\n", B);
+    }
+    fclose(bfile);
+    printf("Done!\n");
 }
 
 void randomize(double * v, int sz, double min, double max, gsl_rng * q) {
