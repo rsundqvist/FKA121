@@ -2,7 +2,7 @@
 # Constants
 #
 CC = gcc # c-compiler
-CFLAGS = -O3 -W # -O3 gives optimization, -W gives warnings
+CFLAGS = -O3 -Wall # -O3 gives optimization, -W gives warnings
 LIBS = -lm -lgsl -lgslcblas # libraries
 
 OBJECTS = main.o stat.o vec3.o stats_func.o # object files to produce
