@@ -14,6 +14,10 @@ void metropolisStep(double prev[6], double next[6], double alpha, double d, gsl_
 double absWaveFunction(double * R, double alpha);
 void setZero(double (*arr)[6], int N);
 void randomize(double * v, int sz, double min, double max, gsl_rng * q);
+void statstuff(double * values, int N);
+
+double energy2(double R1[3], double R2[3], double alpha);
+double energy(double R[6], double alpha);
 // Global variables
 int metropolisCount = 0; // Used for counting the acceptance rate of Metropolis
 int metropolisTotal = 0;
@@ -29,7 +33,7 @@ int main()
         
     gsl_rng * q = init_rng();
     //Parameters
-    int chainLength = 260000;
+    int chainLength = 150000;
     double alpha = 0.1;
     double d = 1.1;
 
@@ -79,7 +83,32 @@ int main()
     }
 
     printf("Acceptance rate: %.3f\n", (double)metropolisCount/metropolisTotal);
+    
+    int N = chainLength;
+    double *values = malloc(sizeof (double[N]));
+    for (i = 0; i < N; i++) {
+        values[i] = energy(chain[i], alpha);
+        //printf("v = %.5f\n", values[i]);
+    }
+    statstuff(values, N);
+    
     return 0;
+}
+void statstuff(double * values, int N) {
+    int s1 = findS(values, N, 0);
+    printf("s (autocorr) = %d\n", s1);
+    
+    int B;
+    double s2; 
+    FILE *bfile;
+	bfile = fopen("block_average.dat","w");
+    for (B = 2; B < 30000; B++) {
+        s2 = blockAverageS(values, N, B);
+		fprintf(bfile, "%d \t %.4f \n", B, s2);
+		if (B%3000==0) printf("B = %d\n", B);
+    }
+    fclose(bfile);
+    printf("Done!\n");
 }
 
 void randomize(double * v, int sz, double min, double max, gsl_rng * q) {
@@ -164,3 +193,36 @@ gsl_rng * init_rng()
 double probFunction(double * Rnew, double * Rold, double alpha){
     return absWaveFunction(Rnew, alpha)/absWaveFunction(Rold, alpha);//trialWaveFunction(Rnew,alpha)/trialWaveFunction(Rold,alpha);
 }
+
+double energy(double R[6], double alpha) {
+    double R1[3] = {R[0], R[1], R[2]};
+    double R2[3] = {R[3], R[4], R[5]};
+    return energy2(R1, R2, alpha);
+}
+
+double energy2(double R1[3], double R2[3], double alpha) {
+    double R1u[3];
+    double R2u[3];
+    unit(R1, R1u);
+    unit(R2, R2u);
+    double R12u[3];
+    diff(R1u, R2u, R12u);
+    
+    double R12[3];
+    diff(R1, R2, R12);
+    
+    double r12 = distance(R1, R2);
+    double r1 = norm(R1);
+    double r2 = norm(R2);
+    double d = 1+alpha*r12;    
+    
+    
+    
+    return -4
+    + dot(R12u, R12)/( r12*pow(d, 2) )
+    - 1/( r12*pow(d, 3) ) 
+    - 1/( 4*pow(d, 4) )
+    + 1/r12;
+}
+
+
