@@ -50,8 +50,11 @@ xlabel('r [a_0]')
 ylabel('Probability distribution')
 title('Central-field approximation')
 axis([0,3,0,1.2])
-%plot(rBins,y)
 hold off
+%% Theta
 figure(4);
 theta = data(:,7); %angle between electrons
+x = cos(theta);
 histogram(theta,'Normalization','pdf');
+figure(5)
+plot(x)
