@@ -23,3 +23,10 @@ end
 
 energySum/length(data)
 plot(energia)
+
+stds = zeros(1,length(data));
+for i=1:length(data)
+   stds(i) = std(energia(1:i)); 
+end
+
+plot(stds)
