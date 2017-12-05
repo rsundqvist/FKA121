@@ -97,6 +97,7 @@ int main()
         //======================================//
         for (j = 0; j < N; j++) { // v(t+dt/2)
             G_1 = gsl_ran_ugaussian(gslr);
+            G_1 = 0;
             v[j] = dt*0.5*a[j] + v_th*sqrt(1-c_0)*G_1;
         }
         
@@ -111,6 +112,7 @@ int main()
         
         for (j = 0; j < N; j++) { // v(t+dt)
             G_2 = gsl_ran_ugaussian(gslr);
+            G_2 = 0;
             v[j] = 0.5*sqrt(c_0)*a[j]*dt + sqrt(c_0)*v[j] + v_th*sqrt(1-c_0)*G_2;
         }
         
