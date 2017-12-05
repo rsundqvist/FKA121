@@ -24,9 +24,16 @@ end
 energySum/length(data)
 plot(energia)
 %% Sample from markov chain
-S 
+S = 37;
+sampleEnergia = zeros(1,floor(length(energia)/S));
+for i=1:floor(length(energia)/S)
+   sampleEnergia(i) = energia(i*S); 
+end
+
+plot(sampleEnergia)
 
 %% Plot std over iterations
+data = sampleEnergia
 stds = zeros(1,length(data));
 for i=1:length(data)
    stds(i) = std(energia(1:i)); 
