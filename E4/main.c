@@ -5,8 +5,8 @@
 #include <time.h>
 #include "stat.h"
 
-#define N 5000
-#define TIME_MAX 0.005
+#define N 15000
+#define TIME_MAX 0.002
 #define PI 3.14159265359
 
 void calc_acc(double *a, double *q, double *v, double m, double k, double eta, gsl_rng *gslr);
@@ -24,9 +24,7 @@ int main()
     sprintf(output_file, "e4.dat", 0);
 
     double T = 297;
-    //double k_B = 8.3145e+03; // Boltzmann, k_B [JK^-1] divided by u
     double k_B = 1.38065e-23;
-    //double m = 60.08; // mass, 60.08g/mol gives mass of 60.08u
     double m = 30.131e-15;
     double f_0 = 3.0000e+3;
     double omega_0 = 2*PI*f_0;
@@ -39,7 +37,11 @@ int main()
     
     double Tau_a = 48.5e-6;  // relaxation time in microseconds, case A
     double Tau_b = 147.3e-6; // case B
-    double eta = 1/Tau_a;
+    double Tau = Tau_a;
+    double eta = 1/Tau;
+    int Tau_i = 0;
+    double Tau_log[5] = {0.5*Tau, Tau, 2*Tau, 10*Tau, 10000000*Tau}; // Values for which to log offset/vel
+    
     double c_0 = exp(-eta*dt);
     double v_th = sqrt(k_B*T/m);
     //printf("k_B/m = %.5f\n", k_B/m);
@@ -52,6 +54,10 @@ int main()
 
     double G_1, G_2;
     
+    // Log offsets at certain timepoints
+    char tauname[255];
+    FILE * taufile;
+    
     //========================================================================//
     // Setup
     //========================================================================//
@@ -59,7 +65,7 @@ int main()
     int i, j, i_log;        
     double t_max = TIME_MAX;
     int nbr_of_timesteps = t_max/dt;
-    int ir = 5; // Resolution for i. Record every ir:th timestep.
+    int ir = 1; // Resolution for i. Record every ir:th timestep.
     
     // Data recording
     double log_data1 [nbr_of_timesteps/ir]; // mu_q
@@ -100,7 +106,7 @@ int main()
         //======================================//
         for (j = 0; j < N; j++) { // v(t+dt/2)
             G_1 = gsl_ran_ugaussian(gslr);
-            v[j] = 0.5*a[j]*dt + sqrt(c_0)*v[j] + v_th*sqrt(1-c_0)*G_1; //TODO remove extra *dt
+            v[j] = 0.5*a[j]*dt + sqrt(c_0)*v[j] + v_th*sqrt(1-c_0)*G_1;
         }
         
         for (j = 0; j < N; j++) { // q(t+dt)
@@ -146,6 +152,30 @@ int main()
             log_data12[i_log] = v[(N-1)/2];
             log_data13[i_log] = v[3*(N-1)/4];
             log_data14[i_log] = v[N-1];
+            
+            if (i*dt > Tau_log[Tau_i]) {
+                printf("Log offset/velocity: t = %.2f*Tau\n", i*dt/Tau);
+                // Output offset for all particles
+                sprintf(tauname, "offset_tau%d.dat", Tau_i);
+                taufile = fopen(tauname, "w");
+                for (j = 0; j < N; j++) {          
+                    fprintf (taufile,"%e\n", q[j]);
+                }
+                printf("\t Printed: %s\n", tauname);
+                fclose(taufile);
+                
+                // Output velocity for all particles
+                sprintf(tauname, "vel_tau%d.dat", Tau_i);
+                
+                taufile = fopen(tauname, "w");
+                for (j = 0; j < N; j++) {          
+                    fprintf (taufile,"%e\n", v[j]/v_th);
+                }
+                printf("\t Printed: %s\n", tauname);
+                fclose(taufile);
+                
+                Tau_i++;
+            }
         }
     }
     printf("\tt = %.2f \t\t %.3f  \n", i*dt, ((double)i/nbr_of_timesteps));
@@ -178,6 +208,7 @@ int main()
     
     printf("v_th = %e, v_th*sqrt(1-c0), c0 = %e\n", v_th, c_0, v_th*sqrt(1-c_0));
     printf("sqrt(c0) = %e, sqrt(1-c0) = %e\n", sqrt(c_0), sqrt(1-c_0));
+    printf("Tau = %e, eta = %e\n", Tau, eta);
 
     return 0;
 }
@@ -185,13 +216,8 @@ int main()
 void calc_acc(double *a, double *q, double *v, double m, double k, double eta, gsl_rng *gslr) {
 	int j;
 	double f;
-	double xi;
 	for (j = 0; j < N; ++j)
-	{   
-	    xi = m*gsl_ran_ugaussian(gslr);
-		f = -k*q[j] -m*eta*v[j] + xi;
-		a[j] = f/m;
-	}
+		a[j] = -k*q[j]/m;
 }
 
 gsl_rng * init_rng() {

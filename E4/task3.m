@@ -1,7 +1,9 @@
-close all;
-clear all;
-clc;
+%close all;
+%clear all;
 data = load('e4.dat');
+
+Tau = 48.5e-6;
+ticks = (1:100)*Tau;
 
 lim = 1:size(data, 1);
 t = data(lim, 1);
@@ -27,6 +29,8 @@ plot(t, mu_q + sigma_q, 'k');
 plot(t, mu_q - sigma_q, 'k');
 title('Offset');
 xlabel('Time [s]');
+xticks(ticks);
+xticklabels(1:100);
 ylabel('Offset [m]');
 legend('q_1(t)', 'q_2(t)', 'q_3(t)', 'q_4(t)', 'q_5(t)', '\mu','\mu \pm \sigma');
 
