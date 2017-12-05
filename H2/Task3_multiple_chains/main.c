@@ -37,10 +37,11 @@ int main()
     int chainLength = 150000;
     double d = 0.8;    
 
-    int k, i;
+    int k,l, i;
     double alpha_start = 0.05;
     double alpha_end = 0.25;
     double alpha_step = 0.001;
+    int nbr_of_chains = 30; // Number for chains for each alpha
     int nbr_of_alphas = round((alpha_end - alpha_start)/alpha_step) +1;
     
     // Array containing mean local energy and std for different alphas
@@ -48,31 +49,37 @@ int main()
 
     for(k = 0; k < nbr_of_alphas; k++) {
         double alpha = alpha_start + k*alpha_step;
-        // Initialize Markov chain
-        double chain[chainLength][6];
-        setZero(chain, chainLength);
-        randomize(chain[0],6,0,1,q);
+        for(l = 0; l < nbr_of_chains; l++) {
+            // Initialize Markov chain
+            double chain[chainLength][6];
+            setZero(chain, chainLength);
+            randomize(chain[0],6,0,1,q);
     
-        // Sample Markov chain
-        generateMarkovChain(chain, alpha, d, chainLength, q);
-        //printf("Acceptance rate: %.3f\n", (double)metropolisCount/metropolisTotal);
+            // Sample Markov chain
+            generateMarkovChain(chain, alpha, d, chainLength, q);
+            //printf("Acceptance rate: %.3f\n", (double)metropolisCount/metropolisTotal);
     
-        // Compute local energy
-        int N = chainLength;
-        double *values = malloc(sizeof (double[N]));
-        for (i = 0; i < N; i++) {
-            values[i] = energy(chain[i], alpha);
-        }
+            // Compute local energy
+            int N = chainLength;
+            double *values = malloc(sizeof (double[N]));
+            for (i = 0; i < N; i++) {
+                values[i] = energy(chain[i], alpha);
+            }
     
-        // Compute energy mean and standard deviation
-        double meanE = get_mean(values, N);
-        double stdE = get_variance(values, meanE, N);
+            // Compute energy mean and standard deviation
+            double meanE = get_mean(values, N);
+            double stdE = get_variance(values, meanE, N);
         
-        printf("%.5f \t %.5f \t %.5f \n",alpha,meanE,stdE);
-        // Store relevant values
+            // Store relevant values
+      
+            alphaArray[k][1] += meanE;
+            alphaArray[k][2] += stdE;
+        }
         alphaArray[k][0] = alpha;
-        alphaArray[k][1] = meanE;
-        alphaArray[k][2] = stdE;
+        alphaArray[k][1] /= nbr_of_chains;
+        alphaArray[k][2] /= nbr_of_chains;
+        printf("k = %.d \n",k);
+        //printf("%.5f \t %.5f \t %.5f \n",alpha,alphaArray[k][1],alphaArray[k][2]);
     }
 
     // Print to file
