@@ -5,8 +5,8 @@
 #include <time.h>
 #include "stat.h"
 
-#define N 100
-#define TIME_MAX 1200
+#define N 5000
+#define TIME_MAX 0.005
 #define PI 3.14159265359
 
 void calc_acc(double *a, double *q, double *v, double m, double k, double eta, gsl_rng *gslr);
@@ -24,25 +24,28 @@ int main()
     sprintf(output_file, "e4.dat", 0);
 
     double T = 297;
-    double k_B = 8.3145e+03; // Boltzmann, k_B [JK^-1] divided by u
-    double m = 60.08; // mass, 60.08g/mol gives mass of 60.08u
-    double f_0 = 3.0000e-3;
+    //double k_B = 8.3145e+03; // Boltzmann, k_B [JK^-1] divided by u
+    double k_B = 1.38065e-23;
+    //double m = 60.08; // mass, 60.08g/mol gives mass of 60.08u
+    double m = 30.131e-15;
+    double f_0 = 3.0000e+3;
     double omega_0 = 2*PI*f_0;
     double k = m*omega_0*omega_0;
 
-    double dt = 0.01;
+    double dt = 0.0000001;
     double q[N]; // position
     double v[N]; // velocity
     double a[N]; // acceleration
     
-    double Tau_a = 48.5;  // relaxation time in microseconds, case A
-    double Tau_b = 147.3; // case B
+    double Tau_a = 48.5e-6;  // relaxation time in microseconds, case A
+    double Tau_b = 147.3e-6; // case B
     double eta = 1/Tau_a;
     double c_0 = exp(-eta*dt);
     double v_th = sqrt(k_B*T/m);
+    //printf("k_B/m = %.5f\n", k_B/m);
     
-    double x_0 = 0.1; // micrometers
-    double v_0 = 2.0; // micrometers per microsecond
+    double x_0 = 0.1e-6; // micrometers
+    double v_0 = 2.0e-3; // micrometers per microsecond
     
     double mu_q, sigma_sq_q;
     double mu_v, sigma_sq_v;
@@ -56,7 +59,7 @@ int main()
     int i, j, i_log;        
     double t_max = TIME_MAX;
     int nbr_of_timesteps = t_max/dt;
-    int ir = 10; // Resolution for i. Record every ir:th timestep.
+    int ir = 5; // Resolution for i. Record every ir:th timestep.
     
     // Data recording
     double log_data1 [nbr_of_timesteps/ir]; // mu_q
@@ -79,7 +82,7 @@ int main()
     //========================================================================//
     // Verlet
     //========================================================================//
-    printf("\nLog resolution: 1 per %d steps, t_max = %.3f \n", ir, t_max);
+    printf("\nLog resolution: 1 per %d steps, t_max = %.3f, nbr_of_timesteps = %d\n", ir, t_max, nbr_of_timesteps);
     
     for (j = 0; j < N; j++) { // Initial conditions
         q[j] = x_0;
@@ -97,7 +100,6 @@ int main()
         //======================================//
         for (j = 0; j < N; j++) { // v(t+dt/2)
             G_1 = gsl_ran_ugaussian(gslr);
-            G_1 = 0; // TODO remove
             v[j] = 0.5*a[j]*dt + sqrt(c_0)*v[j] + v_th*sqrt(1-c_0)*G_1; //TODO remove extra *dt
         }
         
@@ -112,7 +114,6 @@ int main()
         
         for (j = 0; j < N; j++) { // v(t+dt)
             G_2 = gsl_ran_ugaussian(gslr);
-            G_2 = 0; // TODO remove
             v[j] = 0.5*sqrt(c_0)*a[j]*dt + sqrt(c_0)*v[j] + v_th*sqrt(1-c_0)*G_2;
         }
         
@@ -174,6 +175,9 @@ int main()
     } else {
         printf("File is NULL!\n");
     }
+    
+    printf("v_th = %e, v_th*sqrt(1-c0), c0 = %e\n", v_th, c_0, v_th*sqrt(1-c_0));
+    printf("sqrt(c0) = %e, sqrt(1-c0) = %e\n", sqrt(c_0), sqrt(1-c_0));
 
     return 0;
 }
@@ -185,7 +189,6 @@ void calc_acc(double *a, double *q, double *v, double m, double k, double eta, g
 	for (j = 0; j < N; ++j)
 	{   
 	    xi = m*gsl_ran_ugaussian(gslr);
-	    xi = 0; // TODO remove
 		f = -k*q[j] -m*eta*v[j] + xi;
 		a[j] = f/m;
 	}

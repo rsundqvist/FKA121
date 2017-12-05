@@ -3,10 +3,11 @@ clear all;
 
 data = load('block_average.dat');
 
-t = 15000;
+s = 10;
+t = 2000;
 hold on;
 plot(data(1:t,1), data(1:t,2));
 lim = max(data(1:t,1));
-plot([0 lim], [10 10]);
+plot([0 t], [s s]);
 
-legend('\Phi_k', 's = 15');
+legend('\Phi_k', ['s = ' num2str(s)]);
