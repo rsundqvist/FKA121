@@ -6,7 +6,7 @@
 #include "stat.h"
 
 #define N 100
-#define TIME_MAX 20000
+#define TIME_MAX 1200
 #define PI 3.14159265359
 
 void calc_acc(double *a, double *q, double *v, double m, double k, double eta, gsl_rng *gslr);
@@ -56,7 +56,7 @@ int main()
     int i, j, i_log;        
     double t_max = TIME_MAX;
     int nbr_of_timesteps = t_max/dt;
-    int ir = 20; // Resolution for i. Record every ir:th timestep.
+    int ir = 10; // Resolution for i. Record every ir:th timestep.
     
     // Data recording
     double log_data1 [nbr_of_timesteps/ir]; // mu_q
@@ -97,11 +97,12 @@ int main()
         //======================================//
         for (j = 0; j < N; j++) { // v(t+dt/2)
             G_1 = gsl_ran_ugaussian(gslr);
-            v[j] = dt*0.5*a[j] + v_th*sqrt(1-c_0)*G_1;
+            G_1 = 0; // TODO remove
+            v[j] = 0.5*a[j]*dt + sqrt(c_0)*v[j] + v_th*sqrt(1-c_0)*G_1; //TODO remove extra *dt
         }
         
         for (j = 0; j < N; j++) { // q(t+dt)
-            q[j] += dt * v[j];
+            q[j] += v[j]*dt;
         }
 
         //=====================//
@@ -111,6 +112,7 @@ int main()
         
         for (j = 0; j < N; j++) { // v(t+dt)
             G_2 = gsl_ran_ugaussian(gslr);
+            G_2 = 0; // TODO remove
             v[j] = 0.5*sqrt(c_0)*a[j]*dt + sqrt(c_0)*v[j] + v_th*sqrt(1-c_0)*G_2;
         }
         
@@ -179,9 +181,12 @@ int main()
 void calc_acc(double *a, double *q, double *v, double m, double k, double eta, gsl_rng *gslr) {
 	int j;
 	double f;
+	double xi;
 	for (j = 0; j < N; ++j)
-	{
-		f = -k*q[j] -m*eta*v[j] + m*gsl_ran_ugaussian(gslr);
+	{   
+	    xi = m*gsl_ran_ugaussian(gslr);
+	    xi = 0; // TODO remove
+		f = -k*q[j] -m*eta*v[j] + xi;
 		a[j] = f/m;
 	}
 }

@@ -89,7 +89,6 @@ double blockAverageS(double * values, int nbr_of_values, int B) {
         blockAverages[k] = blockAverage(values, nbr_of_values, j, B);
     }
     double d = B *sampleVariance(blockAverages,nBlockAverages)/sampleVariance(values, nbr_of_values);
-    printf("bavg = %.5f\n", d);
     return d;
 }
 

@@ -5,6 +5,7 @@
 #include <time.h>
 #include "stat.h"
 #include "vec3.h"
+#include "stats_func.h"
 
 // Function declerations
 double trialWaveFunction(double * R, double alpha);
@@ -51,7 +52,6 @@ int main()
     FILE * file1 = fopen(output_file, "w");
     double x1,y1,z1;
     double x2,y2,z2;
-    double theta;
     if (file1 != NULL){
         for (i = 0; i < chainLength; i++) {         
             // Print file1
@@ -103,7 +103,6 @@ void statstuff(double * values, int N) {
 	bfile = fopen("block_average.dat","w");
     for (B = 2; B < 30000; B++) {
         s2 = blockAverageS(values, N, B);
-        printf("s2 = %.5f\n", s2);
 		fprintf(bfile, "%d \t %e \n", B, s2);
 		if (B%3000==0) printf("B = %d\n", B);
     }
@@ -143,7 +142,6 @@ double trialWaveFunction(double * R, double alpha) {
 
 void generateMarkovChain(double (*chain)[6], double alpha, double d, int N, gsl_rng * q) {
     int i;
-    double r;
 
     for(i = 1; i< N; i++) {
         metropolisStep(chain[i-1], chain[i], alpha, d, q);
@@ -212,8 +210,6 @@ double energy2(double R1[3], double R2[3], double alpha) {
     diff(R1, R2, R12);
     
     double r12 = distance(R1, R2);
-    double r1 = norm(R1);
-    double r2 = norm(R2);
     double d = 1+alpha*r12;    
     
     
