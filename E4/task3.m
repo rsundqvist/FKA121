@@ -28,7 +28,7 @@ plot(t, mu_q, 'k');
 plot(t, mu_q + sigma_q, 'k');
 plot(t, mu_q - sigma_q, 'k');
 title('Offset');
-xlabel('Time [s]');
+xlabel('Time [s], multiples of \tau');
 xticks(ticks);
 xticklabels(1:100);
 ylabel('Offset [m]');

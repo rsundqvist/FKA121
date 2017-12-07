@@ -6,7 +6,7 @@
 #include "stat.h"
 
 #define N 15000
-#define TIME_MAX 0.002
+#define TIME_MAX 0.001
 #define PI 3.14159265359
 
 void calc_acc(double *a, double *q, double *v, double m, double k, double eta, gsl_rng *gslr);
@@ -40,7 +40,7 @@ int main()
     double Tau = Tau_a;
     double eta = 1/Tau;
     int Tau_i = 0;
-    double Tau_log[5] = {0.5*Tau, Tau, 2*Tau, 10*Tau, 10000000*Tau}; // Values for which to log offset/vel
+    double Tau_log[6] = {0.1*Tau, 0.5*Tau, Tau, 2*Tau, 10*Tau, 10000000*Tau}; // Values for which to log offset/vel
     
     double c_0 = exp(-eta*dt);
     double v_th = sqrt(k_B*T/m);
