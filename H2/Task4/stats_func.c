@@ -19,6 +19,7 @@ double getSquaredValueMean(double * values, int nbr_of_values) {
     return sum/nbr_of_values;    
 }
 
+// autocorrelation support function
 double getAheadMean(double * values, int nbr_of_values, int k) {
     if(k < nbr_of_values) {    
         int i;
@@ -42,7 +43,8 @@ double autoCorrelation(double * values, int nbr_of_values, int k) {
     return (phi_ik - phi_i)/(phiSq - phi_i);
 }
 
-int findS(double * values, int nbr_of_values, double threshold) {
+// 
+int findS(double * values, int nbr_of_values) {
     int k;
     int s = -1, extra = nbr_of_values, found = 0;     
     
@@ -53,14 +55,12 @@ int findS(double * values, int nbr_of_values, double threshold) {
     double target = 0.1353352832;
     for(k = 0; k < nbr_of_values; k++) {
         double  phiK = autoCorrelation(values, nbr_of_values, k);
-        //printf("phi_%d = %.7f, target = %.7f \t %.5f \n",k,phiK, target, phiK - target);
-		fprintf(file, "%d \t %.4f \n", k, phiK);
+        fprintf(file, "%d \t %.4f \n", k, phiK);
 		extra--;
         if(phiK < target && !found) {
             s = k;
             found = 1;
-            printf("FOUND!\nFOUND!\nFOUND!\nFOUND!\nFOUND!\nFOUND!\nFOUND!\nFOUND!\nFOUND!\nFOUND!\n");
-            extra = k*20;
+            extra = k*20; // Generate extra data so the graph doesn't cut off.
         }
         if(extra <= 0) {
             break;
@@ -75,6 +75,7 @@ double d_abs(double d) {
     return d < 0 ? -d : d;
 }
 
+// Get block average for a single B
 double blockAverageS(double * f, int sz, int B) {
     int j, Mb = sz/B; // M_b = number of blocks of size B
     double F[Mb];
@@ -84,6 +85,7 @@ double blockAverageS(double * f, int sz, int B) {
     return B*sampleVariance(F,nba)/sampleVariance(f, sz);
 }
 
+// Block average for a single (B, j)-pair
 double blockAverage(double * f, int nbr_of_values, int j, int B) {
     int i;
     double sum = 0;

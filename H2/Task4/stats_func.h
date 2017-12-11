@@ -7,7 +7,7 @@ extern double getSquaredValueMean(double * values, int nbr_of_values);
 extern double getAheadMean(double * values, int nbr_of_values, int k);
 extern double autoCorrelation(double * values, int nbr_of_values, int k);
 extern double d_abs(double d);
-extern int findS(double * values, int nbr_of_values, double threshold);
+extern int findS(double * values, int nbr_of_values);
 extern double blockAverageS(double * values, int nbr_of_values, int B);
 extern double blockAverage(double * f, int nbr_of_values, int j, int B);
 extern double sampleVariance(double * values, int nbr_of_values);

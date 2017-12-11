@@ -34,9 +34,9 @@ int main()
         
     gsl_rng * q = init_rng();
     //Parameters
-    int chainLength = 150000;
-    double alpha = 0.1;
-    double d = 0.8;
+    int chainLength = 150000; // # markov steps
+    double alpha = 0.1; // Trial function parameter
+    double d = 0.8; // Stepping parameter
 
     // Initialize Markov chain
     double chain[chainLength][6];
@@ -87,21 +87,24 @@ int main()
     double *values = malloc(sizeof (double[N]));
     for (i = 0; i < N; i++) {
         values[i] = energy(chain[i], alpha);
-        //printf("v = %.5f\n", values[i]);
     }
-    statstuff(values, N);
+    statstuff(values, N); // Generate statistical data
     
     return 0;
 }
+
+// Generate statistical data
 void statstuff(double * values, int N) {
-    int s1 = findS(values, N, 0);
+    // Autocorrelation
+    int s1 = findS(values, N);
     printf("s (autocorr) = %d\n", s1);
     
+    // Block average
     int B;
     double s2; 
     FILE *bfile;
 	bfile = fopen("block_average.dat","w");
-    for (B = 2; B < 2500; B++) { // Block sizes
+    for (B = 2; B < 2500; B++) { // Block size B
         s2 = blockAverageS(values, N, B);
 		fprintf(bfile, "%d \t %e \n", B, s2);
 		if (B%250==0) printf("B = %d\n", B);
@@ -137,12 +140,11 @@ double trialWaveFunction(double * R, double alpha) {
     // Compute r12
     double r12_norm = distance(r1, r2);
 
-    return exp(-2*(r1_norm + r2_norm))*exp(r12_norm/(2*(1 + alpha*r12_norm)));
+    return exp(-2*(r1_norm + r2_norm) + r12_norm/(2*(1 + alpha*r12_norm)));
 }
 
 void generateMarkovChain(double (*chain)[6], double alpha, double d, int N, gsl_rng * q) {
-    int i;
-
+    int i
     for(i = 1; i< N; i++) {
         metropolisStep(chain[i-1], chain[i], alpha, d, q);
     }
@@ -171,7 +173,7 @@ void metropolisStep(double prev[6], double next[6], double alpha, double d, gsl_
             next[i] = prev[i];
     }
     
-    if (pr >= r)        
+    if (pr >= r) // Track step acceptance rate
         metropolisCount++;
     metropolisTotal++;
 }
@@ -193,8 +195,8 @@ double probFunction(double * Rnew, double * Rold, double alpha){
 }
 
 double energy(double R[6], double alpha) {
-    double R1[3] = {R[0], R[1], R[2]};
-    double R2[3] = {R[3], R[4], R[5]};
+    double R1[3] = {R[0], R[1], R[2]}; // Convert 6-vectors to
+    double R2[3] = {R[3], R[4], R[5]}; // two 3-vectors.
     return energy2(R1, R2, alpha);
 }
 
@@ -210,10 +212,9 @@ double energy2(double R1[3], double R2[3], double alpha) {
     diff(R1, R2, R12);
     
     double r12 = distance(R1, R2);
-    double d = 1+alpha*r12;    
+    double d = 1+alpha*r12;        
     
-    
-    
+    // Energy according to eq. (7) in H2b homework description.
     return -4
     + dot(R12u, R12)/( r12*pow(d, 2) )
     - 1/( r12*pow(d, 3) ) 

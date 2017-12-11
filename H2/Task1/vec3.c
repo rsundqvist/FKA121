@@ -5,6 +5,7 @@
 
 
 double norm(double vec[3]) {
+    // Length of vector
     return sqrt(vec[0]*vec[0] + vec[1]*vec[1] + vec[2]*vec[2]);
 }
 
@@ -33,8 +34,8 @@ void sum(double vec1[3], double vec2[3], double sum[3]) {
 }
 
 void unit(double vec[3], double unit[3]) {
-    double d = norm(vec);
-    
+    double d = norm(vec); 
+    // Normalised vector
     unit[0] = vec[0]/d;
     unit[1] = vec[1]/d;
     unit[2] = vec[2]/d;
