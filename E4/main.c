@@ -153,7 +153,7 @@ int main()
             log_data13[i_log] = v[3*(N-1)/4];
             log_data14[i_log] = v[N-1];
             
-            if (i*dt > Tau_log[Tau_i]) {
+            if (i*dt >= Tau_log[Tau_i]) {
                 printf("Log offset/velocity: t = %.2f*Tau\n", i*dt/Tau);
                 // Output offset for all particles
                 sprintf(tauname, "offset_tau%d.dat", Tau_i);

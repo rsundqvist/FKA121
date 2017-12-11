@@ -76,12 +76,12 @@ double d_abs(double d) {
 }
 
 double blockAverageS(double * f, int sz, int B) {
-    int j, Mb = sz/B; // M_b = number of blocks of size B
+    int j, Mb = sz/B; // Mb = number of blocks of size B
     double F[Mb];
     for(j = 0; j < Mb; j++) {
         F[j] = blockAverage(f, sz, j+1, B); // +1 for i \in [1, B]
     }
-    return B*sampleVariance(F,nba)/sampleVariance(f, sz);
+    return B*sampleVariance(F,Mb)/sampleVariance(f, sz);
 }
 
 double blockAverage(double * f, int nbr_of_values, int j, int B) {
