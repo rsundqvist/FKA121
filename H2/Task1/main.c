@@ -101,7 +101,7 @@ void statstuff(double * values, int N) {
     double s2; 
     FILE *bfile;
 	bfile = fopen("block_average.dat","w");
-    for (B = 2; B < 30000; B++) {
+    for (B = 2; B < 30000; B++) { // Block sizes
         s2 = blockAverageS(values, N, B);
 		fprintf(bfile, "%d \t %e \n", B, s2);
 		if (B%3000==0) printf("B = %d\n", B);

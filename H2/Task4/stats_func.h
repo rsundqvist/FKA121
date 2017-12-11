@@ -9,6 +9,6 @@ extern double autoCorrelation(double * values, int nbr_of_values, int k);
 extern double d_abs(double d);
 extern int findS(double * values, int nbr_of_values, double threshold);
 extern double blockAverageS(double * values, int nbr_of_values, int B);
-extern double blockAverage(double * values, int nbr_of_values, int j, int B);
+extern double blockAverage(double * f, int nbr_of_values, int j, int B);
 extern double sampleVariance(double * values, int nbr_of_values);
 #endif

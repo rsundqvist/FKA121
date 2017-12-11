@@ -72,31 +72,23 @@ int findS(double * values, int nbr_of_values, double threshold) {
 }
 
 double d_abs(double d) {
-    if(d < 0)
-        d = -d;
-    return d;
+    return d < 0 ? -d : d;
 }
 
-double blockAverageS(double * values, int nbr_of_values, int B) {
-    int k, j;
-    int nBlockAverages = (int)round(nbr_of_values/B);
-    double blockAverages[nBlockAverages];
-    for (j = 0; j < nBlockAverages; j++){
-        blockAverages[j] = 0;    
+double blockAverageS(double * f, int sz, int B) {
+    int j, Mb = sz/B; // M_b = number of blocks of size B
+    double F[Mb];
+    for(j = 0; j < Mb; j++) {
+        F[j] = blockAverage(f, sz, j+1, B); // +1 for i \in [1, B]
     }
-    for(k = 0; k < nBlockAverages; k++) {
-        j = k+1;
-        blockAverages[k] = blockAverage(values, nbr_of_values, j, B);
-    }
-    double d = B *sampleVariance(blockAverages,nBlockAverages)/sampleVariance(values, nbr_of_values);
-    return d;
+    return B*sampleVariance(F,nba)/sampleVariance(f, sz);
 }
 
-double blockAverage(double * values, int nbr_of_values, int j, int B) {
+double blockAverage(double * f, int nbr_of_values, int j, int B) {
     int i;
     double sum = 0;
     for(i = 0; i < B; i++)
-        sum += values[i + (j-1)*B];
+        sum += f[i + (j-1)*B];
     return sum/B;
 }
 
