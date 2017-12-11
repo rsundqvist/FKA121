@@ -12,3 +12,6 @@ plot([0 lim], [exp(-2) exp(-2)]);
 legend('\Phi_k', 'e^{-2}');
 grid on;
 grid minor
+
+tmp = find(data(:,2)<exp(-2), 1) - 1;
+plot(tmp,data(tmp+1,2),'o')
