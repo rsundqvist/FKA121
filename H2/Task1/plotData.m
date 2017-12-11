@@ -57,7 +57,15 @@ hold off
 %% Theta
 figure(4);
 theta = data(:,7); %angle between electrons
-x = cos(theta);
+hold on
 histogram(theta,'Normalization','pdf');
+plot([0 pi], [1/(pi) 1/(pi)], 'LineWidth', 2, 'Color', 'k');
+legend('\theta distribution', 'E[\theta_{uc}] = 1/\pi');
+
 figure(5)
-plot(x)
+hold on
+histogram(cos(theta),'Normalization','pdf');
+plot([-1 1], [0.5 0.5], 'LineWidth', 2, 'Color', 'k');
+legend('x distribution', 'E[x_{uc}] = 1/2');
+
+
