@@ -142,7 +142,7 @@ double trialWaveFunction(double * R, double alpha) {
     // Compute r12
     double r12_norm = distance(r1, r2);
 
-    return exp(-2*(r1_norm + r2_norm))*exp(r12_norm/(2*(1 + alpha*r12_norm)));
+    return exp(-2*(r1_norm + r2_norm) + r12_norm/(2*(1 + alpha*r12_norm)));
 }
 
 void generateMarkovChain(double (*chain)[6], double alpha, double d, int N, gsl_rng * q) {
