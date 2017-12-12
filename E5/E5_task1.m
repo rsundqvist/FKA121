@@ -1,12 +1,14 @@
+clear all, close all;
 % Initialize grid
 nbrOfPoints = 10000;
-h = 0.01; % grid spacing
-r0 = 0;
-rValues = r0 + (1:nbrOfPoints)*h; 
+r0 = 0.001;
+rEnd = 8;
+rValues = linspace(r0,rEnd,nbrOfPoints); 
+h = rValues(2) - rValues(1); % grid spacing
 
 % Set electron density according to the ground state of hydrogen
-
-ns = 4 * exp(-2*rValues);
+electronDensity = @(r) 1/(pi)*exp(-r);
+ns = electronDensity(rValues);%4 * exp(-2*rValues);
 
 % Initialize matrix
 A = zeros(nbrOfPoints);
@@ -23,7 +25,7 @@ A(end,end) = -2/(h^2);
 A(end,end-1) = 1/(h^2);
 
 c = zeros(nbrOfPoints,1);
-c(end) = 1;
+c(end) = 1/(h^2);
 % Set matrix equation Ax = b + c
 U = A\ (ns' + c);
 
@@ -31,5 +33,5 @@ U = A\ (ns' + c);
 Vh = @(r) 1./r - (1 + 1./r).*exp(-2*r);
 figure(1)
 hold on
-plot(Vh(rValues),rValues)
-plot(rValues,U)
+plot(rValues, Vh(rValues))
+plot(rValues,U./rValues')
