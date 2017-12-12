@@ -43,7 +43,6 @@ double autoCorrelation(double * values, int nbr_of_values, int k) {
     return (phi_ik - phi_i)/(phiSq - phi_i);
 }
 
-// 
 int findS(double * values, int nbr_of_values) {
     int k;
     int s = -1, extra = nbr_of_values, found = 0;     
