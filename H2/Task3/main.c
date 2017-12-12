@@ -30,7 +30,7 @@ int main()
     gsl_rng * q = init_rng();
     //Parameters
     int chainLength = 150000;
-    double d = 0.8;    
+    double d = 0.9; // Stepping parameter
 
     int k,l, i;
     double alpha_start = 0.05;
@@ -41,12 +41,11 @@ int main()
     
     // Array containing mean local energy and std for different alphas
     double alphaArray[nbr_of_alphas][3];
+    double chain[chainLength][6]; // Initialize Markov chain
 
     for(k = 0; k < nbr_of_alphas; k++) {
         double alpha = alpha_start + k*alpha_step;
         for(l = 0; l < nbr_of_chains; l++) {
-            // Initialize Markov chain
-            double chain[chainLength][6];
             setZero(chain, chainLength);
             randomize(chain[0],6,0,1,q);
     
@@ -64,6 +63,8 @@ int main()
             // Compute energy mean and standard deviation
             double meanE = get_mean(values, N);
             double stdE = get_variance(values, meanE, N);
+            free(values);
+            values = NULL;
         
             // Store relevant values
       
@@ -73,7 +74,7 @@ int main()
         alphaArray[k][0] = alpha;
         alphaArray[k][1] /= nbr_of_chains;
         alphaArray[k][2] /= nbr_of_chains;
-        printf("k = %.d \n",k);
+        printf("k = %d/%d \n",k, nbr_of_alphas);
         //printf("%.5f \t %.5f \t %.5f \n",alpha,alphaArray[k][1],alphaArray[k][2]);
     }
 
