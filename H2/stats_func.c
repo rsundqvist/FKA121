@@ -101,3 +101,26 @@ double sampleVariance(double * values, int nbr_of_values) {
         sum += (values[i] - mean)*(values[i] - mean);
     return sum/(nbr_of_values - 1);
 }
+
+// Generate statistical data
+void statistical_ineff(double * values, int N, int boxcut) {
+    // Autocorrelation
+    int s1 = findS(values, N);
+    printf("s= %d (autocorr) \n", s1);
+    
+    // Block average
+    int B, maxB = 5000;
+    double s2; 
+    FILE *bfile;
+    bfile = fopen("block_average.dat","w");
+    double mean = 0;
+    for (B = 2; B < maxB; B++) { // Block size B
+        s2 = blockAverageS(values, N, B);
+        if (B >= boxcut)
+            mean += s2;
+        fprintf(bfile, "%d \t %e \n", B, s2);
+    }
+    printf("s= %.5f (box) \n", mean/(maxB-boxcut));
+    fclose(bfile);
+    printf("Done!\n");
+}

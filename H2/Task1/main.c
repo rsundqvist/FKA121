@@ -13,7 +13,6 @@ void generateMarkovChain(double (*chain)[6], double alpha, double d, int N, gsl_
 void metropolisStep(double prev[6], double next[6], double alpha, double d, gsl_rng * q);
 void setZero(double (*arr)[6], int N);
 void randomize(double * v, int sz, double min, double max, gsl_rng * q);
-void statstuff(double * values, int N);
 
 // Global variables
 int metropolisCount = 0; // Used for counting the acceptance rate of Metropolis
@@ -32,7 +31,7 @@ int main()
     //Parameters
     int chainLength = 150000; // # markov steps
     double alpha = 0.1; // Trial function parameter
-    double d = 0.8; // Stepping parameter
+    double d = 0.9; // Stepping parameter
 
     // Initialize Markov chain
     double chain[chainLength][6];
@@ -66,7 +65,7 @@ int main()
                 x1,y1,z1,
                 x2,y2,z2,
                 angle(R1,R2)
-                );
+            );
         }
         
         
@@ -84,29 +83,9 @@ int main()
     for (i = 0; i < N; i++) {
         values[i] = energy(chain[i], alpha);
     }
-    statstuff(values, N); // Generate statistical data
+    statistical_ineff(values, N, 250); // Generate statistical data
     
     return 0;
-}
-
-// Generate statistical data
-void statstuff(double * values, int N) {
-    // Autocorrelation
-    int s1 = findS(values, N);
-    printf("s (autocorr) = %d\n", s1);
-    
-    // Block average
-    int B;
-    double s2; 
-    FILE *bfile;
-	bfile = fopen("block_average.dat","w");
-    for (B = 2; B < 2500; B++) { // Block size B
-        s2 = blockAverageS(values, N, B);
-		fprintf(bfile, "%d \t %e \n", B, s2);
-		if (B%250==0) printf("B = %d\n", B);
-    }
-    fclose(bfile);
-    printf("Done!\n");
 }
 
 void randomize(double * v, int sz, double min, double max, gsl_rng * q) {

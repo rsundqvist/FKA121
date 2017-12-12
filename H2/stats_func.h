@@ -11,4 +11,7 @@ extern int findS(double * values, int nbr_of_values);
 extern double blockAverageS(double * values, int nbr_of_values, int B);
 extern double blockAverage(double * f, int nbr_of_values, int j, int B);
 extern double sampleVariance(double * values, int nbr_of_values);
+
+extern void statistical_ineff(double * values, int N, int boxcut);
+
 #endif

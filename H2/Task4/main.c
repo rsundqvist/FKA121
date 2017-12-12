@@ -13,7 +13,6 @@ void generateMarkovChain(double (*chain)[6], double alpha, double d, int N, gsl_
 void metropolisStep(double prev[6], double next[6], double alpha, double d, gsl_rng * q);
 void setZero(double (*arr)[6], int N);
 void randomize(double * v, int sz, double min, double max, gsl_rng * q);
-void statstuff(double * values, int N);
 
 double nextAlpha (double R[6], double alpha, int i, double E, double Beta);
 double energyGradient(double R[6], double alpha);
@@ -90,24 +89,6 @@ int main()
         }
     }
     return 0;
-}
-
-
-void statstuff(double * values, int N) {
-    int s1 = findS(values, N);
-    printf("s (autocorr) = %d\n", s1);
-    
-    int B;
-    double s2; 
-    FILE *bfile;
-	bfile = fopen("block_average.dat","w");
-    for (B = 2; B < 30000; B++) {
-        s2 = blockAverageS(values, N, B);
-		fprintf(bfile, "%d \t %e \n", B, s2);
-		if (B%3000==0) printf("B = %d\n", B);
-    }
-    fclose(bfile);
-    printf("Done!\n");
 }
 
 void randomize(double * v, int sz, double min, double max, gsl_rng * q) {
