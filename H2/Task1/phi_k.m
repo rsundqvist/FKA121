@@ -15,4 +15,6 @@ grid minor
 
 tmp = find(data(:,2)<exp(-2), 1) - 1
 plot(tmp,data(tmp+1,2),'o')
-title('Autocorrelation function');
+title('Autocorrelation');
+ylabel('\phi_k');
+xlabel('k');

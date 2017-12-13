@@ -6,8 +6,8 @@
 #include <math.h>
 
 // Computing the probability of accepting a new proposal in the Markov chain
-double probFunction(double * Rnew, double * Rold, double alpha){
-    return absWaveFunction(Rnew, alpha)/absWaveFunction(Rold, alpha);//trialWaveFunction(Rnew,alpha)/trialWaveFunction(Rold,alpha);
+double probFunction(double * Rnew, double * Rold, double alpha) {
+    return absWaveFunction(Rnew, alpha)/absWaveFunction(Rold, alpha);
 }
 
 double energy(double R[6], double alpha) {
