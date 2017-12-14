@@ -14,7 +14,7 @@ void metropolisStep(double prev[6], double next[6], double alpha, double d, gsl_
 void setZero(double (*arr)[6], int N);
 void randomize(double * v, int sz, double min, double max, gsl_rng * q);
 
-double nextAlpha (double R[6], double alpha, int i, double E, double Beta);
+double nextAlpha (double R[6], double alpha, int i, double Beta);
 double energyGradient(double R[6], double alpha);
 
 // Global variables
@@ -28,35 +28,33 @@ int main()
 {
     // Output file
     char output_file[255];
-    sprintf(output_file, "alphas.dat");     
+    sprintf(output_file, "alphas.dat");  
+      
         
     gsl_rng * q = init_rng();
     //Parameters
     int chainLength = 150000;
-    double d = 0.8;    
+    int nbr_of_alphas = 100;
+    double d = 0.9;    
+    double Beta = 0.1; // New alpha scaling parameter
 
     int k,l, i;
-    double alpha_start = 0.05;
-    double alpha_end = 0.25;
-    double alpha_step = 0.001;
-    int nbr_of_chains = 30; // Number for chains for each alpha
-    int nbr_of_alphas = round((alpha_end - alpha_start)/alpha_step) +1;
+    double alpha = 0.1;
+    int nbr_of_chains = 5; // Number for chains for each alpha
+    double chain[chainLength][6]; 
     
     // Array containing mean local energy and std for different alphas
     double alphaArray[nbr_of_alphas][3];
 
     for(k = 0; k < nbr_of_alphas; k++) {
-        double alpha = alpha_start + k*alpha_step;
         for(l = 0; l < nbr_of_chains; l++) {
             // Initialize Markov chain
-            double chain[chainLength][6];
             setZero(chain, chainLength);
             randomize(chain[0],6,0,1,q);
     
             // Sample Markov chain
             generateMarkovChain(chain, alpha, d, chainLength, q);
-            //printf("Acceptance rate: %.3f\n", (double)metropolisCount/metropolisTotal);
-    
+
             // Compute local energy
             int N = chainLength;
             double *values = malloc(sizeof (double[N]));
@@ -67,7 +65,8 @@ int main()
             // Compute energy mean and standard deviation
             double meanE = get_mean(values, N);
             double stdE = get_variance(values, meanE, N);
-        
+            free(values); values = NULL;
+
             // Store relevant values
       
             alphaArray[k][1] += meanE;
@@ -76,8 +75,10 @@ int main()
         alphaArray[k][0] = alpha;
         alphaArray[k][1] /= nbr_of_chains;
         alphaArray[k][2] /= nbr_of_chains;
-        printf("k = %.d \n",k);
-        //printf("%.5f \t %.5f \t %.5f \n",alpha,alphaArray[k][1],alphaArray[k][2]);
+        printf("k = %d/%d: alpha = %.5f \n", k, nbr_of_alphas, alpha);
+
+        int p = k+1; // γ_p is a scaling factor. p is denotes the iteration number.
+        alpha = nextAlpha(chain[chainLength-1], alpha, p, Beta);
     }
 
     // Print to file
@@ -151,10 +152,12 @@ gsl_rng * init_rng()
 	return q;
 }
 
-double nextAlpha (double R[6], double alpha, int i, double E, double Beta) {
+double nextAlpha (double R[6], double alpha, int i, double Beta) {
     double A = 1.0;    
-    double g = A*pow(i, -Beta);//gamma¨
+    double g = A*pow(i, -Beta); //gamma
     
+    printf("    eg = %.5f\n", energyGradient(R, alpha));
+    printf("    g = %.5f\n", g);
     return alpha - g*energyGradient(R, alpha);
 }
 
