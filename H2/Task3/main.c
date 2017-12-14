@@ -25,65 +25,56 @@ int main()
 {
     // Output file
     char output_file[255];
+    char output_raw[255];
     sprintf(output_file, "alphas.dat");     
+    FILE * file0;   
         
     gsl_rng * q = init_rng();
     //Parameters
-    int chainLength = 1000;
+    int chainLength = 250;
+    int numTrials = 1000;
     double d = 0.9; // Stepping parameter
 
-    int k,l, i;
+    int k, i, trial;
     double alpha_start = 0.05;
     double alpha_end = 0.25;
     double alpha_step = 0.005;
-    int nbr_of_chains = 100; // Number for chains for each alpha
     int nbr_of_alphas = round((alpha_end - alpha_start)/alpha_step) +1;
+    int equib_time = 0;
     
     // Array containing mean local energy and std for different alphas
     double alphaArray[nbr_of_alphas][3];
     double chain[chainLength][6]; // Initialize Markov chain
+    double localEnergy[chainLength-equib_time][numTrials];
 
+
+    double alpha;
+    double mean_E[chainLength], var_E[chainLength];
     for(k = 0; k < nbr_of_alphas; k++) {
-        double alpha = alpha_start + k*alpha_step;
-        printf("alpha = %.3f\n", alpha);
+        alpha = alpha_start + k*alpha_step;
 
-        for(l = 0; l < nbr_of_chains; l++) {
+        for (trial = 0; trial < numTrials; ++trial)
+        {
             setZero(chain, chainLength);
             randomize(chain[0],6,0,1,q);
-    
             // Sample Markov chain
             generateMarkovChain(chain, alpha, d, chainLength, q);
-    
-            // Compute local energy
-            int N = chainLength;
-            double *values = malloc(sizeof (double[N]));
-            for (i = 0; i < N; i++) {
-                values[i] = energy(chain[i], alpha);
-            }
-    
-            // Compute energy mean and standard deviation
-            double meanE = get_mean(values, N);
-            double stdE = get_variance(values, meanE, N);
-            free(values);
-            values = NULL;
-        
-            // Store relevant values
-      
-            alphaArray[k][1] += meanE;
-            alphaArray[k][2] += stdE;
-        }
-        alphaArray[k][0] = alpha;
-        alphaArray[k][1] /= nbr_of_chains;
-        alphaArray[k][2] /= nbr_of_chains;
-    }
 
-    // Print to file
-    FILE * file1 = fopen(output_file, "w");
-    if (file1 != NULL){
-        for (i = 0; i < nbr_of_alphas; i++) {         
-            // Print file1
-            fprintf (file1,"%e %e %e\n", alphaArray[i][0], alphaArray[i][1], alphaArray[i][2]);
+            for (i = equib_time; i < chainLength; i++) {     
+                localEnergy[i][trial] = energy(chain[i], alpha);
+            }
         }
+
+        sprintf(output_raw, "alphas%d.dat", k);     
+        file0 = fopen(output_raw, "w");
+        for (i = equib_time; i < chainLength; ++i)
+        {
+            mean_E[i] = get_mean(localEnergy[i], chainLength);
+            var_E[i] = get_variance(localEnergy[i], mean_E[i], chainLength);
+            fprintf(file0, "%e\t%e\n", mean_E[i], var_E[i]);
+        }
+        fclose(file0);
+        printf("alpha = %.3f: Written to \"%s\".\n", alpha, output_raw);
     }
     return 0;
 }

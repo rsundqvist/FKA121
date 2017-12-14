@@ -30,10 +30,9 @@ int main()
     gsl_rng * q = init_rng();
     //Parameters
     int chainLength = 2200; // # markov steps
-    int numTrials = 300;
+    int numTrials = 1000;
     double alpha = 0.1; // Trial function parameter
     double d = 0.9; // Stepping parameter
-    d = 0.01;
 
     // Initialize Markov chain
     double chain[chainLength][6];
