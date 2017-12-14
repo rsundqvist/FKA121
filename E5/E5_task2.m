@@ -25,7 +25,7 @@ A(end,end-1) = 1/(h^2);
 
 % Set up Schrödinger equation to compute energy
 potential = zeros(nbrOfPoints);
-for i=2:nbrOfPoints-1
+for i=1:nbrOfPoints
    potential(i,i) = 1/rValues(i); 
 end
 % Hamiltonian
