@@ -1,4 +1,4 @@
-clear all, close all;
+clc, clear all, close all;
 % Parameters
 nbrOfPoints = 10000;
 r0 = 0.001;
@@ -23,13 +23,29 @@ A(1,2) = 1/(h^2);
 A(end,end) = -2/(h^2);
 A(end,end-1) = 1/(h^2);
 
-% Hartree potential
-Vh = 1./rValues - (1 + 1./rValues).*exp(-2*rValues);
+% Set up Schrödinger equation to compute energy
+potential = zeros(nbrOfPoints);
+for i=2:nbrOfPoints-1
+   potential(i,i) = 1/rValues(i); 
+end
+% Hamiltonian
+H = -0.5*A - potential;
+% Compute energy and new wave function
+[K,L] = eig(H);
+groundStateEnergy = L(1,1)
 
-potential1 = -2./rValues + Vh;
-potential2 = -1./rValues;
-nuclearPotential = potential2;
+% Normalize wavefunction
+norm = 1/sqrt(h * sum(K(:,1).^2));
+K(:,1) = K(:,1) * norm;
 
-potF = -0.5*A *f(rValues) + nuclearPotential.*f(rValues);
-energyMatrix = potF ./ f(rValues);
-mean(energyMatrix(1:end-1))
+%% Plot the simulated wavefunction
+figure(1)
+clf;
+hold on;
+plot(rValues,f(rValues))
+plot(rValues,-K(:,1),'--','LineWidth',4)
+hold off;
+legend('Theoretical','Simulated')
+title(['Ground state Hydrogen, simulated energy = ' num2str(groundStateEnergy)])
+xlabel('Distance from nuclues [a_0]')
+ylabel('Radial wavefunction')
