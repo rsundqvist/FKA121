@@ -106,7 +106,7 @@ double sampleVariance(double * values, int nbr_of_values) {
 void statistical_ineff(double * values, int N, int boxcut) {
     // Autocorrelation
     int s1 = findS(values, N);
-    printf("s= %d (autocorr) \n", s1);
+    printf("s = %d (autocorr) \n", s1);
     
     // Block average
     int B, maxB = 5000;

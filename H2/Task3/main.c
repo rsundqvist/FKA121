@@ -29,14 +29,14 @@ int main()
         
     gsl_rng * q = init_rng();
     //Parameters
-    int chainLength = 150000;
+    int chainLength = 1000;
     double d = 0.9; // Stepping parameter
 
     int k,l, i;
     double alpha_start = 0.05;
     double alpha_end = 0.25;
-    double alpha_step = 0.001;
-    int nbr_of_chains = 30; // Number for chains for each alpha
+    double alpha_step = 0.005;
+    int nbr_of_chains = 100; // Number for chains for each alpha
     int nbr_of_alphas = round((alpha_end - alpha_start)/alpha_step) +1;
     
     // Array containing mean local energy and std for different alphas
@@ -45,13 +45,14 @@ int main()
 
     for(k = 0; k < nbr_of_alphas; k++) {
         double alpha = alpha_start + k*alpha_step;
+        printf("alpha = %.3f\n", alpha);
+
         for(l = 0; l < nbr_of_chains; l++) {
             setZero(chain, chainLength);
             randomize(chain[0],6,0,1,q);
     
             // Sample Markov chain
             generateMarkovChain(chain, alpha, d, chainLength, q);
-            //printf("Acceptance rate: %.3f\n", (double)metropolisCount/metropolisTotal);
     
             // Compute local energy
             int N = chainLength;
@@ -74,8 +75,6 @@ int main()
         alphaArray[k][0] = alpha;
         alphaArray[k][1] /= nbr_of_chains;
         alphaArray[k][2] /= nbr_of_chains;
-        printf("k = %d/%d \n",k, nbr_of_alphas);
-        //printf("%.5f \t %.5f \t %.5f \n",alpha,alphaArray[k][1],alphaArray[k][2]);
     }
 
     // Print to file

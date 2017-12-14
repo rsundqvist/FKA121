@@ -29,21 +29,58 @@ int main()
         
     gsl_rng * q = init_rng();
     //Parameters
-    int chainLength = 150000; // # markov steps
+    int chainLength = 2200; // # markov steps
+    int numTrials = 300;
     double alpha = 0.1; // Trial function parameter
     double d = 0.9; // Stepping parameter
+    d = 0.01;
 
     // Initialize Markov chain
     double chain[chainLength][6];
-    setZero(chain, chainLength);
-    randomize(chain[0],6,0,1,q);
-    
-    // Sample Markov chain
-    generateMarkovChain(chain, alpha, d, chainLength, q);
+    double localEnergy[chainLength][numTrials];
+    int i;
+
+
+  	FILE * energy_traj = fopen("energy_traj10.dat", "w");
+
+
+    int printTimes = numTrials/10;
+    for (int trial = 0; trial < numTrials; ++trial)
+    {
+
+	    setZero(chain, chainLength);
+	    randomize(chain[0],6,0,1,q);
+	    // Sample Markov chain
+	    generateMarkovChain(chain, alpha, d, chainLength, q);
+
+        for (i = 0; i < chainLength; i++) {     
+        	localEnergy[i][trial] = energy(chain[i], alpha);
+        }
+
+    	if (trial%printTimes==0) {
+    		printf("%.3f\n", (double) trial/numTrials);
+
+        	for (i = 0; i < chainLength; i++) {  
+        		fprintf(energy_traj, "%e ", localEnergy[i][trial]);
+        	}
+        		fprintf(energy_traj, "\n");
+    	}
+    }
+
+
+    FILE * file0 = fopen("energy_stats10.dat", "w");
+    double mean_E[chainLength], var_E[chainLength];
+    for (int i = 0; i < chainLength; ++i)
+    {
+    	mean_E[i] = get_mean(localEnergy[i], chainLength);
+    	var_E[i] = get_variance(localEnergy[i], mean_E[i], chainLength);
+    	fprintf(file0, "%e\t%e\n", mean_E[i], var_E[i]);
+    }
+    fclose(file0);
+
     //====================================================================//
     // Simulation complete - print data to file(s)
     //====================================================================//
-    int i;
     FILE * file1 = fopen(output_file, "w");
     double x1,y1,z1;
     double x2,y2,z2;
