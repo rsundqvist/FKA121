@@ -19,13 +19,13 @@ for i=2:nbrOfPoints-1 % Inner points
     A(i,i) = - 2/(h^2);
 end
 
-% Boundary conditions
+% Edges
 A(1,1) = -2/(h^2);
 A(1,2) = 1/(h^2);
 A(end,end) = -2/(h^2);
 A(end,end-1) = 1/(h^2);
 
-
+% Boundary conditions
 c = zeros(nbrOfPoints,1);
 c(end) = - 1/(h^2);
 
