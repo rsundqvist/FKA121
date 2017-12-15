@@ -19,11 +19,12 @@ plot(alphas, yp);
 ylabel('E(\alpha) [E_{hartree}]');
 xlabel('\alpha');
 
-Emin = min(energy(:));
+Emin = min(energy(:))
 I = find(Emin==energy(:), 1);
 amin = alphas(I)
 
 I = find(min(yp)==yp(:), 1);
+min(yp)
 amin = alphas(I)
 %title(['E_{min} = ' num2str(Emin) ', \alpha_{min} = ' num2str(amin)]);
 title('Energy values');
