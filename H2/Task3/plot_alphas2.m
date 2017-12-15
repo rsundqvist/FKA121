@@ -1,16 +1,17 @@
-alphas = 0.05:0.005:0.25;
-sz = length(alphas);
+data = load('alphas.dat');
 
-avg = zeros(sz,1);
-err = zeros(sz,1);
-N = 5000;
+N = 10^5;
+alphas = data(:,1);
+energy = data(:,2);
+err = data(:,2)/sqrt(N);
 
-for i = 1:sz
-    name = ['alphas' num2str(i-1) '.dat'];
-    data = load(name);
-    
-    avg(i) = mean(data(:,1));
-    err(i) = mean(data(:,2))/sqrt(N);
-end
+figure;
+plot(alphas, energy);
+ylabel('E [E_{hartree}]');
+xlabel('\alpha');
+%errorbar(alphas, energy);
 
-errorbar(alphas, avg, err);
+Emin = min(energy(:));
+I = find(Emin==energy(:), 1);
+amin = alphas(I)
+title(['E_{min} = ' num2str(Emin) ', \alpha_{min} = ' num2str(amin)]);

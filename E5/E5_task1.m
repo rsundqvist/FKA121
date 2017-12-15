@@ -1,4 +1,4 @@
-clear all, close all;
+zclear all, close all;
 % Initialize grid
 nbrOfPoints = 10000;
 r0 = 0.001;

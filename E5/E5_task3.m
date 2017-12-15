@@ -33,7 +33,7 @@ c = zeros(nbrOfPoints,1);
 c(end) = - 1/(h^2);
 
 energy = [0,10000];
-threshold = 0.001;
+threshold = 0.000001;
 i = 1;
 % Self-consistency loop
 while(abs(energy(end)-energy(end-1))>threshold)
