@@ -5,7 +5,7 @@
 #include <time.h>
 
 #define FOO -1
-#define INITIAL_WALKERS 300
+#define INITIAL_WALKERS 500
 #define MAX_WALKERS INITIAL_WALKERS*10
 
 // Function declerations
@@ -33,13 +33,13 @@ int main()
         
     gsl_rng *q = init_rng();
 
-    int numberOfSteps = 1000;
+    int numberOfSteps = 100000;
     int numWalkers = INITIAL_WALKERS;
     // Inefficient implementation. Obvious improvement would be to use a linked list, but
     // we didn't feel like implementing one. Missing the C++ STL more than ever...
     double walkers[MAX_WALKERS][3];
-    double dTau = 0.05; // Should be in [0.01, 0.1]
-    double alpha = 1; // Should be in (0,1]
+    double dTau = 0.08; // Should be in [0.01, 0.1]
+    double alpha = 0.1; // Should be in (0,1]
     double dTauSq = sqrt(dTau);
     double energy[numberOfSteps];
     double E_0 = 0.5;
@@ -63,6 +63,8 @@ int main()
     // Begin simulation
 
     for(t = 1; t < numberOfSteps; t++) { 
+        // Update energy
+        energy[t] = getEnergy(numWalkers, energy[t-1], dTau, alpha);
         // Update positions
         for (i = 0; i < MAX_WALKERS; ++i)
         {
@@ -73,8 +75,6 @@ int main()
         }
         // Birth/death process
         numWalkers += birthAndDeath(walkers, q, dTau, energy[t]);
-        // Update energy
-        energy[t] = getEnergy(numWalkers, energy[t-1], dTau, alpha);
         printf("t = %d / %d, \t E_k = %.9f, \t N_k = %d \n", t, numberOfSteps, energy[t], numWalkers);
     }
 }
@@ -194,5 +194,5 @@ gsl_rng * init_rng()
 }
 
 double getEnergy(int numWalkers, double E_t, double dTau, double alpha) {
-    return E_t - alpha/dTau * log(numWalkers/INITIAL_WALKERS);
+    return E_t - alpha/dTau * log((double)numWalkers/INITIAL_WALKERS);
 }
