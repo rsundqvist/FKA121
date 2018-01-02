@@ -5,7 +5,7 @@ CC = gcc # c-compiler
 CFLAGS = -O3 -Wall # -O3 gives optimization, -W gives warnings
 LIBS = -lm -lgsl -lgslcblas # libraries
 
-OBJECTS = main.o ../vec3.o # object files to produce
+OBJECTS = main.o ../vec3.o ../stat.o # object files to produce
 PROGRAM = run # name of executable to be built
 
 #

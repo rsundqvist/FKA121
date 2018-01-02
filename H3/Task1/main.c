@@ -3,10 +3,11 @@
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
+#include "../stat.h"
 
 #define FOO -1
 #define INITIAL_WALKERS 500
-#define MAX_WALKERS INITIAL_WALKERS*10
+#define MAX_WALKERS INITIAL_WALKERS*5
 
 // Function declerations
 void randomize(double * v, int sz, double min, double max, gsl_rng * q);
@@ -17,6 +18,8 @@ int get_m(double x, gsl_rng *q, double dTau, double E_t);
 int findAvailableIndex(double walkers[MAX_WALKERS][3], int start);
 double W(double x, double dTau, double E_t);
 double getEnergy(int numWalkers, double E_t, double dTau, double alpha);
+int simulate(int numberOfSteps, double energy[numberOfSteps], double walkers[MAX_WALKERS][3], gsl_rng *q,
+    double dTau, double dTauSq, double alpha);
 
 // Global variables
 int metropolisCount = 0; // Used for counting the acceptance rate of Metropolis
@@ -34,18 +37,49 @@ int main()
     gsl_rng *q = init_rng();
 
     int numberOfSteps = 100000;
-    int numWalkers = INITIAL_WALKERS;
     // Inefficient implementation. Obvious improvement would be to use a linked list, but
     // we didn't feel like implementing one. Missing the C++ STL more than ever...
     double walkers[MAX_WALKERS][3];
     double dTau = 0.08; // Should be in [0.01, 0.1]
-    double alpha = 0.1; // Should be in (0,1]
+    double alpha = 1; // Should be in (0,1]
     double dTauSq = sqrt(dTau);
     double energy[numberOfSteps];
     double E_0 = 0.5;
     energy[0] = E_0;
+    
+    // Run simulations
+    int trial;
+    int numTrials = 100;
+    
+    double finalEnergy[numTrials];
+    double finalNwalkers[numTrials];
+    double mean_energy, var_energy;
+    double mean_nw, var_nw;
+    
+    printf("Begin trials: dTau = %.3f, alpha = %.3f\n", dTau, alpha);
+    // Simulation numTrials simulations for given values
+    for (trial = 0; trial < numTrials; trial++) {
+        printf("trial = %d\n", trial);
+        
+        simulate(numberOfSteps, energy, walkers, q, dTau, dTauSq, alpha);
+        //finalNwalkers[trial] = (double) x;
+        //finalEnergy[trial] = energy[numberOfSteps-1];
+    }
+    mean_energy = get_mean(finalEnergy, numTrials);
+    var_energy = get_variance(finalEnergy, mean_energy, numTrials);
+    mean_nw = get_mean(finalNwalkers, numTrials);
+    var_nw = get_variance(finalNwalkers, mean_nw, numTrials);
+    
+    printf("mean_energy = %.5f, var_energy = %.5f\n", mean_energy, var_energy);
+    printf("mean_nw = %.5f, var_nw = %.5f\n", mean_nw, var_nw);
+    printf("Done.\n");
+}
 
+int simulate(int numberOfSteps, double energy[numberOfSteps], double walkers[MAX_WALKERS][3], gsl_rng *q,
+    double dTau, double dTauSq, double alpha) {
+    
     int i, t;
+    int numWalkers = INITIAL_WALKERS;
     // Initialize
     for (i = 0; i < INITIAL_WALKERS ; ++i)
     {
@@ -59,9 +93,9 @@ int main()
         walkers[i][1] = 0;
         walkers[i][2] = 0;
     }
+    printf("foo\n");
 
     // Begin simulation
-
     for(t = 1; t < numberOfSteps; t++) { 
         // Update energy
         energy[t] = getEnergy(numWalkers, energy[t-1], dTau, alpha);
@@ -75,8 +109,10 @@ int main()
         }
         // Birth/death process
         numWalkers += birthAndDeath(walkers, q, dTau, energy[t]);
-        printf("t = %d / %d, \t E_k = %.9f, \t N_k = %d \n", t, numberOfSteps, energy[t], numWalkers);
+        //printf("t = %d\n", t);
+        //printf("t = %d / %d, \t E_k = %.9f, \t N_k = %d \n", t, numberOfSteps, energy[t], numWalkers);
     }
+    return numWalkers;
 }
 
 int birthAndDeath(double walkers[MAX_WALKERS][3], gsl_rng *q, double dTau, double E_t)
@@ -137,7 +173,7 @@ void birthWalkers(double walkers[MAX_WALKERS][3], int i, int num, int deadIndici
         if (cdip < 10)
             index = deadIndicies[cdip];
         else
-            index = findAvailableIndex(walkers, index+1);
+            index = findAvailableIndex(walkers, 0*(index+1)); // TODO: Don't always search from 0
             
 
         walkers[index][0] = pos;
