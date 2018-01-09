@@ -19,7 +19,8 @@ int get_m(double x, gsl_rng *q, double dTau, double E_t);
 int findAvailableIndex(double walkers[MAX_WALKERS][3], int start);
 double W(double x, double dTau, double E_t);
 double getEnergy(int numWalkers, double E_t, double dTau, double alpha);
-int simulate(double energy[NUMBER_OF_STEPS], double walkers[MAX_WALKERS][3], gsl_rng *q,
+int simulate(double energy[NUMBER_OF_STEPS], int walkerCount[NUMBER_OF_STEPS],
+    double walkers[MAX_WALKERS][3], gsl_rng *q,
     double dTau, double dTauSq, double alpha);
 
 // Global variables
@@ -43,9 +44,10 @@ int main()
     double alpha = 0.01; // Should be in (0,1]
     double dTauSq = sqrt(dTau);
     double energy[NUMBER_OF_STEPS];
+    int walkerCount[NUMBER_OF_STEPS];
     
     // Run simulations
-    int trial;
+    int trial, i;
     int numTrials = 100;
     
     double finalEnergy[numTrials];
@@ -54,12 +56,19 @@ int main()
     double mean_nw, var_nw;
     
     printf("Begin trials: dTau = %.3f, alpha = %.3f\n", dTau, alpha);
+    FILE * file = fopen(output_file, "w");
     // Simulation numTrials simulations for given values
     for (trial = 0; trial < numTrials; trial++) {
         printf("trial = %d\n", trial);
         
-        finalNwalkers[trial] = simulate(energy, walkers, q, dTau, dTauSq, alpha);
+        finalNwalkers[trial] = simulate(energy, walkerCount, walkers, q, dTau, dTauSq, alpha);
         finalEnergy[trial] = energy[NUMBER_OF_STEPS-1];
+
+        for (i = 0; i < NUMBER_OF_STEPS; ++i)
+        {    
+            fprintf (file,"%e %d ", energy[i], walkerCount[i]);
+        }
+        fprintf (file,"\n");
     }
     mean_energy = get_mean(finalEnergy, numTrials);
     var_energy = get_variance(finalEnergy, mean_energy, numTrials);
@@ -71,7 +80,8 @@ int main()
     printf("Done.\n");
 }
 
-int simulate(double energy[NUMBER_OF_STEPS], double walkers[MAX_WALKERS][3], gsl_rng *q,
+int simulate(double energy[NUMBER_OF_STEPS], int walkerCount[NUMBER_OF_STEPS],
+    double walkers[MAX_WALKERS][3], gsl_rng *q,
     double dTau, double dTauSq, double alpha) {
     
     double E_0 = 0.5;
@@ -79,6 +89,7 @@ int simulate(double energy[NUMBER_OF_STEPS], double walkers[MAX_WALKERS][3], gsl
     
     int i, t;
     int numWalkers = INITIAL_WALKERS;
+    walkerCount[0] = numWalkers;
     // Initialize
     for (i = 0; i < INITIAL_WALKERS ; ++i)
     {
@@ -96,7 +107,6 @@ int simulate(double energy[NUMBER_OF_STEPS], double walkers[MAX_WALKERS][3], gsl
     // Begin simulation
     for(t = 1; t < NUMBER_OF_STEPS; t++) { 
         // Update energy
-        energy[t] = getEnergy(numWalkers, energy[t-1], dTau, alpha);
         // Update positions
         for (i = 0; i < MAX_WALKERS; ++i)
         {
@@ -106,7 +116,10 @@ int simulate(double energy[NUMBER_OF_STEPS], double walkers[MAX_WALKERS][3], gsl
             }
         }
         // Birth/death process
-        numWalkers += birthAndDeath(walkers, q, dTau, energy[t]);
+        numWalkers += birthAndDeath(walkers, q, dTau, energy[t-1]);
+        walkerCount[t] = numWalkers;
+
+        energy[t] = getEnergy(numWalkers, energy[t-1], dTau, alpha);
         //printf("t = %d\n", t);
         //printf("t = %d / %d, \t E_k = %.9f, \t N_k = %d \n", t, numberOfSteps, energy[t], numWalkers);
     }
