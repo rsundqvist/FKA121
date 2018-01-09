@@ -5,15 +5,14 @@
 #include <time.h>
 #include "../stat.h"
 
-#define FOO -1
-#define INITIAL_WALKERS 500
+#define INITIAL_WALKERS 300
 #define MAX_WALKERS INITIAL_WALKERS*5
-#define NUMBER_OF_STEPS 10000
+#define NUMBER_OF_STEPS 100
 
 // Function declerations
 void randomize(double * v, int sz, double min, double max, gsl_rng * q);
 int birthAndDeath(double walkers[MAX_WALKERS][3], gsl_rng *q,double a, double b);
-void birthWalkers(double walkers[MAX_WALKERS][3], int i, int num, int deadIndicies[10]);
+void birthWalkers(double walkers[MAX_WALKERS][3], int i, int num);
 int isDead(double walker[3]);
 int get_m(double x, gsl_rng *q, double dTau, double E_t);
 int findAvailableIndex(double walkers[MAX_WALKERS][3], int start);
@@ -35,6 +34,8 @@ int main()
     // Output file
     char output_file[64];
     sprintf(output_file, "simulation.dat");    
+    char output_file2[64];
+    sprintf(output_file2, "position.dat");    
         
     gsl_rng *q = init_rng();
     // Inefficient implementation. Obvious improvement would be to use a linked list, but
@@ -48,7 +49,7 @@ int main()
     
     // Run simulations
     int trial, i;
-    int numTrials = 100;
+    int numTrials = 1000;
     
     double finalEnergy[numTrials];
     double finalNwalkers[numTrials];
@@ -57,10 +58,10 @@ int main()
     
     printf("Begin trials: dTau = %.3f, alpha = %.3f\n", dTau, alpha);
     FILE * file = fopen(output_file, "w");
+    FILE * file2 = fopen(output_file2, "w");
     // Simulation numTrials simulations for given values
     for (trial = 0; trial < numTrials; trial++) {
-        printf("trial = %d\n", trial);
-        
+
         finalNwalkers[trial] = simulate(energy, walkerCount, walkers, q, dTau, dTauSq, alpha);
         finalEnergy[trial] = energy[NUMBER_OF_STEPS-1];
 
@@ -69,6 +70,16 @@ int main()
             fprintf (file,"%e %d ", energy[i], walkerCount[i]);
         }
         fprintf (file,"\n");
+
+        for (i = 0; i < MAX_WALKERS; ++i)
+        {    
+            if (!isDead(walkers[i]))
+                fprintf (file2,"%e ", walkers[i][0]);
+        }
+
+        printf("trial = %d/%d\n", trial, numTrials);
+
+        fprintf (file2,"\n");
     }
     mean_energy = get_mean(finalEnergy, numTrials);
     var_energy = get_variance(finalEnergy, mean_energy, numTrials);
@@ -106,8 +117,7 @@ int simulate(double energy[NUMBER_OF_STEPS], int walkerCount[NUMBER_OF_STEPS],
 
     // Begin simulation
     for(t = 1; t < NUMBER_OF_STEPS; t++) { 
-        // Update energy
-        // Update positions
+        // Update positions 
         for (i = 0; i < MAX_WALKERS; ++i)
         {
             if(!isDead(walkers[i]))
@@ -115,49 +125,52 @@ int simulate(double energy[NUMBER_OF_STEPS], int walkerCount[NUMBER_OF_STEPS],
                 walkers[i][0] += dTauSq*gsl_ran_ugaussian(q);
             }
         }
+
         // Birth/death process
         numWalkers += birthAndDeath(walkers, q, dTau, energy[t-1]);
         walkerCount[t] = numWalkers;
 
+        // Update energy
         energy[t] = getEnergy(numWalkers, energy[t-1], dTau, alpha);
-        //printf("t = %d\n", t);
-        //printf("t = %d / %d, \t E_k = %.9f, \t N_k = %d \n", t, numberOfSteps, energy[t], numWalkers);
+
+
+        //printf("step = %d\n", t);
+        //i = 15;
+        //printf("\twalker %d: (%e, %e %e)\n", i, walkers[i][0], walkers[i][1], walkers[i][2]);
+        //i = 10;
+        //printf("\twalker %d: (%e, %e %e)\n", i, walkers[i][0], walkers[i][1], walkers[i][2]);
     }
+
+    for (i = 0; i < MAX_WALKERS; ++i)
+    {    
+        //if (!isDead(walkers[i]))
+            //printf("walker %d: (%e, %e %e)\n", i, walkers[i][0], walkers[i][1], walkers[i][2]);
+    }
+
     return numWalkers;
 }
 
 int birthAndDeath(double walkers[MAX_WALKERS][3], gsl_rng *q, double dTau, double E_t)
 {
-    // Keep track of available indices
-    int deadIndicies[10] = {
-        FOO, FOO, FOO, FOO, FOO,
-        FOO, FOO, FOO, FOO, FOO
-    };
-
-    int i, j, dbd = 0; // delta births/deaths
+    int i, dbd = 0; // delta births/deaths
     for (i = 0; i < MAX_WALKERS; ++i)
     {
         if (isDead(walkers[i]))
         {
-            // Add to list of available walker spots
-            for (j = 0; j < 10; ++j)
-                if (deadIndicies[j] == FOO) deadIndicies[j] = i;
+            // Do nothing.
         }
         else
         {
             int m = get_m(walkers[i][0], q, dTau, E_t);
             if (m == 0)
             {
-                // Kill the walker
-                walkers[i][0] = NAN;
-                for (j = 0; j < 10; ++j)
-                    if (deadIndicies[j] == i) deadIndicies[j] = FOO; // Mark as available
+                walkers[i][0] = NAN; // Kill the walker
                 dbd--;
             }
             else if (m > 1)
             {
-                m = m-1;
-                birthWalkers(walkers, i, m, deadIndicies);
+                //m = m-1;
+                birthWalkers(walkers, i, m);
                 dbd += m;
             }
         }
@@ -166,28 +179,22 @@ int birthAndDeath(double walkers[MAX_WALKERS][3], gsl_rng *q, double dTau, doubl
 }
 
 
-void birthWalkers(double walkers[MAX_WALKERS][3], int i, int num, int deadIndicies[10])
+void birthWalkers(double walkers[MAX_WALKERS][3], int i, int num)
 {
-    int cdip = 0; // Current dead indices position
     int index = i;
 
-    double pos = walkers[i][0]; // copy x position
+    double x = walkers[i][0]; // copy x position
+    double y = walkers[i][1]; // z
+    double z = walkers[i][2]; // y
 
     while (num > 0)
     {
+        index = findAvailableIndex(walkers, 0);
+        walkers[index][0] = x;
+        walkers[index][1] = y;
+        walkers[index][2] = z;
+
         num--;
-
-        // Suitable position in deadIndices, if there is one
-        while(cdip < 10 && deadIndicies[cdip] != FOO)
-            cdip++;
-
-        if (cdip < 10)
-            index = deadIndicies[cdip];
-        else
-            index = findAvailableIndex(walkers, 0*(index+1)); // TODO: Don't always search from 0
-            
-
-        walkers[index][0] = pos;
     }
 }
 
@@ -204,6 +211,7 @@ int findAvailableIndex(double walkers[MAX_WALKERS][3], int start)
     printf("FAILED TO FIND AVAILABLE INDEX - MAX_WALKERS TOO SMALL!!!\n");
     printf("FAILED TO FIND AVAILABLE INDEX - MAX_WALKERS TOO SMALL!!!\n");
     printf("FAILED TO FIND AVAILABLE INDEX - MAX_WALKERS TOO SMALL!!!\n");
+    exit(-1);
     return -1; // Should never happen!
 }
 
