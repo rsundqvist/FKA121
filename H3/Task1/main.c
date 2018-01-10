@@ -77,7 +77,9 @@ int main()
                 fprintf (file2,"%e ", walkers[i][0]);
         }
 
-        printf("trial = %d/%d\n", trial, numTrials);
+        if ((trial+1)%(numTrials/10) == 0)
+            printf("trial = %d/%d, percent = %.3f\n",
+                (trial+1), numTrials, (double)(trial+1)/numTrials);
 
         fprintf (file2,"\n");
     }
@@ -139,12 +141,6 @@ int simulate(double energy[NUMBER_OF_STEPS], int walkerCount[NUMBER_OF_STEPS],
         //printf("\twalker %d: (%e, %e %e)\n", i, walkers[i][0], walkers[i][1], walkers[i][2]);
         //i = 10;
         //printf("\twalker %d: (%e, %e %e)\n", i, walkers[i][0], walkers[i][1], walkers[i][2]);
-    }
-
-    for (i = 0; i < MAX_WALKERS; ++i)
-    {    
-        //if (!isDead(walkers[i]))
-            //printf("walker %d: (%e, %e %e)\n", i, walkers[i][0], walkers[i][1], walkers[i][2]);
     }
 
     return numWalkers;
@@ -227,7 +223,7 @@ int get_m(double x, gsl_rng *q, double dTau, double E_t)
 
 double W(double x, double dTau, double E_t)
 {
-    return exp(-dTau*(0.5*x*x - E_t)); // Eq. 60
+    return exp( -dTau*(0.5*x*x - E_t) ); // Eq. 60
 }
 
 
