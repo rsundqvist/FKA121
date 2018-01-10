@@ -41,8 +41,8 @@ int main()
     // Inefficient implementation. Obvious improvement would be to use a linked list, but
     // we didn't feel like implementing one. Missing the C++ STL more than ever...
     double walkers[MAX_WALKERS][3];
-    double dTau = 0.1; // Should be in [0.01, 0.1]
-    double alpha = 0.01; // Should be in (0,1]
+    double dTau = 0.05; // Should be in [0.01, 0.1]
+    double alpha = 0.3; // Should be in (0,1]
     double dTauSq = sqrt(dTau);
     double energy[NUMBER_OF_STEPS];
     int walkerCount[NUMBER_OF_STEPS];
@@ -59,7 +59,7 @@ int main()
     printf("Begin trials: dTau = %.3f, alpha = %.3f\n", dTau, alpha);
     FILE * file = fopen(output_file, "w");
     FILE * file2 = fopen(output_file2, "w");
-    // Simulation numTrials simulations for given values
+    
     for (trial = 0; trial < numTrials; trial++) {
 
         finalNwalkers[trial] = simulate(energy, walkerCount, walkers, q, dTau, dTauSq, alpha);
@@ -134,13 +134,6 @@ int simulate(double energy[NUMBER_OF_STEPS], int walkerCount[NUMBER_OF_STEPS],
 
         // Update energy
         energy[t] = getEnergy(numWalkers, energy[t-1], dTau, alpha);
-
-
-        //printf("step = %d\n", t);
-        //i = 15;
-        //printf("\twalker %d: (%e, %e %e)\n", i, walkers[i][0], walkers[i][1], walkers[i][2]);
-        //i = 10;
-        //printf("\twalker %d: (%e, %e %e)\n", i, walkers[i][0], walkers[i][1], walkers[i][2]);
     }
 
     return numWalkers;
@@ -165,7 +158,7 @@ int birthAndDeath(double walkers[MAX_WALKERS][3], gsl_rng *q, double dTau, doubl
             }
             else if (m > 1)
             {
-                //m = m-1;
+                m--;
                 birthWalkers(walkers, i, m);
                 dbd += m;
             }
