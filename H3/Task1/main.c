@@ -6,8 +6,8 @@
 #include "../stat.h"
 
 #define INITIAL_WALKERS 300
-#define MAX_WALKERS INITIAL_WALKERS*5
-#define NUMBER_OF_STEPS 100
+#define MAX_WALKERS INITIAL_WALKERS*10
+#define NUMBER_OF_STEPS 300
 
 // Function declerations
 void randomize(double * v, int sz, double min, double max, gsl_rng * q);
@@ -41,8 +41,8 @@ int main()
     // Inefficient implementation. Obvious improvement would be to use a linked list, but
     // we didn't feel like implementing one. Missing the C++ STL more than ever...
     double walkers[MAX_WALKERS][3];
-    double dTau = 0.05; // Should be in [0.01, 0.1]
-    double alpha = 0.3; // Should be in (0,1]
+    double dTau = 0.01; // Should be in [0.01, 0.1]
+    double alpha = 0.1; // Should be in (0,1]
     double dTauSq = sqrt(dTau);
     double energy[NUMBER_OF_STEPS];
     int walkerCount[NUMBER_OF_STEPS];
@@ -134,6 +134,8 @@ int simulate(double energy[NUMBER_OF_STEPS], int walkerCount[NUMBER_OF_STEPS],
 
         // Update energy
         energy[t] = getEnergy(numWalkers, energy[t-1], dTau, alpha);
+        //printf("energy = %.3f\n", energy[t]);
+        //printf("numWalkers = %d\n", numWalkers);
     }
 
     return numWalkers;
@@ -144,11 +146,7 @@ int birthAndDeath(double walkers[MAX_WALKERS][3], gsl_rng *q, double dTau, doubl
     int i, dbd = 0; // delta births/deaths
     for (i = 0; i < MAX_WALKERS; ++i)
     {
-        if (isDead(walkers[i]))
-        {
-            // Do nothing.
-        }
-        else
+        if (!isDead(walkers[i]))
         {
             int m = get_m(walkers[i][0], q, dTau, E_t);
             if (m == 0)
@@ -168,13 +166,13 @@ int birthAndDeath(double walkers[MAX_WALKERS][3], gsl_rng *q, double dTau, doubl
 }
 
 
-void birthWalkers(double walkers[MAX_WALKERS][3], int i, int num)
+void birthWalkers(double walkers[MAX_WALKERS][3], int parent, int num)
 {
-    int index = i;
+    int index = parent;
 
-    double x = walkers[i][0]; // copy x position
-    double y = walkers[i][1]; // z
-    double z = walkers[i][2]; // y
+    double x = walkers[index][0]; // copy x position
+    double y = walkers[index][1]; // z
+    double z = walkers[index][2]; // y
 
     while (num > 0)
     {
